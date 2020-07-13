@@ -1,0 +1,47 @@
+env:
+  browser: true
+  es6: true
+  jasmine: true
+  jest:
+extends:
+  - eslint:recommended
+  - plugin:react/recommended
+  - plugin:@typescript-eslint/recommended
+  - prettier/@typescript-eslint
+  - plugin:prettier/recommended
+parser: '@typescript-eslint/parser'
+parserOptions:
+  ecmaFeatures:
+    jsx: true
+  ecmaVersion: 11
+  sourceType: module
+plugins:
+  - react
+  - '@typescript-eslint'
+  - prettier
+rules:
+  sort-imports:
+  - error
+  - ignoreCase: false
+  ignoreDeclarationSort: false
+  ignoreMemberSort: false
+  memberSyntaxSortOrder:
+  - none
+  - all
+  - multiple
+  - single
+  prettier/prettier:
+  - error
+  - singleQuote: true
+  "@typescript-eslint/interface-name-prefix":
+  - 0
+  "@typescript-eslint/explicit-function-return-type": off
+  require-jsdoc: 0
+  max-len:
+  - error
+  - code: 120
+settings:
+  react:
+    createClass: createReactClass
+    pragma: React
+    version: detect

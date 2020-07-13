@@ -1,0 +1,36 @@
+#!/bin/bash
+
+ligo dry-run contracts/fa1.2.ligo --syntax pascaligo --sender "tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" main 'Burn(1800000n)' 'record [totalSupply=1000000n; owner=("tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx": address ); ledger=big_map[("tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" : address)->record[balance=1000000n; allowances=map[("tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" : address)->50n]]]]'
+# Expect
+# failwith("Insufficient balance to burn this amount")
+
+ligo dry-run contracts/fa1.2.ligo --syntax pascaligo --sender "tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" main 'Burn(180000n)' 'record [totalSupply=1000000n; owner=("tz1QmL462e
+ax1S2PvJC6TZdNg7TsxxfJSkzx": address ); ledger=big_map[("tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" : address)->record[balance=1000000n; allowances=map[("tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" : address)->50n]]]]'
+# Expect
+# ( LIST_EMPTY() ,
+#   record[ledger -> MAP_ADD(@"tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" ,
+#                            record[allowances -> MAP_ADD(@"tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" ,
+#                                                         +50 ,
+#                                                         MAP_EMPTY()) ,
+#                                   balance -> +820000] ,
+#                            BIG_MAP_EMPTY()) ,
+#          owner -> @"tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" ,
+#          totalSupply -> +820000] )
+
+ligo dry-run contracts/fa1.2.ligo --syntax pascaligo --sender "tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" main 'Mint(100n)' 'record [totalSupply=1000000n; owner=("tz1QmL462eax1
+S2PvJC6TZdNg7TsxxfJSkzx": address ); ledger=big_map[("tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" : address)->record[balance=1000000n; allowances=map[("tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" : address)->50n]]]]'
+# Expect
+# ( LIST_EMPTY() ,
+#   record[ledger -> MAP_ADD(@"tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" ,
+#                            record[allowances -> MAP_ADD(@"tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" ,
+#                                                         +50 ,
+#                                                         MAP_EMPTY()) ,
+#                                   balance -> +1000100] ,
+#                            BIG_MAP_EMPTY()) ,
+#          owner -> @"tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" ,
+#          totalSupply -> +1000100] )
+
+ligo dry-run contracts/fa1.2.ligo --syntax pascaligo --sender "tz1bXJdRgSua1392MpyDAv1EY16DTkwVybsz" main 'Mint(100n)' 'record [totalSupply=1000000n; owner=("tz1QmL462eax1
+S2PvJC6TZdNg7TsxxfJSkzx": address ); ledger=big_map[("tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" : address)->record[balance=1000000n; allowances=map[("tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx" : address)->50n]]]]'
+# Expect
+# failwith("Only owner can mint")
