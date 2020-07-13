@@ -1,0 +1,71 @@
+{
+  "name": "tezos-smartcontract-infrastructure",
+  "version": "1.0.0",
+  "description": "Repo for smart contracts and smart contract interaction on the Tezos blockchain",
+  "main": "src/public/index.html",
+  "scripts": {
+    "build": "yarn run clean && yarn eslint src/**/*.{ts,tsx} && react-scripts build",
+    "clean": "rm -rf dist",
+    "eject": "react-scripts eject",
+    "lint": "yarn eslint src/*.ts src/*.tsx",
+    "lint-fix": "yarn eslint --fix src/*.ts src/*.tsx",
+    "reinstall": "rm -rf node_modules && yarn install",
+    "start": "yarn eslint src/**/*.{ts,tsx} && react-scripts start",
+    "test": "react-scripts test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "keywords": [
+    "tezos",
+    "taquito",
+    "ts",
+    "typescript",
+    "dapp",
+    "blockchain"
+  ],
+  "author": "inacta AG",
+  "license": "ISC",
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.11.0",
+    "@testing-library/react": "^10.4.3",
+    "@types/bignumber.js": "^5.0.0",
+    "@types/mocha": "^7.0.2",
+    "@types/react": "^16.9.41",
+    "@types/react-bootstrap": "^1.0.1",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-router-dom": "^5.1.5",
+    "@typescript-eslint/eslint-plugin": "^1.6.0",
+    "@typescript-eslint/parser": "^1.6.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.1.0",
+    "eslint-config-react": "^1.1.7",
+    "eslint-plugin-prettier": "^3.0.1",
+    "eslint-plugin-react": "7.20.1",
+    "mocha": "^8.0.1",
+    "prettier": "^1.16.4",
+    "react-scripts": "^3.4.1",
+    "typescript": "^3.9.5"
+  },
+  "dependencies": {
+    "@taquito/taquito": "^6.3.3-beta.0",
+    "bignumber.js": "9.0.0",
+    "react": "^16.13.1",
+    "react-bootstrap": "1.0.1",
+    "react-dom": "^16.13.1",
+    "react-router-dom": "^5.2.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
