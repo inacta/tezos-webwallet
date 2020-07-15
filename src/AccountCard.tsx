@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import { IContractInformation, IPaymentStatus, Net, TokenStandard, TransactionState } from './shared/TezosTypes';
 import { ValidationResult, validateAddress } from '@taquito/utils';
-import { getContractInformation, getContractInterface, getTokenBalance } from './shared/TokenImplementation';
+import { getContractInformation, getTokenBalance } from './shared/TokenImplementation';
 import BigNumber from 'bignumber.js';
 import { IInfoMessage } from './shared/OtherTypes';
 import { InfoMessage } from './shared/components/InfoMessage';
