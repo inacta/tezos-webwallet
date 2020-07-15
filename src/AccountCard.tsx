@@ -1,5 +1,7 @@
-import { IPaymentStatus, Net, TransactionState } from './shared/TezosTypes';
+/* eslint-disable @typescript-eslint/camelcase */
+import { IContractInformation, IPaymentStatus, Net, TokenStandard, TransactionState } from './shared/TezosTypes';
 import { ValidationResult, validateAddress } from '@taquito/utils';
+import { getContractInformation, getContractInterface, getTokenBalance } from './shared/TokenImplementation';
 import BigNumber from 'bignumber.js';
 import { IInfoMessage } from './shared/OtherTypes';
 import { InfoMessage } from './shared/components/InfoMessage';
@@ -8,7 +10,6 @@ import React from 'react';
 import { TezosToolkit } from '@taquito/taquito';
 import { TransferParams } from '@taquito/taquito/dist/types/operations/types';
 import { conversionFactor } from './numbers';
-import { getTokenBalance } from './shared/TokenImplementation';
 
 export interface IAccountCardProps {
   client: TezosToolkit; // holds both secret key and address
@@ -20,6 +21,7 @@ interface IAccountCardState {
   // ownPublicKey is not currently presented in the UI but is available
   // in case anyone wants to add it.
   contractAddress: string;
+  contractInformation: IContractInformation | undefined;
   infoMessage: IInfoMessage | undefined;
   loading: boolean;
   ownAddress: string;
@@ -37,6 +39,7 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
     super(props);
     this.state = {
       contractAddress: '',
+      contractInformation: undefined,
       infoMessage: undefined,
       loading: false,
       ownAddress: '',
@@ -106,11 +109,7 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
                 value={this.state.contractAddress}
                 // set token balance to undefined each time field is changed to
                 // ensure that stale values (e.g. for other tokens) is not presented
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  this.setState({ contractAddress: e.target.value, tokenBalance: undefined }, () =>
-                    this.updateTokenBalance()
-                  )
-                }
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.updateContractAddress(e.target.value)}
                 aria-label="Token contract address"
               />
               <small className="form-text text-muted">Leave blank to transfer Tezos</small>
@@ -196,9 +195,39 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
     return new BigNumber(0.05);
   }
 
+  // Update the entered parameter and load and parse contract from blockchain if
+  // address is valid
+  private updateContractAddress(contractAddress: string) {
+    this.setState({ contractAddress, tokenBalance: undefined, contractInformation: undefined }, () =>
+      this.updateContractAddressH()
+    );
+  }
+
+  private updateContractAddressH() {
+    if (
+      validateAddress(this.state.contractAddress) === ValidationResult.VALID &&
+      this.state.contractAddress.substring(0, 3) === 'KT1'
+    ) {
+      this.props.client.contract.at(this.state.contractAddress).then((c) => {
+        if (c !== undefined) {
+          getContractInformation(c).then((contractInformation: IContractInformation) =>
+            this.setState({ contractInformation }, () => this.updateTokenBalance())
+          );
+        }
+      });
+    }
+  }
+
   private updateTransferAmount(amountString: string) {
     // Tezi amounts use a precision 1e-6
-    const regexString = `^(0|[1-9][0-9]{0,10})(\\.([0-9]{0,6}))?$`;
+    // TODO: This procedure sets decimals to 6 for all fa1.2 tokens,
+    // which is probably wrong.
+    var decimals = 6;
+    if (this.state.contractInformation?.decimals !== undefined && this.state.contractInformation?.decimals !== 0) {
+      decimals = this.state.contractInformation.decimals;
+    }
+
+    const regexString = `^(0|[1-9][0-9]{0,10})(\\.([0-9]{0,${decimals}}))?$`;
     const decimalRegex = new RegExp(regexString);
     if (amountString !== '' && !decimalRegex.test(amountString)) {
       return;
@@ -242,7 +271,10 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
             net: this.props.net,
             state: TransactionState.success
           };
-          this.setState({ paymentStatus, loading: false }, () => this.updateBalance());
+          this.setState(
+            { paymentStatus, loading: false, transferAmountString: '', transferAmount: new BigNumber(0) },
+            () => this.updateBalance()
+          );
         });
       });
     } else if (validateAddress(this.state.contractAddress) === ValidationResult.VALID) {
@@ -250,9 +282,23 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
       this.props.client.contract
         .at(this.state.contractAddress)
         .then((contract) => {
-          return contract.methods
-            .transfer(this.state.ownAddress, this.state.recipient, this.state.transferAmount)
-            .send();
+          if (this.state.contractInformation.tokenStandard === TokenStandard.fa1_2) {
+            return contract.methods
+              .transfer(this.state.ownAddress, this.state.recipient, this.state.transferAmount)
+              .send();
+          } else if (this.state.contractInformation.tokenStandard === TokenStandard.fa2) {
+            const transferParam = [
+              {
+                token_id: 0,
+                amount: this.state.transferAmount.times(this.state.contractInformation.conversionFactor),
+                from_: this.state.ownAddress,
+                to_: this.state.recipient
+              }
+            ];
+            return contract.methods.transfer(transferParam).send();
+          } else {
+            throw new Error('Contract not recognized as an FA1.2 or an FA2 token contract');
+          }
         })
         .then((op) => {
           let paymentStatus: IPaymentStatus = {
@@ -271,7 +317,10 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
               net: this.props.net,
               state: TransactionState.success
             };
-            this.setState({ paymentStatus, loading: false }, () => this.updateBalance());
+            this.setState(
+              { paymentStatus, loading: false, transferAmountString: '', transferAmount: new BigNumber(0) },
+              () => this.updateBalance()
+            );
           });
         })
         .catch((error) =>
