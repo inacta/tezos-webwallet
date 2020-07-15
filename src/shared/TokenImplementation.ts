@@ -76,6 +76,14 @@ export function getContractInformation(contract: ContractAbstraction<ContractPro
   });
 }
 
+export function getSymbol(info: IContractInformation): string {
+  if (info.tokenStandard === TokenStandard.fa2) {
+    return info.symbol;
+  } else {
+    return 'tokens';
+  }
+}
+
 export function getTokenBalance(
   tokenAddress: string,
   accountAddress: string,

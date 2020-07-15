@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import { IContractInformation, IPaymentStatus, Net, TokenStandard, TransactionState } from './shared/TezosTypes';
 import { ValidationResult, validateAddress } from '@taquito/utils';
-import { getContractInformation, getTokenBalance } from './shared/TokenImplementation';
+import { getContractInformation, getSymbol, getTokenBalance } from './shared/TokenImplementation';
 import BigNumber from 'bignumber.js';
 import { IInfoMessage } from './shared/OtherTypes';
 import { InfoMessage } from './shared/components/InfoMessage';
@@ -69,7 +69,9 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
 
     // Show the token balance if one is set
     const tokenBalanceElem = this.state.tokenBalance && (
-      <p className="card-text">{`${this.state.tokenBalance?.toString()} tokens`}</p>
+      <p className="card-text">{`${this.state.tokenBalance?.toString()} ${getSymbol(
+        this.state.contractInformation
+      )}`}</p>
     );
 
     // A valid contract address starts with 'KT1'
@@ -129,7 +131,7 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
             <div className="row">
               <div className="form-group col-lg-6">
                 <label htmlFor="send-amount-input">{`Amount in ${
-                  validContractAddress && this.state.contractAddress !== '' ? 'tokens' : 'ꜩ'
+                  this.state.contractInformation === undefined ? 'ꜩ' : getSymbol(this.state.contractInformation)
                 }`}</label>
                 <input
                   aria-label="Transfer amount"
