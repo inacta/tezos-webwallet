@@ -6,6 +6,7 @@ import { Net } from './shared/TezosTypes';
 import React from 'react';
 import { TezosToolkit } from '@taquito/taquito';
 import { conversionFactor } from './numbers';
+import { getTokenBalance } from './shared/TokenImplementation';
 
 interface IBalanceProps {
   net2Client: EnumDictionary<Net, TezosToolkit>;
@@ -166,33 +167,28 @@ export class Balance extends React.Component<IBalanceProps, IBalanceState> {
 
     // Adapted from https://tezostaquito.io/docs/smartcontracts
     const targetAddress = net === Net.Mainnet ? this.state.mainnetAddress : this.state.testnetAddress;
-    try {
-      this.props.net2Client[net].contract.at(contractAddress).then((c) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        c.storage().then((s: any) =>
-          s.ledger.get(targetAddress).then((d) => {
-            // s will be undefined here iff address has not interacted with token (has never had a balance)
-            if (net === Net.Mainnet) {
-              this.setState({
-                mainnetTokenBalance: d?.balance === undefined ? new BigNumber(0) : new BigNumber(d.balance)
-              });
-            } else {
-              this.setState({
-                testnetTokenBalance: d?.balance === undefined ? new BigNumber(0) : new BigNumber(d.balance)
-              });
-            }
-          })
-        );
-      });
-    } catch (error) {
-      this.setState({
-        infoMessage: {
-          clearCallback: () => this.setState({ infoMessage: undefined }),
-          message: `Failed to get token balance: ${error}`,
-          class: 'alert-danger'
+    const client = this.props.net2Client[net];
+    getTokenBalance(contractAddress, targetAddress, client)
+      .then((balance: BigNumber) => {
+        if (net === Net.Mainnet) {
+          this.setState({
+            mainnetTokenBalance: balance
+          });
+        } else {
+          this.setState({
+            testnetTokenBalance: balance
+          });
         }
+      })
+      .catch((error) => {
+        this.setState({
+          infoMessage: {
+            clearCallback: () => this.setState({ infoMessage: undefined }),
+            message: `Failed to get token balance: ${error}`,
+            class: 'alert-danger'
+          }
+        });
       });
-    }
   }
 
   private setBalances(net: Net): void {
