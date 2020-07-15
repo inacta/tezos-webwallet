@@ -16,10 +16,13 @@ export interface IAccountCardProps {
 
 interface IAccountCardState {
   // Undefined balances means that they are not known/not loaded yet
+  // ownPublicKey is not currently presented in the UI but is available
+  // in case anyone wants to add it.
   contractAddress: string;
   infoMessage: IInfoMessage | undefined;
   loading: boolean;
   ownAddress: string;
+  ownPublicKey: string;
   paymentStatus: IPaymentStatus | undefined;
   recipient: string;
   tezosBalance: BigNumber | undefined;
@@ -36,6 +39,7 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
       infoMessage: undefined,
       loading: false,
       ownAddress: '',
+      ownPublicKey: '',
       paymentStatus: undefined,
       recipient: '',
       tezosBalance: undefined,
@@ -50,6 +54,7 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
     this.props.client.signer
       .publicKeyHash()
       .then((address) => this.setState({ ownAddress: address }, () => this.updateBalance()));
+    this.props.client.signer.publicKey().then((pk: string) => this.setState({ ownPublicKey: pk }));
   }
 
   public render() {
