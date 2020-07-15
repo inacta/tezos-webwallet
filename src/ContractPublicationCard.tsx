@@ -230,6 +230,7 @@ export class ContractPublicationCard extends React.Component<
     this.setState({ storageInput: input }, () => this.parseStorageInput());
   }
 
+  // This is Tezos balance, not token balance
   private async updateBalance() {
     this.props.client.rpc
       .getBalance(this.state.ownAddress)

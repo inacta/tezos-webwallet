@@ -8,6 +8,7 @@ import React from 'react';
 import { TezosToolkit } from '@taquito/taquito';
 import { TransferParams } from '@taquito/taquito/dist/types/operations/types';
 import { conversionFactor } from './numbers';
+import { getTokenBalance } from './shared/TokenImplementation';
 
 export interface IAccountCardProps {
   client: TezosToolkit; // holds both secret key and address
@@ -106,9 +107,11 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
                 // set token balance to undefined each time field is changed to
                 // ensure that stale values (e.g. for other tokens) is not presented
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  this.setState({ contractAddress: e.target.value, tokenBalance: undefined })
+                  this.setState({ contractAddress: e.target.value, tokenBalance: undefined }, () =>
+                    this.updateTokenBalance()
+                  )
                 }
-                aria-label="Recipient address"
+                aria-label="Token contract address"
               />
               <small className="form-text text-muted">Leave blank to transfer Tezos</small>
             </div>
@@ -291,28 +294,19 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
     }
   }
 
-  private async updateBalance() {
-    this.props.client.rpc
-      .getBalance(this.state.ownAddress)
-      .then((muBalance) => this.setState({ tezosBalance: muBalance.dividedBy(conversionFactor) }));
-
+  private updateTokenBalance(): void {
     // If we are handling tezos (i.e. contract address not set to a valid address), only get one balance.
-    if (validateAddress(this.state.contractAddress) !== ValidationResult.VALID) {
+    if (
+      validateAddress(this.state.contractAddress) !== ValidationResult.VALID ||
+      this.state.contractAddress.substring(0, 3) !== 'KT1'
+    ) {
       return;
     }
 
-    // Adapted from https://tezostaquito.io/docs/smartcontracts
     try {
-      this.props.client.contract.at(this.state.contractAddress).then((c) => {
-        // I could only get this to work by using any here. So we allow that locally
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        c.storage().then((s: any) =>
-          s.ledger.get(this.state.ownAddress).then((s) =>
-            // s will be undefined here iff address has not interacted with token (has never had a balance)
-            this.setState({ tokenBalance: s?.balance === undefined ? new BigNumber(0) : new BigNumber(s.balance) })
-          )
-        );
-      });
+      getTokenBalance(this.state.contractAddress, this.state.ownAddress, this.props.client).then((balance) =>
+        this.setState({ tokenBalance: balance })
+      );
     } catch (error) {
       this.setState({
         infoMessage: {
@@ -322,5 +316,13 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
         }
       });
     }
+  }
+
+  private async updateBalance() {
+    this.props.client.rpc
+      .getBalance(this.state.ownAddress)
+      .then((muBalance) => this.setState({ tezosBalance: muBalance.dividedBy(conversionFactor) }));
+
+    this.updateTokenBalance();
   }
 }
