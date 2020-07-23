@@ -5,6 +5,8 @@ import { EnumDictionary } from './shared/AbstractTypes';
 import { Net } from './shared/TezosTypes';
 import React from 'react';
 import { TezosToolkit } from '@taquito/taquito';
+import { printPdf } from './helpers/walletPdf';
+import { sha256 } from 'crypto-hash';
 
 export interface IWalletProps {
   net2Client: EnumDictionary<Net, TezosToolkit>;
@@ -187,10 +189,44 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
   }
 
   private async pickPrivateKey(net: Net) {
+    const privateKey: string = net === Net.Mainnet ? this.state.mainnetPrivateKey : this.state.testnetPrivateKey;
+    const confirmationToken: string = (await sha256(privateKey)).substr(0, 8);
+
+    // Derive the address without setting the secret key on the Tezos object in state.
+    // This is done to ensure that this secret key is not used before the user has
+    // confirmed that they downloaded/printed the PDF with the secret key
+    const localTezosToolkit = new TezosToolkit();
+    await importKey(localTezosToolkit, privateKey);
+    const derivedAddress: string = await localTezosToolkit.signer.publicKeyHash();
+
+    // Open PDF and encourage user to download and print the generated PDF
+    printPdf(derivedAddress, confirmationToken, net, privateKey);
+
+    // Ensure that browser shows print/popup before prompt
+    await this.sleep(4000);
+
+    // Verify that the user has seen the PDF (and encourage them to download it)
+    const response: string = window.prompt(
+      'I have downloaded and printed the generated PDF. Confirmation key from document:'
+    );
+
+    // If the response was empty, stop execution here
+    if (!response) {
+      return;
+    }
+
+    // If the response does not match the one from the PDF, we never show the address,\
+    // thus ensuring that the customer does not send assets to this account
+    if (response !== confirmationToken) {
+      window.alert('Invalid confirmation key was entered.');
+      return;
+    }
+
     await importKey(
       this.props.net2Client[net],
       net === Net.Mainnet ? this.state.mainnetPrivateKey : this.state.testnetPrivateKey
     );
+
     if (net === Net.Mainnet) {
       await this.props.net2Client[net].signer
         .publicKeyHash()
@@ -203,18 +239,13 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
       throw Error(`Unknown net: ${net}`);
     }
 
-    this.storeAddressPrivateKeyPair(net);
+    // Should we store all the secret keys (on main net) in localStorage in the browser?
+    // This carries the risk of phishing attacks/scammers to fool the end-user to fetch the
+    // data from local storage through the users browser console. But it might save the user
+    // if they lose the generated PDF.
   }
 
-  private storeAddressPrivateKeyPair(net: Net) {
-    // TODO: Change this to store only one value in localstorage
-    // as the key must not be an address as we cannot ask for all
-    // key/value pairs in localStorage.
-    localStorage.setItem(
-      `tezos-sk-${net.toString()}:${net === Net.Mainnet ? this.state.mainnetAddress : this.state.testnetAddress}`,
-      net === Net.Mainnet ? this.state.mainnetPrivateKey : this.state.testnetPrivateKey
-    );
+  private sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
-
-  // TODO: Shouldn't we save all private keys in localStorage?
 }
