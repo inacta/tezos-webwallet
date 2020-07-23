@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import { IContractInformation, IPaymentStatus, Net, TokenStandard, TransactionState } from './shared/TezosTypes';
 import { ValidationResult, validateAddress } from '@taquito/utils';
-import { getContractInformation, getSymbol, getTokenBalance } from './shared/TokenImplementation';
+import { getContractInformation, getSymbol, getTokenBalance, isContractAddress } from './shared/TokenImplementation';
 import BigNumber from 'bignumber.js';
 import { IInfoMessage } from './shared/OtherTypes';
 import { InfoMessage } from './shared/components/InfoMessage';
@@ -74,11 +74,7 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
       )}`}</p>
     );
 
-    // A valid contract address starts with 'KT1'
-    const validContractAddress =
-      this.state.contractAddress === '' ||
-      (validateAddress(this.state.contractAddress) === ValidationResult.VALID &&
-        this.state.contractAddress.substring(0, 3) === 'KT1');
+    const validContractAddress = this.state.contractAddress === '' || isContractAddress(this.state.contractAddress);
     const validRecipient = validateAddress(this.state.recipient) === ValidationResult.VALID;
     return (
       <div className="card account-card">
@@ -206,10 +202,7 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
   }
 
   private updateContractAddressH() {
-    if (
-      validateAddress(this.state.contractAddress) === ValidationResult.VALID &&
-      this.state.contractAddress.substring(0, 3) === 'KT1'
-    ) {
+    if (isContractAddress(this.state.contractAddress)) {
       this.props.client.contract.at(this.state.contractAddress).then((c) => {
         if (c !== undefined) {
           getContractInformation(c).then((contractInformation: IContractInformation) =>
@@ -347,10 +340,7 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
 
   private updateTokenBalance(): void {
     // If we are handling tezos (i.e. contract address not set to a valid address), only get one balance.
-    if (
-      validateAddress(this.state.contractAddress) !== ValidationResult.VALID ||
-      this.state.contractAddress.substring(0, 3) !== 'KT1'
-    ) {
+    if (!isContractAddress(this.state.contractAddress)) {
       return;
     }
 
