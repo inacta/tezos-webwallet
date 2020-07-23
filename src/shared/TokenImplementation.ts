@@ -49,22 +49,25 @@ export function getContractInterface(contract: ContractAbstraction<ContractProvi
 // an object describing the deployed token contract
 export function getContractInformation(contract: ContractAbstraction<ContractProvider>): Promise<IContractInformation> {
   const info = getContractInterface(contract);
-  if (info[0] === TokenStandard.fa2) {
-    return contract
-      .storage()
-      .then((s: any) => s.token_metadata.get('0'))
-      .then((md: ITokenMetadata) => {
-        return {
-          address: contract.address,
-          contract,
-          conversionFactor: new BigNumber(10).pow(md?.decimals ?? new BigNumber(0)),
-          decimals: md.decimals,
-          methods: info[1],
-          symbol: md.symbol,
-          tokenStandard: info[0]
-        };
-      });
-  } else if (info[0] === TokenStandard.fa1_2) {
+  if (info && info[0] === TokenStandard.fa2) {
+    return (
+      contract
+        .storage()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .then((s: any) => s.token_metadata.get('0'))
+        .then((md: ITokenMetadata) => {
+          return {
+            address: contract.address,
+            contract,
+            conversionFactor: new BigNumber(10).pow(md?.decimals ?? new BigNumber(0)),
+            decimals: md.decimals,
+            methods: info[1],
+            symbol: md.symbol,
+            tokenStandard: info[0]
+          };
+        })
+    );
+  } else if (info && info[0] === TokenStandard.fa1_2) {
     return Promise.resolve({
       address: contract.address,
       contract,
@@ -88,10 +91,10 @@ export function getContractInformation(contract: ContractAbstraction<ContractPro
 }
 
 export function getSymbol(info: IContractInformation): string {
-  if (info.tokenStandard === TokenStandard.fa2) {
-    return info.symbol;
-  } else {
+  if (!info || info.tokenStandard !== TokenStandard.fa2) {
     return 'tokens';
+  } else {
+    return info.symbol;
   }
 }
 
@@ -110,10 +113,11 @@ export function getTokenBalance(
 
     var conversionFactor = new BigNumber(1);
     client.contract.at(tokenAddress).then((c) => {
-      // eslint-disable @typescript-eslint/no-explicit-any
       c.storage()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .then((s: any) => {
           if (s.token_metadata) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             s.token_metadata.get('0').then((md: any) => {
               conversionFactor = new BigNumber(10).pow(md?.decimals ?? 0);
             });
@@ -121,11 +125,13 @@ export function getTokenBalance(
 
           return s.ledger.get(accountAddress);
         })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .then((acc: any) =>
           resolve(
             acc?.balance === undefined ? new BigNumber(0) : new BigNumber(acc.balance).dividedBy(conversionFactor)
           )
         )
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .catch((err: any) => reject(err));
     });
   });
