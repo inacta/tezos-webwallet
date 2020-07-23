@@ -1,4 +1,5 @@
 import { ValidationResult, validateAddress } from '@taquito/utils';
+import { getTokenBalance, isContractAddress } from './shared/TokenImplementation';
 import BigNumber from 'bignumber.js';
 import { EnumDictionary } from './shared/AbstractTypes';
 import { IInfoMessage } from './shared/OtherTypes';
@@ -6,7 +7,6 @@ import { Net } from './shared/TezosTypes';
 import React from 'react';
 import { TezosToolkit } from '@taquito/taquito';
 import { conversionFactor } from './numbers';
-import { getTokenBalance } from './shared/TokenImplementation';
 
 interface IBalanceProps {
   net2Client: EnumDictionary<Net, TezosToolkit>;
@@ -157,11 +157,7 @@ export class Balance extends React.Component<IBalanceProps, IBalanceState> {
     const contractAddress = net === Net.Mainnet ? this.state.mainnetTokenAddress : this.state.testnetTokenAddress;
 
     // If contract address is not a valid contract, don't attempt to look up the balance
-    if (
-      contractAddress === '' ||
-      validateAddress(contractAddress) !== ValidationResult.VALID ||
-      contractAddress.substring(0, 3) !== 'KT1'
-    ) {
+    if (!isContractAddress(contractAddress)) {
       return;
     }
 

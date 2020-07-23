@@ -16,6 +16,17 @@ function getObjectMethodNames(obj: any): string[] {
     .map((name) => name.toLowerCase());
 }
 
+export const CONTRACT_ADDRESS_PREFIX = 'KT1';
+
+// A valid contract address starts with 'KT1'
+export function isContractAddress(address: string) {
+  if (!address || address.length < 3) {
+    return false;
+  }
+
+  return address.substring(0, 3) === CONTRACT_ADDRESS_PREFIX && validateAddress(address) === ValidationResult.VALID;
+}
+
 export function getContractInterface(contract: ContractAbstraction<ContractProvider>): [TokenStandard, string[]] {
   const methodNames: string[] = getObjectMethodNames(contract.methods);
   var standard = TokenStandard.unknown;
@@ -90,11 +101,7 @@ export function getTokenBalance(
   client: TezosToolkit
 ): Promise<BigNumber> {
   return new Promise((resolve, reject) => {
-    if (
-      tokenAddress === '' ||
-      validateAddress(tokenAddress) !== ValidationResult.VALID ||
-      tokenAddress.substring(0, 3) !== 'KT1'
-    ) {
+    if (!isContractAddress(tokenAddress)) {
       reject(`Invalid token address: ${tokenAddress}`);
     }
     if (accountAddress === '' || validateAddress(accountAddress) !== ValidationResult.VALID) {
