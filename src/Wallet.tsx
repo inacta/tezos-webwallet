@@ -13,10 +13,10 @@ export interface IWalletProps {
 }
 
 interface IWalletState {
-  mainnetPrivateKey: string;
+  mainnetSecretKey: string;
   mainnetAddress: string;
   testnetAddress: string;
-  testnetPrivateKey: string;
+  testnetSecretKey: string;
 }
 
 export class Wallet extends React.Component<IWalletProps, IWalletState> {
@@ -24,19 +24,19 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
     super(props);
     this.state = {
       mainnetAddress: '',
-      mainnetPrivateKey: '',
+      mainnetSecretKey: '',
       testnetAddress: '',
-      testnetPrivateKey: ''
+      testnetSecretKey: ''
     };
   }
 
   public componentDidUpdate(_prevProps, prevState: IWalletState) {
     // Clear address if private key is changed to prevent money from being sent
     // to an address that the user does not have access to
-    if (prevState.mainnetPrivateKey !== this.state.mainnetPrivateKey) {
+    if (prevState.mainnetSecretKey !== this.state.mainnetSecretKey) {
       this.setState({ mainnetAddress: '' });
     }
-    if (prevState.testnetPrivateKey !== this.state.testnetPrivateKey) {
+    if (prevState.testnetSecretKey !== this.state.testnetSecretKey) {
       this.setState({ testnetAddress: '' });
     }
   }
@@ -55,9 +55,9 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
                   type="text"
                   className="form-control"
                   placeholder="Secret key"
-                  value={this.state.mainnetPrivateKey}
+                  value={this.state.mainnetSecretKey}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    this.changePrivateKey(e.target.value, Net.Mainnet)
+                    this.changeSecretKey(e.target.value, Net.Mainnet)
                   }
                   aria-label="Secret key for mainnet"
                 />
@@ -73,7 +73,7 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
                 <div className="input-group-append">
                   <button
                     className={`btn btn-primary ${validMainnetSk} ? '' : 'btn-disabled'`}
-                    onClick={() => this.pickPrivateKey(Net.Mainnet)}
+                    onClick={() => this.pickSecretKey(Net.Mainnet)}
                     type="button"
                     disabled={!validMainnetSk}
                   >
@@ -95,9 +95,9 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
                   type="text"
                   className="form-control"
                   placeholder="Secret key"
-                  value={this.state.testnetPrivateKey}
+                  value={this.state.testnetSecretKey}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    this.setState({ testnetPrivateKey: e.target.value })
+                    this.setState({ testnetSecretKey: e.target.value })
                   }
                   aria-label="Secret key for testnet"
                 />
@@ -114,7 +114,7 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
                   <button
                     className={'btn btn-secondary add-outline ' + (validTestnetSk ? '' : 'btn-disabled')}
                     disabled={!validTestnetSk}
-                    onClick={() => this.pickPrivateKey(Net.Testnet)}
+                    onClick={() => this.pickSecretKey(Net.Testnet)}
                     type="button"
                   >
                     Use key
@@ -129,19 +129,19 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
     );
   }
 
-  private changePrivateKey(value: string, net: Net): void {
+  private changeSecretKey(value: string, net: Net): void {
     if (Net.Mainnet === net) {
-      this.setState({ mainnetPrivateKey: value });
+      this.setState({ mainnetSecretKey: value });
       this.setState({ mainnetAddress: '' });
     } else {
-      this.setState({ testnetPrivateKey: value });
+      this.setState({ testnetSecretKey: value });
       this.setState({ testnetAddress: '' });
     }
   }
 
   private isValidSecretKey(net: Net): boolean {
     try {
-      new InMemorySigner(net === Net.Mainnet ? this.state.mainnetPrivateKey : this.state.testnetPrivateKey);
+      new InMemorySigner(net === Net.Mainnet ? this.state.mainnetSecretKey : this.state.testnetSecretKey);
       return true;
     } catch (error) {
       return false;
@@ -180,27 +180,27 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
 
     // Use this value to set the secret key
     if (net === Net.Testnet) {
-      this.setState({ testnetPrivateKey: key });
+      this.setState({ testnetSecretKey: key });
       this.setState({ testnetAddress: '' });
     } else {
-      this.setState({ mainnetPrivateKey: key });
+      this.setState({ mainnetSecretKey: key });
       this.setState({ mainnetAddress: '' });
     }
   }
 
-  private async pickPrivateKey(net: Net) {
-    const privateKey: string = net === Net.Mainnet ? this.state.mainnetPrivateKey : this.state.testnetPrivateKey;
-    const confirmationToken: string = (await sha256(privateKey)).substr(0, 8);
+  private async pickSecretKey(net: Net) {
+    const secretKey: string = net === Net.Mainnet ? this.state.mainnetSecretKey : this.state.testnetSecretKey;
+    const confirmationToken: string = (await sha256(secretKey)).substr(0, 8);
 
     // Derive the address without setting the secret key on the Tezos object in state.
     // This is done to ensure that this secret key is not used before the user has
     // confirmed that they downloaded/printed the PDF with the secret key
     const localTezosToolkit = new TezosToolkit();
-    await importKey(localTezosToolkit, privateKey);
+    await importKey(localTezosToolkit, secretKey);
     const derivedAddress: string = await localTezosToolkit.signer.publicKeyHash();
 
     // Open PDF and encourage user to download and print the generated PDF
-    printPdf(derivedAddress, confirmationToken, net, privateKey);
+    printPdf(derivedAddress, confirmationToken, net, secretKey);
 
     // Ensure that browser shows print/popup before prompt
     await this.sleep(4000);
@@ -224,7 +224,7 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
 
     await importKey(
       this.props.net2Client[net],
-      net === Net.Mainnet ? this.state.mainnetPrivateKey : this.state.testnetPrivateKey
+      net === Net.Mainnet ? this.state.mainnetSecretKey : this.state.testnetSecretKey
     );
 
     if (net === Net.Mainnet) {

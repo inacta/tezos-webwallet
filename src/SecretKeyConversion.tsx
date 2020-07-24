@@ -15,7 +15,7 @@ interface IExpectedInputFormat {
 interface ISecretKeyConversionState {
   input: string;
   parsed: IExpectedInputFormat;
-  privateKeyAsWif: string;
+  secretKeyAsWif: string;
 }
 
 export class SecretKeyConversion extends React.Component<{}, ISecretKeyConversionState> {
@@ -24,7 +24,7 @@ export class SecretKeyConversion extends React.Component<{}, ISecretKeyConversio
     this.state = {
       input: '',
       parsed: undefined,
-      privateKeyAsWif: ''
+      secretKeyAsWif: ''
     };
   }
 
@@ -52,7 +52,7 @@ export class SecretKeyConversion extends React.Component<{}, ISecretKeyConversio
               id="converted-secret-key"
               type="text"
               readOnly={true}
-              value={this.state.privateKeyAsWif}
+              value={this.state.secretKeyAsWif}
             />
           </div>
           <button
@@ -102,7 +102,7 @@ export class SecretKeyConversion extends React.Component<{}, ISecretKeyConversio
       this.state.parsed.secret
     );
 
-    tezos.signer.secretKey().then((privateKeyAsWif) => this.setState({ privateKeyAsWif }));
+    tezos.signer.secretKey().then((secretKeyAsWif) => this.setState({ secretKeyAsWif }));
   }
 
   private handleChange(input: string) {
