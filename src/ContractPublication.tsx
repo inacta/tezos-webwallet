@@ -10,10 +10,10 @@ export interface IContractPublicationProps {
 }
 
 interface IContractPublicationState {
-  mainnetPrivateKey: string;
+  mainnetSecretKey: string;
   mainnetAddress: string;
   testnetAddress: string;
-  testnetPrivateKey: string;
+  testnetSecretKey: string;
 }
 
 export class ContractPublication extends React.Component<IContractPublicationProps, IContractPublicationState> {
@@ -21,19 +21,19 @@ export class ContractPublication extends React.Component<IContractPublicationPro
     super(props);
     this.state = {
       mainnetAddress: '',
-      mainnetPrivateKey: '',
+      mainnetSecretKey: '',
       testnetAddress: '',
-      testnetPrivateKey: ''
+      testnetSecretKey: ''
     };
   }
 
   public componentDidUpdate(_prevProps, prevState: IContractPublicationState) {
     // Clear address if private key is changed to prevent money from being sent
     // to an address that the user does not have access to
-    if (prevState.mainnetPrivateKey !== this.state.mainnetPrivateKey) {
+    if (prevState.mainnetSecretKey !== this.state.mainnetSecretKey) {
       this.setState({ mainnetAddress: '' });
     }
-    if (prevState.testnetPrivateKey !== this.state.testnetPrivateKey) {
+    if (prevState.testnetSecretKey !== this.state.testnetSecretKey) {
       this.setState({ testnetAddress: '' });
     }
   }
@@ -53,16 +53,16 @@ export class ContractPublication extends React.Component<IContractPublicationPro
                     type="text"
                     className="form-control"
                     placeholder="Secret key"
-                    value={this.state.mainnetPrivateKey}
+                    value={this.state.mainnetSecretKey}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      this.changePrivateKey(e.target.value, Net.Mainnet)
+                      this.changeSecretKey(e.target.value, Net.Mainnet)
                     }
                     aria-label="Secret key for mainnet"
                   />
                   <div className="input-group-append">
                     <button
                       className={`btn btn-primary ${validMainnetSk} ? '' : 'btn-disabled'`}
-                      onClick={() => this.pickPrivateKey(Net.Mainnet)}
+                      onClick={() => this.pickSecretKey(Net.Mainnet)}
                       type="button"
                       disabled={!validMainnetSk}
                     >
@@ -88,9 +88,9 @@ export class ContractPublication extends React.Component<IContractPublicationPro
                     type="text"
                     className="form-control"
                     placeholder="Secret key"
-                    value={this.state.testnetPrivateKey}
+                    value={this.state.testnetSecretKey}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      this.setState({ testnetPrivateKey: e.target.value })
+                      this.setState({ testnetSecretKey: e.target.value })
                     }
                     aria-label="Secret key for testnet"
                   />
@@ -98,7 +98,7 @@ export class ContractPublication extends React.Component<IContractPublicationPro
                     <button
                       className={'btn btn-secondary add-outline ' + (validTestnetSk ? '' : 'btn-disabled')}
                       disabled={!validTestnetSk}
-                      onClick={() => this.pickPrivateKey(Net.Testnet)}
+                      onClick={() => this.pickSecretKey(Net.Testnet)}
                       type="button"
                     >
                       Use key
@@ -116,29 +116,29 @@ export class ContractPublication extends React.Component<IContractPublicationPro
     );
   }
 
-  private changePrivateKey(value: string, net: Net): void {
+  private changeSecretKey(value: string, net: Net): void {
     if (Net.Mainnet === net) {
-      this.setState({ mainnetPrivateKey: value });
+      this.setState({ mainnetSecretKey: value });
       this.setState({ mainnetAddress: '' });
     } else {
-      this.setState({ testnetPrivateKey: value });
+      this.setState({ testnetSecretKey: value });
       this.setState({ testnetAddress: '' });
     }
   }
 
   private isValidSecretKey(net: Net): boolean {
     try {
-      new InMemorySigner(net === Net.Mainnet ? this.state.mainnetPrivateKey : this.state.testnetPrivateKey);
+      new InMemorySigner(net === Net.Mainnet ? this.state.mainnetSecretKey : this.state.testnetSecretKey);
       return true;
     } catch (error) {
       return false;
     }
   }
 
-  private async pickPrivateKey(net: Net) {
+  private async pickSecretKey(net: Net) {
     await importKey(
       this.props.net2Client[net],
-      net === Net.Mainnet ? this.state.mainnetPrivateKey : this.state.testnetPrivateKey
+      net === Net.Mainnet ? this.state.mainnetSecretKey : this.state.testnetSecretKey
     );
     if (net === Net.Mainnet) {
       await this.props.net2Client[net].signer
