@@ -7,6 +7,6 @@ import { render } from '@testing-library/react';
 
 test('renders text about balances', () => {
   const { getByText } = render(<App />),
-    linkElement = getByText('Check balances of Tezos addresses');
+    linkElement = getByText('Check Tezi and token balances');
   expect(linkElement).toBeInTheDocument();
 });
