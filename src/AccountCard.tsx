@@ -284,10 +284,14 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
           } else if (this.state.contractInformation.tokenStandard === TokenStandard.fa2) {
             const transferParam = [
               {
-                token_id: 0,
-                amount: this.state.transferAmount.times(this.state.contractInformation.conversionFactor),
                 from_: this.state.ownAddress,
-                to_: this.state.recipient
+                txs: [
+                  {
+                    amount: this.state.transferAmount.times(this.state.contractInformation.conversionFactor),
+                    to_: this.state.recipient,
+                    token_id: 0
+                  }
+                ]
               }
             ];
             return contract.methods.transfer(transferParam).send();
