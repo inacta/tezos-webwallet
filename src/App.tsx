@@ -3,7 +3,7 @@ import { Route } from 'react-router-dom';
 import { Balance } from './Balance';
 import { ContractPublication } from './ContractPublication';
 import { EnumDictionary } from './shared/AbstractTypes';
-import { MyNavbar } from './Navbar';
+import { Header } from './components/Header/Header';
 import { Net } from './shared/TezosTypes';
 import React from 'react';
 import { SecretKeyConversion } from './SecretKeyConversion';
@@ -43,7 +43,7 @@ export class App extends React.Component<{}, IAppState> {
   public render() {
     return (
       <div>
-        <MyNavbar />
+        <Header />
         <Route path="/" exact={true} render={() => <Balance net2Client={this.state.net2Client} />} />
         <Route path="/wallet" exact={true} render={() => <Wallet net2Client={this.state.net2Client} />} />
         <Route
