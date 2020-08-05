@@ -1,14 +1,17 @@
+import './Header.css';
 import * as React from 'react';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { Link } from 'react-router-dom';
 
-export class MyNavbar extends React.Component<{}, {}> {
+export class Header extends React.Component<{}, {}> {
   public render() {
     return (
-      <Navbar bg="light" variant="light">
-        <Navbar.Brand>Tezos TokenGate</Navbar.Brand>
-        <Nav className="mr-auto">
+      <Navbar bg="dark" variant="dark" className="justify-content-between">
+        <Navbar.Brand>
+          <img className="Header-logo" src="/assets/img/logo.png" alt="TokenGate Tezos" />
+        </Navbar.Brand>
+        <Nav>
           <Nav.Link as={Link} to="/">
             Balances
           </Nav.Link>
