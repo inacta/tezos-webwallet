@@ -1,4 +1,4 @@
-import './App.css';
+import './App.scss';
 import { Route } from 'react-router-dom';
 import { Balance } from './Balance';
 import { ContractPublication } from './ContractPublication';
@@ -10,7 +10,9 @@ import { SecretKeyConversion } from './SecretKeyConversion';
 import { TezosToolkit } from '@taquito/taquito';
 import { Wallet } from './Wallet';
 
+import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
+import Main from './components/Main/Main';
 
 // Allow empty interface since I don't know how else to avoid warnings
 // in the constructor.
@@ -44,14 +46,17 @@ export class App extends React.Component<{}, IAppState> {
     return (
       <div>
         <Header />
-        <Route path="/" exact={true} render={() => <Balance net2Client={this.state.net2Client} />} />
-        <Route path="/wallet" exact={true} render={() => <Wallet net2Client={this.state.net2Client} />} />
-        <Route
-          path="/contract-deployment"
-          exact={true}
-          render={() => <ContractPublication net2Client={this.state.net2Client} />}
-        />
-        <Route path="/secret-key-conversion" exact={true} render={() => <SecretKeyConversion />} />
+        <Container className="container pt-5">
+          <Route path="/" component={Main}></Route>
+          <Route path="/balance" exact={true} render={() => <Balance net2Client={this.state.net2Client} />} />
+          <Route path="/wallet" exact={true} render={() => <Wallet net2Client={this.state.net2Client} />} />
+          <Route
+            path="/contract-deployment"
+            exact={true}
+            render={() => <ContractPublication net2Client={this.state.net2Client} />}
+          />
+          <Route path="/secret-key-conversion" exact={true} render={() => <SecretKeyConversion />} />
+        </Container>
         {/* Footer */}
         <Navbar bg="light" fixed="bottom">
           &copy; {new Date().getFullYear()} inacta AG

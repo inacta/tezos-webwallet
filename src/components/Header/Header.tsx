@@ -1,4 +1,4 @@
-import './Header.css';
+import './Header.scss';
 import * as React from 'react';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -12,7 +12,7 @@ export class Header extends React.Component<{}, {}> {
           <img className="Header-logo" src="/assets/img/logo.png" alt="TokenGate Tezos" />
         </Navbar.Brand>
         <Nav>
-          <Nav.Link as={Link} to="/">
+          <Nav.Link as={Link} to="/balance">
             Balances
           </Nav.Link>
           <Nav.Link as={Link} to="/wallet">
