@@ -14,7 +14,7 @@ import Main from './components/Main/Main';
 
 import ReactNotification from 'react-notifications-component';
 
-export class App extends React.Component<{}, IAppState> {
+export class App extends React.Component<{}, {}> {
   public render() {
     return (
       <div className="d-flex flex-column h-100">
