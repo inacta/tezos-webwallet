@@ -20,7 +20,7 @@ export class App extends React.Component<{}, {}> {
       <div className="d-flex flex-column h-100">
         <ReactNotification />
         <Header />
-        <Container className="container pt-5 flex-fill flex-grow-1">
+        <Container className="container py-5 flex-fill flex-grow-1">
           <Route path="/" component={Main}></Route>
         </Container>
         {/* Footer */}
