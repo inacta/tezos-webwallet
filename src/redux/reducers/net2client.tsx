@@ -12,13 +12,24 @@ export default function(state = initialState, action) {
     state[action.network].setProvider({
       rpc: action.rpc
     });
-    return state;
+  } else if (action.type === 'RESET_TOOLKIT') {
+    if (action.network === Net.Mainnet) {
+      state = {
+        [Net.Mainnet]: new TezosToolkit(),
+        [Net.Testnet]: state[Net.Testnet]
+      };
+      state[Net.Mainnet].setProvider({
+        rpc: 'https://mainnet-tezos.giganode.io'
+      });
+    } else {
+      state = {
+        [Net.Mainnet]: state[Net.Mainnet],
+        [Net.Testnet]: new TezosToolkit()
+      };
+      state[Net.Testnet].setProvider({
+        rpc: 'https://api.tez.ie/rpc/carthagenet'
+      });
+    }
   }
-  state[Net.Mainnet].setProvider({
-    rpc: 'https://mainnet-tezos.giganode.io'
-  });
-  state[Net.Testnet].setProvider({
-    rpc: 'https://api.tez.ie/rpc/carthagenet'
-  });
   return state;
 }

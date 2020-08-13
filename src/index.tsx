@@ -1,17 +1,24 @@
+/* eslint-disable sort-imports */
 import './index.scss';
 import App from './App';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import store from './redux/store';
+import configureStore from './redux/store';
+import { PersistGate } from 'redux-persist/integration/react';
+import Loading from './components/Loading/Loading';
+
+const { store, persistor } = configureStore();
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <PersistGate loading={<Loading large={true} />} persistor={persistor}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </PersistGate>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')
