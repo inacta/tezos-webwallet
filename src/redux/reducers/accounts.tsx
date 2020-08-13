@@ -31,6 +31,25 @@ export default function(state = initalState, action) {
       };
     }
     return state;
+  } else if (action.type === 'ADD_PRIVATE_KEY') {
+    if (action.network === Net.Mainnet) {
+      state = {
+        [Net.Mainnet]: {
+          privKey: action.privateKey,
+          address: action.address
+        },
+        [Net.Testnet]: state[Net.Testnet]
+      };
+    } else {
+      state = {
+        [Net.Mainnet]: state[Net.Mainnet],
+        [Net.Testnet]: {
+          privKey: action.privateKey,
+          address: action.address
+        }
+      };
+    }
+    return state;
   }
   return state;
 }
