@@ -14,7 +14,7 @@ const { store, persistor } = configureStore();
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <PersistGate loading={<Loading large={true} />} persistor={persistor}>
+      <PersistGate loading={<Loading large={true}>Loading...</Loading>} persistor={persistor}>
         <BrowserRouter>
           <App />
         </BrowserRouter>

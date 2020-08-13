@@ -2,12 +2,31 @@ import React from 'react';
 
 interface ILoadingProps {
   large?: boolean;
+  center?: boolean;
+  children?: JSX.Element | string;
 }
 
 export default function Loading(props: ILoadingProps) {
-  return (
-    <div className="p-4 d-flex justify-content-center flex-column h-100">
+  const loadingIcon = (
+    <div className="d-flex flex-column justify-content-center h-100">
       <img src="/assets/img/logo_animated.svg" style={{ maxHeight: props.large ? '200px' : '30px' }} />
+      {props.children === undefined ? (
+        <div></div>
+      ) : props.large ? (
+        <h1 className="align-self-center mt-3">{props.children}</h1>
+      ) : (
+        <span className="align-self-center mt-1">{props.children}</span>
+      )}
+    </div>
+  );
+
+  return (
+    <div>
+      {props.center === undefined || props.center ? (
+        loadingIcon
+      ) : (
+        <div className={'d-flex h-100 justify-content-start py-2'}>{loadingIcon}</div>
+      )}
     </div>
   );
 }
