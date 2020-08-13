@@ -1,15 +1,10 @@
+import pdfMake, { TCreatedPdf } from 'pdfmake/build/pdfmake';
 import { Net } from '../shared/TezosTypes';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
-import pdfMake from 'pdfmake/build/pdfmake';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 // TODO: Consider adding the mnemonic to the generated PDF
-function getDocDefinition(
-  address: string,
-  confirmationToken: string,
-  net: Net,
-  secretKey: string
-): pdfMake.TDocumentDefinitions {
+function getDocDefinition(address: string, net: Net, secretKey: string): pdfMake.TDocumentDefinitions {
   const docDefinition = {
     content: [
       {
@@ -33,7 +28,7 @@ function getDocDefinition(
           body: [
             [
               {
-                text: 'This is the Secret key controlling your tokens from inacta Token Gateway',
+                text: 'This is the Secret key controlling your tokens from the inacta Token Gateway',
                 fontSize: 9,
                 bold: true
               }
@@ -53,32 +48,21 @@ function getDocDefinition(
         }
       },
       {
+        alignment: 'center',
         text: `Secret key in base58: ${secretKey}\n\n\n\n`
       },
       {
+        alignment: 'center',
+        qr: `${secretKey}`
+      },
+      {
+        alignment: 'center',
+        text: 'Your key'
+      },
+      {
+        alignment: 'center',
+        margin: [0, 30, 0, 0],
         text: `This key controls address ${address} on ${net}\n\n\n`
-      },
-      {
-        text: 'Confirmation token'
-      },
-      {
-        alignment: 'right',
-        fontsize: 18,
-        layout: {
-          defaultBorder: false
-        },
-        style: 'tableExample',
-        table: {
-          body: [
-            [
-              {
-                border: [true, true, true, true],
-                fillColor: '#eeeeff',
-                text: confirmationToken
-              }
-            ]
-          ]
-        }
       }
     ]
   };
@@ -86,12 +70,9 @@ function getDocDefinition(
   return docDefinition;
 }
 
-export function printPdf(address: string, confirmationToken: string, net: Net, secretKey: string): void {
-  const docDefinition = getDocDefinition(address, confirmationToken, net, secretKey);
+export function printPdf(address: string, net: Net, secretKey: string): TCreatedPdf {
+  const docDefinition = getDocDefinition(address, net, secretKey);
   let pdf: pdfMake.TCreatedPdf;
   pdf = pdfMake.createPdf(docDefinition);
-  pdf.download(`TezosSecretKeyFor${address}.pdf`, () => {
-    //var win = window.open('', '_blank');
-    pdf.print({});
-  });
+  return pdf;
 }
