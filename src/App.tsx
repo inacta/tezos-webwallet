@@ -1,12 +1,9 @@
 /* eslint-disable sort-imports */
 import './App.scss';
 import 'react-notifications-component/dist/theme.css';
-import { Route } from 'react-router-dom';
-import { EnumDictionary } from './shared/AbstractTypes';
-import { Header } from './components/Header/Header';
-import { Net } from './shared/TezosTypes';
 import React from 'react';
-import { TezosToolkit } from '@taquito/taquito';
+import { Route } from 'react-router-dom';
+import { Header } from './components/Header/Header';
 
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
