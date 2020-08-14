@@ -37,3 +37,20 @@ export function setProvider(network: Net, rpc: string) {
     rpc
   };
 }
+
+export function addToken(network: Net, address: string, token) {
+  return {
+    type: 'ADD_TOKEN',
+    network,
+    address,
+    token
+  };
+}
+
+export function removeToken(network: Net, address: string) {
+  return {
+    type: 'REMOVE_TOKEN',
+    network,
+    address
+  };
+}
