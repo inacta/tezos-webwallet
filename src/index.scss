@@ -56,6 +56,10 @@ code {
   color: darken($color: map-get($theme-colors, 'primary'), $amount: 7.5%);
 }
 
+.pointer {
+  cursor: pointer;
+}
+
 button:focus {
   outline: 0 !important;
 }
