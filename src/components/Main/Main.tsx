@@ -3,14 +3,21 @@ import './Main.scss';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Switch from 'react-switch';
-import { switchNetwork, changeAddress, addPrivateKey, resetToolkit, setProvider } from '../../redux/actions';
+import {
+  switchNetwork,
+  changeAddress,
+  addPrivateKey,
+  resetToolkit,
+  setProvider,
+  addToken,
+  removeToken
+} from '../../redux/actions';
 import { connect } from 'react-redux';
 import { Net } from '../../shared/TezosTypes';
 import { EnumDictionary } from '../../shared/AbstractTypes';
 import { TezosToolkit } from '@taquito/taquito';
 import WalletManagement from './WalletManagement/WalletManagement';
 import Balances from './Balances/Balances';
-import Loading from '../Loading/Loading';
 
 interface IMainProps {
   network: Net;
@@ -23,12 +30,11 @@ interface IMainProps {
   addPrivateKey: (privateKey: string, address: string, network: Net) => void;
   resetToolkit: (network: Net) => void;
   setProvider: (network: Net, rpc: string) => void;
+  addToken: (network: Net, address: string, token) => void;
+  removeToken: (network: Net, address: string) => void;
 }
 
 class Main extends Component<IMainProps, {}> {
-  componentDidMount() {
-    this.props.setProvider(Net.Testnet, 'https://api.tez.ie/rpc/carthagenet');
-  }
   render() {
     return (
       <div>
@@ -77,6 +83,8 @@ class Main extends Component<IMainProps, {}> {
           net2client={this.props.net2client}
           accounts={this.props.accounts}
           tokens={this.props.tokens}
+          addToken={this.props.addToken}
+          removeToken={this.props.removeToken}
         />
       </div>
     );
@@ -97,7 +105,9 @@ let mapDispatchToProps = {
   changeAddress: changeAddress,
   addPrivateKey: addPrivateKey,
   resetToolkit: resetToolkit,
-  setProvider: setProvider
+  setProvider: setProvider,
+  addToken: addToken,
+  removeToken: removeToken
 };
 
 let MainContainer = connect(mapStateToProps, mapDispatchToProps)(Main);

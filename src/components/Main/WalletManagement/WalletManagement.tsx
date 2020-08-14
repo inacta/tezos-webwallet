@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './WalletManagement.scss';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -42,6 +42,11 @@ export default function WalletManagement(props: IWalletManagementProps) {
     [Net.Mainnet]: '',
     [Net.Testnet]: ''
   });
+
+  useEffect(() => {
+    updateAddress({ ...address, [Net.Testnet]: 'tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx' });
+    return () => {};
+  }, []);
 
   const handleShow = (newWallet: boolean) => {
     updatePrivateKey('');
