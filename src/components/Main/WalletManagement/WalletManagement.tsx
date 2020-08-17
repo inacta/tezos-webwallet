@@ -43,11 +43,6 @@ export default function WalletManagement(props: IWalletManagementProps) {
     [Net.Testnet]: ''
   });
 
-  useEffect(() => {
-    updateAddress({ ...address, [Net.Testnet]: 'tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx' });
-    return () => {};
-  }, []);
-
   const handleShow = (newWallet: boolean) => {
     updatePrivateKey('');
     setSave(false);

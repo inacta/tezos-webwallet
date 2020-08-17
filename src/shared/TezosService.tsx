@@ -1,6 +1,10 @@
 // eslint-disable-next-line
 import { b58cencode, Prefix, prefix, validateAddress, ValidationResult } from '@taquito/utils';
 import { InMemorySigner } from '@taquito/signer';
+import configureStore from '../redux/store';
+import BigNumber from 'bignumber.js';
+
+const store = configureStore().store;
 
 export function generatePrivateKey() {
   // define empty Uint8 Array for private key
@@ -31,8 +35,33 @@ export function isContractAddress(address: string) {
   return address.substring(0, 3) === CONTRACT_ADDRESS_PREFIX && validateAddress(address) === ValidationResult.VALID;
 }
 
-export async function getTokenData(client, contractAddress: string) {
-  const contract = await client.contract.at(contractAddress);
-  const storage = await contract.storage();
+export async function getTokenData(contractAddress: string) {
+  if (!isContractAddress(contractAddress)) {
+    return;
+  }
+  const state = store.getState();
+  const contract = await state.net2client[state.network].contract.at(contractAddress);
+  const storage: any = await contract.storage();
   return await storage.token_metadata.get('0');
+}
+
+export function convertMap(map: Map<string, string>): Object {
+  return [...map.entries()].reduce((obj, [key, value]) => {
+    obj[key] = value;
+    return obj;
+  }, {});
+}
+
+export async function getTokenBalance(contractAddress: string, holderAddress: string): Promise<string> {
+  if (!isContractAddress(contractAddress)) {
+    return;
+  }
+  const state = store.getState();
+  const contract = await state.net2client[state.network].contract.at(contractAddress);
+  const storage: any = await contract.storage();
+  const token_metadata = await storage.token_metadata.get('0');
+  const balance: BigNumber = (await storage.ledger.get(holderAddress)).balance;
+  const adjustedBalance = balance.dividedBy(new BigNumber(10).pow(token_metadata.decimals));
+
+  return adjustedBalance.toString();
 }
