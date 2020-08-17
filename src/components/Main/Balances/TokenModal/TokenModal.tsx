@@ -7,6 +7,7 @@ import BigNumber from 'bignumber.js';
 import { Net } from '../../../../shared/TezosTypes';
 import Loading from '../../../Loading/Loading';
 import { convertMap, getTokenData } from '../../../../shared/TezosService';
+import { addNotification } from '../../../../shared/NotificationService';
 
 export interface TokenData {
   address: string;
@@ -60,6 +61,7 @@ export default function TokenModal(props: ITokenModalProps) {
 
   const saveToken = () => {
     props.addToken(props.network, tokenData.address, tokenData.token);
+    addNotification('success', 'Successfully added new token!');
     hideModal();
   };
 

@@ -12,6 +12,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import { FaCopy, FaDownload, FaPrint } from 'react-icons/fa';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { generatePrivateKey, isValidSecretKey, isContractAddress } from '../../../shared/TezosService';
+import { addNotification } from '../../../shared/NotificationService';
 import { store } from 'react-notifications-component';
 import { Net } from '../../../shared/TezosTypes';
 import { EnumDictionary } from '../../../shared/AbstractTypes';
@@ -93,18 +94,7 @@ export default function WalletManagement(props: IWalletManagementProps) {
 
   const _handleCopy = () => {
     // send a notification that the key was copied successfully
-    store.addNotification({
-      message: 'Successfully copied key: ' + privateKey,
-      type: 'success',
-      container: 'bottom-center',
-      insert: 'top',
-      animationIn: ['animated', 'fadeIn'],
-      animationOut: ['animated', 'fadeOut'],
-      dismiss: {
-        duration: 3000,
-        onScreen: true
-      }
-    });
+    addNotification('success', 'Successfully copied key: ' + privateKey);
     // allow user to save the updates
     setSave(true);
   };
