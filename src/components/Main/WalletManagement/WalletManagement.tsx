@@ -13,7 +13,6 @@ import { FaCopy, FaDownload, FaPrint } from 'react-icons/fa';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { generatePrivateKey, isValidSecretKey, isContractAddress } from '../../../shared/TezosService';
 import { addNotification } from '../../../shared/NotificationService';
-import { store } from 'react-notifications-component';
 import { Net } from '../../../shared/TezosTypes';
 import { EnumDictionary } from '../../../shared/AbstractTypes';
 import { importKey } from '@taquito/signer';
