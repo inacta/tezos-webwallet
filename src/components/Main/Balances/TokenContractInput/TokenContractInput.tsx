@@ -50,7 +50,7 @@ export default function TokenContractInput(props: ITokenContractInput) {
   return (
     <Row>
       <Col>
-        <h4 className="mt-4">Add a custom Token</h4>
+        <h3 className="mt-4">Add a custom Token</h3>
         <p>You can add a custom token implemented under the FA2 standard here.</p>
         <InputGroup>
           <FormControl
