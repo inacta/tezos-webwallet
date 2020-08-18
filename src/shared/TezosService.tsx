@@ -3,6 +3,8 @@ import { b58cencode, Prefix, prefix, validateAddress, ValidationResult } from '@
 import { InMemorySigner } from '@taquito/signer';
 import configureStore from '../redux/store';
 import BigNumber from 'bignumber.js';
+import { FA2_BASIC, FA2_BASIC_STORAGE } from './ContractAssembly';
+import { addPermanentNotification, removeNotification, addNotification } from './NotificationService';
 
 const store = configureStore().store;
 
@@ -64,4 +66,59 @@ export async function getTokenBalance(contractAddress: string, holderAddress: st
   const adjustedBalance = balance.dividedBy(new BigNumber(10).pow(token_metadata.decimals));
 
   return adjustedBalance.toString();
+}
+
+export function deployToken(
+  tokenName: string,
+  tokenSymbol: string,
+  decimals: string,
+  issuedTo: string,
+  amountIssued: string,
+  addTokenReduxCallback: Function,
+  afterDeploymentCallback?: Function,
+  afterConfirmationCallback?: Function
+) {
+  // replace values in storage binary
+  let replacedStorage = FA2_BASIC_STORAGE.replace('DECIMALS', decimals);
+  replacedStorage = replacedStorage.replace('ISSUED_TO', issuedTo);
+  replacedStorage = replacedStorage.replace('AMOUNT_ISSUED', amountIssued);
+  replacedStorage = replacedStorage.replace('TOKEN_NAME', tokenName);
+  replacedStorage = replacedStorage.replace('TOKEN_SYMBOL', tokenSymbol);
+  replacedStorage = replacedStorage.replace('EXTRA_FIELDS', '');
+
+  // deploy contract
+  const state = store.getState();
+  state.net2client[state.network].contract
+    .originate({
+      code: JSON.parse(FA2_BASIC),
+      init: JSON.parse(replacedStorage)
+    })
+    .then((originationOp) => {
+      const contractId = addPermanentNotification('The smart contract is deploying...');
+      if (afterDeploymentCallback) {
+        afterDeploymentCallback();
+      }
+      // get contract
+      originationOp.contract().then((contract) => {
+        originationOp.confirmation(1).then(() => {
+          if (afterConfirmationCallback) {
+            afterConfirmationCallback();
+          }
+          // remove pending contract deployment notification
+          removeNotification(contractId);
+          const tokenId = addNotification('success', 'The smart contract deployed successfully, adding token...');
+          getTokenData(contract.address).then((fetchedTokenData) => {
+            removeNotification(tokenId);
+            // update redux store
+            addTokenReduxCallback(state.network, contract.address, {
+              name: fetchedTokenData.name,
+              symbol: fetchedTokenData.symbol,
+              decimals: fetchedTokenData.decimals,
+              extras: convertMap(fetchedTokenData.extras)
+            });
+            addNotification('success', 'The token was added successfully');
+          });
+        });
+      });
+    });
 }
