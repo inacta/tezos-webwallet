@@ -18,6 +18,7 @@ import { EnumDictionary } from '../../shared/AbstractTypes';
 import { TezosToolkit } from '@taquito/taquito';
 import WalletManagement from './WalletManagement/WalletManagement';
 import Balances from './Balances/Balances';
+import Deployment from './Deployment/Deployment';
 
 interface IMainProps {
   network: Net;
@@ -77,7 +78,6 @@ class Main extends Component<IMainProps, {}> {
           resetToolkit={this.props.resetToolkit}
           network={this.props.network}
         />
-        {/* {JSON.stringify(this.props.accounts)} */}
         <Balances
           network={this.props.network}
           net2client={this.props.net2client}
@@ -86,6 +86,16 @@ class Main extends Component<IMainProps, {}> {
           addToken={this.props.addToken}
           removeToken={this.props.removeToken}
         />
+        {this.props.accounts[this.props.network].privKey === '' ? (
+          <></>
+        ) : (
+          <Deployment
+            network={this.props.network}
+            net2client={this.props.net2client}
+            accounts={this.props.accounts}
+            addToken={this.props.addToken}
+          />
+        )}
       </div>
     );
   }
