@@ -49,7 +49,13 @@ export default function(state = initalState, action) {
         }
       };
     }
+    action.asyncDispatch({
+      type: 'SET_SIGNER',
+      network: action.network,
+      key: action.privateKey
+    });
     return state;
   }
+
   return state;
 }

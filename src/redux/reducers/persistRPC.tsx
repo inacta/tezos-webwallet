@@ -13,7 +13,7 @@ export default function(state = initialState, action) {
         [Net.Testnet]: state[Net.Testnet]
       };
       action.asyncDispatch({
-        type: 'SET_PROVIDER',
+        type: 'SET_RPC_PROVIDER',
         network: Net.Mainnet,
         rpc: state[Net.Mainnet]
       });
@@ -23,7 +23,7 @@ export default function(state = initialState, action) {
         [Net.Testnet]: action.rpc
       };
       action.asyncDispatch({
-        type: 'SET_PROVIDER',
+        type: 'SET_RPC_PROVIDER',
         network: Net.Testnet,
         rpc: state[Net.Testnet]
       });
@@ -32,14 +32,14 @@ export default function(state = initialState, action) {
   // when the app loads, load the stored RPC url and set the provider in the client
   if (action.asyncDispatch !== undefined && action.type === 'persist/REHYDRATE') {
     action.asyncDispatch({
-      type: 'SET_PROVIDER',
+      type: 'SET_RPC_PROVIDER',
       network: Net.Testnet,
-      rpc: state[Net.Testnet]
+      rpc: action.payload.persistRPC[Net.Testnet]
     });
     action.asyncDispatch({
-      type: 'SET_PROVIDER',
+      type: 'SET_RPC_PROVIDER',
       network: Net.Mainnet,
-      rpc: state[Net.Mainnet]
+      rpc: action.payload.persistRPC[Net.Mainnet]
     });
   }
   return state;
