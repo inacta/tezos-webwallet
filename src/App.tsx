@@ -1,6 +1,5 @@
 /* eslint-disable sort-imports */
 import './App.scss';
-import 'react-notifications-component/dist/theme.css';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import { Header } from './components/Header/Header';
@@ -15,7 +14,14 @@ export class App extends React.Component<{}, {}> {
   public render() {
     return (
       <div className="d-flex flex-column h-100">
-        <ReactNotification />
+        <ReactNotification
+          types={[
+            {
+              htmlClasses: ['permanent-notification'],
+              name: 'permanent'
+            }
+          ]}
+        />
         <Header />
         <Container className="container py-5 flex-fill flex-grow-1">
           <Route path="/" component={Main}></Route>
