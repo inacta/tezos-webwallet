@@ -65,3 +65,15 @@ button:focus {
 }
 
 @import '~bootstrap/scss/bootstrap';
+
+.permanent-notification {
+  background-color: $secondary;
+  border-left: 8px solid darken($secondary, 15%);
+}
+
+.permanent-notification > .notification-content > .notification-message {
+  max-height: 100%;
+  max-width: 100%;
+}
+
+@import '~react-notifications-component/dist/scss/notification.scss';

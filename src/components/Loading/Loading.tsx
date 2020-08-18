@@ -8,7 +8,10 @@ interface ILoadingProps {
 
 export default function Loading(props: ILoadingProps) {
   const loadingIcon = (
-    <div className="d-flex flex-column justify-content-center h-100">
+    <div
+      className="d-flex flex-column justify-content-center h-100"
+      style={{ minWidth: props.large ? '200px' : '30px' }}
+    >
       <img src="/assets/img/logo_animated.svg" style={{ maxHeight: props.large ? '200px' : '30px' }} alt="" />
       {props.children === undefined ? (
         <div></div>
