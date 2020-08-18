@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Balances.scss';
 import { Net } from '../../../shared/TezosTypes';
 import { EnumDictionary } from '../../../shared/AbstractTypes';
@@ -36,22 +36,6 @@ export default function Balances(props: IBalancesProps) {
   });
 
   const [tokenBalances, updateTokenbalances] = useState([]);
-
-  const showTokenModal = (newToken: boolean, address: string) => {
-    handleModal({
-      show: true,
-      new: newToken,
-      address
-    });
-  };
-
-  const hideModal = () => {
-    handleModal({
-      show: false,
-      new: false,
-      address: ''
-    });
-  };
 
   useEffect(() => {
     // when the component is loaded, get the tezos balance and token balances of the address
