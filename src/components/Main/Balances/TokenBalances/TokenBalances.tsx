@@ -26,8 +26,8 @@ export default function TokenBalances(props: ITokenBalances) {
                 {props.tokenBalances.map((item, i) => {
                   return (
                     <dl className="row" key={i}>
-                      <dt className="col-sm-3">{item.name}</dt>
-                      <dd className="col-sm-9">
+                      <dt className="col-sm-6">{item.name}</dt>
+                      <dd className="col-sm-6">
                         {item.amount} {item.symbol}
                       </dd>
                     </dl>
