@@ -52,11 +52,14 @@ export default function Balances(props: IBalancesProps) {
         const tokenBalances = [];
         for (const contractAddress in tokenContracts) {
           const tokenBalance = await getTokenBalance(contractAddress, address);
-          tokenBalances.push({
-            name: tokenContracts[contractAddress].name,
-            symbol: tokenContracts[contractAddress].symbol,
-            amount: tokenBalance
-          });
+          // if token was deleted while fetching the balance, this can cause issues
+          if (tokenContracts[contractAddress] !== undefined) {
+            tokenBalances.push({
+              name: tokenContracts[contractAddress].name,
+              symbol: tokenContracts[contractAddress].symbol,
+              amount: tokenBalance
+            });
+          }
         }
         updateTokenbalances(tokenBalances);
       } else {
