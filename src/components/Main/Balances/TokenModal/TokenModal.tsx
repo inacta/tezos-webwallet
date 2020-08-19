@@ -52,6 +52,7 @@ export default function TokenModal(props: ITokenModalProps) {
   };
 
   const hideModal = () => {
+    updateTokenData(undefined);
     props.handleModal({
       show: false,
       new: false,
