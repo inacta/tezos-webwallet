@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import Accordion from 'react-bootstrap/Accordion';
 import Button from 'react-bootstrap/Button';
-import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Col from 'react-bootstrap/Col';
-import { FaMinusCircle, FaPlusCircle } from 'react-icons/fa';
 import { validateAddress, ValidationResult } from '@taquito/utils';
 import { deployToken } from '../../../../shared/TezosService';
 import { EnumDictionary } from '../../../../shared/AbstractTypes';
@@ -13,6 +10,7 @@ import { Net, IExtraData } from '../../../../shared/TezosTypes';
 import { TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import Loading from '../../../Loading/Loading';
+import DeployTokenModalExtraField from './DeployTokenModalExtraField/DeployTokenModalExtraField';
 
 interface DeployTokenModal {
   network: Net;
@@ -125,25 +123,6 @@ export default function DeployTokenModal(props) {
     _checkAmount(formValue, decimals);
   };
 
-  const updateField = (event: React.ChangeEvent<HTMLInputElement>, i: number, type: 'key' | 'value') => {
-    const newValue = event.currentTarget.value;
-    const newArray = [...extraData];
-    newArray[i][type] = newValue;
-    updateExtraData(newArray);
-  };
-
-  const removeField = (i: number) => {
-    const newArray = [...extraData];
-    newArray.splice(i, 1);
-    updateExtraData(newArray);
-  };
-
-  const addField = () => {
-    const newArray = [...extraData];
-    newArray.push({ key: '', value: '' });
-    updateExtraData(newArray);
-  };
-
   // we have to pass the values to the function, as when updating the state, the new value only becomes available after rerendering
   const _checkAmount = (amount: string, _decimals: string) => {
     // if no decimals are provided, assume the maximum number of decimals
@@ -213,59 +192,7 @@ export default function DeployTokenModal(props) {
               <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
             </Form.Group>
           </Form.Row>
-          <Accordion>
-            <Card>
-              <Accordion.Toggle as={Card.Header} eventKey="0" style={{ cursor: 'pointer' }}>
-                Add additional information
-              </Accordion.Toggle>
-              <Accordion.Collapse eventKey="0">
-                <Card.Body>
-                  {extraData.map((field, i) => {
-                    return (
-                      <Form.Row key={i}>
-                        <Form.Group as={Col} md xs="12" controlId={'extras-key-' + i}>
-                          <Form.Control
-                            type="text"
-                            className="font-weight-bold"
-                            placeholder="Key"
-                            value={field.key}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField(e, i, 'key')}
-                            required
-                          ></Form.Control>
-                        </Form.Group>
-                        <Form.Group as={Col} md xs="10" controlId={'extras-value-' + i}>
-                          <Form.Control
-                            type="text"
-                            placeholder="Value"
-                            value={field.value}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField(e, i, 'value')}
-                            required
-                          ></Form.Control>
-                        </Form.Group>
-                        <Col md="auto" xs="2">
-                          <button className="icon-button" type="button" onClick={() => removeField(i)}>
-                            <div>
-                              <FaMinusCircle aria-label="delete" />
-                            </div>
-                          </button>
-                        </Col>
-                      </Form.Row>
-                    );
-                  })}
-                  <button
-                    type="button"
-                    className="icon-button"
-                    onClick={addField}
-                    disabled={extraData.hasOwnProperty('')}
-                  >
-                    <div>
-                      <FaPlusCircle aria-label="add new" />
-                    </div>
-                  </button>
-                </Card.Body>
-              </Accordion.Collapse>
-            </Card>
-          </Accordion>
+          <DeployTokenModalExtraField extraData={extraData} updateExtraData={updateExtraData} />
         </Form>
       </Modal.Body>
       <Modal.Footer>
