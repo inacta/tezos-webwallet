@@ -103,7 +103,7 @@ export default function TokenModal(props: ITokenModalProps) {
                         return (
                           <p key={i}>
                             {/* Capitalize first letter */}
-                            <b>{key.charAt(0).toUpperCase() + key.slice(1)}: </b>
+                            <b>{key}: </b>
                             {tokenData.token.extras[key]}
                           </p>
                         );
