@@ -49,18 +49,16 @@ export default function Balances(props: IBalancesProps) {
         // update Tezos balance
         updateBalance((await client.rpc.getBalance(address)).dividedBy(new BigNumber(10).pow(6)).toString());
         // update Balances
-        updateTokenbalances([]);
+        const tokenBalances = [];
         for (const contractAddress in tokenContracts) {
           const tokenBalance = await getTokenBalance(contractAddress, address);
-          updateTokenbalances((oldArray) => [
-            ...oldArray,
-            {
-              name: tokenContracts[contractAddress].name,
-              symbol: tokenContracts[contractAddress].symbol,
-              amount: tokenBalance
-            }
-          ]);
+          tokenBalances.push({
+            name: tokenContracts[contractAddress].name,
+            symbol: tokenContracts[contractAddress].symbol,
+            amount: tokenBalance
+          });
         }
+        updateTokenbalances(tokenBalances);
       } else {
         updateBalance('');
       }
