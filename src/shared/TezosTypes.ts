@@ -53,3 +53,8 @@ export enum TokenStandard {
   fa2 = 'fa2',
   unknown = 'unknown'
 }
+
+export interface IExtraData {
+  key: string;
+  value: string;
+}
