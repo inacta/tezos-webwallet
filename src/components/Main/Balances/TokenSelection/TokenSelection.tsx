@@ -29,7 +29,7 @@ export default function TokenSelection(props: ITokenSelection) {
           <h3>Your Tokens</h3>
           {Object.keys(props.tokens[props.network]).map((tokenAddress, i) => {
             return (
-              <h4 key={i}>
+              <h4 key={i} className="d-inline mr-2">
                 <Badge pill variant="primary" className="d-inline-flex justify-content-between align-items-center">
                   <OverlayTrigger
                     placement="bottom"
