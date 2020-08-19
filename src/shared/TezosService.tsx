@@ -5,6 +5,7 @@ import configureStore from '../redux/store';
 import BigNumber from 'bignumber.js';
 import { FA2_BASIC, FA2_BASIC_STORAGE } from './ContractAssembly';
 import { addPermanentNotification, removeNotification, addNotification } from './NotificationService';
+import { IExtraData } from './TezosTypes';
 
 const store = configureStore().store;
 
@@ -74,6 +75,7 @@ export function deployToken(
   decimals: string,
   issuedTo: string,
   amountIssued: string,
+  extraData: IExtraData[],
   addTokenReduxCallback: Function,
   afterDeploymentCallback?: Function,
   afterConfirmationCallback?: Function
@@ -84,7 +86,12 @@ export function deployToken(
   replacedStorage = replacedStorage.replace('AMOUNT_ISSUED', amountIssued);
   replacedStorage = replacedStorage.replace('TOKEN_NAME', tokenName);
   replacedStorage = replacedStorage.replace('TOKEN_SYMBOL', tokenSymbol);
-  replacedStorage = replacedStorage.replace('EXTRA_FIELDS', '');
+
+  const convertedExtraData = [];
+  for (const dataField of extraData) {
+    convertedExtraData.push({ prim: 'Elt', args: [{ string: dataField.key }, { string: dataField.value }] });
+  }
+  replacedStorage = replacedStorage.replace('EXTRA_FIELDS', JSON.stringify(convertedExtraData));
 
   // deploy contract
   const state = store.getState();
