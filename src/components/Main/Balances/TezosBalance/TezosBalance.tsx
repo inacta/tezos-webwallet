@@ -8,7 +8,7 @@ interface ITezosBalance {
 export default function TezosBalance(props: ITezosBalance) {
   return (
     <>
-      <h3>Balances</h3>
+      <h3>Balance</h3>
       {props.balance !== '' ? (
         <h5>
           {props.balance} <b>ꜩ</b>
