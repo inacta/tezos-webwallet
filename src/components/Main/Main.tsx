@@ -7,8 +7,7 @@ import {
   switchNetwork,
   changeAddress,
   addPrivateKey,
-  resetToolkit,
-  setProvider,
+  setRPCProvider,
   addToken,
   removeToken
 } from '../../redux/actions';
@@ -19,18 +18,19 @@ import { TezosToolkit } from '@taquito/taquito';
 import WalletManagement from './WalletManagement/WalletManagement';
 import Balances from './Balances/Balances';
 import Deployment from './Deployment/Deployment';
+import { InMemorySigner } from '@taquito/signer';
+import { TezBridgeSigner } from '@taquito/tezbridge-signer';
 
 interface IMainProps {
   network: Net;
-  accounts: EnumDictionary<Net, { address: string; privKey: string }>;
+  accounts: EnumDictionary<Net, { address: string; signer?: InMemorySigner | TezBridgeSigner }>;
   net2client: EnumDictionary<Net, TezosToolkit>;
   tokens: EnumDictionary<Net, Array<{ symbol: string; address: string }>>;
 
   switchNetwork: () => void;
   changeAddress: (address: string, network: Net) => void;
-  addPrivateKey: (privateKey: string, address: string, network: Net) => void;
-  resetToolkit: (network: Net) => void;
-  setProvider: (network: Net, rpc: string) => void;
+  addPrivateKey: (address: string, network: Net, signer?: InMemorySigner | TezBridgeSigner) => void;
+  setRPCProvider: (network: Net, rpc: string) => void;
   addToken: (network: Net, address: string, token) => void;
   removeToken: (network: Net, address: string) => void;
 }
@@ -75,7 +75,6 @@ class Main extends Component<IMainProps, {}> {
           changeAddress={this.props.changeAddress}
           addPrivateKey={this.props.addPrivateKey}
           net2client={this.props.net2client}
-          resetToolkit={this.props.resetToolkit}
           network={this.props.network}
         />
         <Balances
@@ -86,7 +85,7 @@ class Main extends Component<IMainProps, {}> {
           addToken={this.props.addToken}
           removeToken={this.props.removeToken}
         />
-        {this.props.accounts[this.props.network].privKey === '' ? (
+        {this.props.accounts[this.props.network].signer === undefined ? (
           <></>
         ) : (
           <Deployment
@@ -114,8 +113,7 @@ let mapDispatchToProps = {
   switchNetwork: switchNetwork,
   changeAddress: changeAddress,
   addPrivateKey: addPrivateKey,
-  resetToolkit: resetToolkit,
-  setProvider: setProvider,
+  setRPCProvider: setRPCProvider,
   addToken: addToken,
   removeToken: removeToken
 };
