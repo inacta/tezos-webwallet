@@ -9,7 +9,7 @@ import { TezosToolkit } from '@taquito/taquito';
 
 interface IDeployment {
   network: Net;
-  accounts: EnumDictionary<Net, { address: string; privKey: string }>;
+  accounts: EnumDictionary<Net, { address: string; signer?: InMemorySigner | TezBridgeSigner }>;
   net2client: EnumDictionary<Net, TezosToolkit>;
   addToken: (network: Net, address: string, token) => void;
 }

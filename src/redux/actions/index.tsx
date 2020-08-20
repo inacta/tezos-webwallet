@@ -1,4 +1,6 @@
 import { Net } from '../../shared/TezosTypes';
+import { InMemorySigner } from '@taquito/signer';
+import { TezBridgeSigner } from '@taquito/tezbridge-signer';
 
 export function switchNetwork() {
   return {
@@ -14,23 +16,16 @@ export function changeAddress(address: string, network: Net) {
   };
 }
 
-export function addPrivateKey(privateKey: string, address: string, network: Net) {
+export function addPrivateKey(address: string, network: Net, signer?: InMemorySigner | TezBridgeSigner) {
   return {
     type: 'ADD_PRIVATE_KEY',
-    privateKey,
+    signer,
     address,
     network
   };
 }
 
-export function resetToolkit(network: Net) {
-  return {
-    type: 'RESET_TOOLKIT',
-    network
-  };
-}
-
-export function setProvider(network: Net, rpc: string) {
+export function setRPCProvider(network: Net, rpc: string) {
   return {
     type: 'PERSIST_PROVIDER',
     network,

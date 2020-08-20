@@ -19,7 +19,7 @@ const store = configureStore().store;
 interface IBalancesProps {
   network: Net;
   net2client: EnumDictionary<Net, TezosToolkit>;
-  accounts: EnumDictionary<Net, { address: string; privKey: string }>;
+  accounts: EnumDictionary<Net, { address: string; signer?: InMemorySigner | TezBridgeSigner }>;
   tokens: EnumDictionary<Net, Array<{ symbol: string; address: string }>>;
 
   addToken: (network: Net, address: string, token) => void;
