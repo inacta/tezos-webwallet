@@ -14,7 +14,7 @@ export default function TezosBalance(props: ITezosBalance) {
           {props.balance} <b>ꜩ</b>
         </h5>
       ) : (
-        <Loading center={false}>Loading balances...</Loading>
+        <Loading center={false}>Loading balance...</Loading>
       )}
     </>
   );
