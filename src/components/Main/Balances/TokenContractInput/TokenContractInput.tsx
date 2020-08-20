@@ -11,7 +11,6 @@ interface ITokenContractInput {
   handleModal: React.Dispatch<
     React.SetStateAction<{
       show: boolean;
-      new: boolean;
       address: string;
     }>
   >;
@@ -61,7 +60,7 @@ export default function TokenContractInput(props: ITokenContractInput) {
           <InputGroup.Append>
             <Button
               variant="outline-primary"
-              onClick={() => props.handleModal({ show: true, new: true, address: tokenContract.address })}
+              onClick={() => props.handleModal({ show: true, address: tokenContract.address })}
               disabled={tokenContract.error !== '' || tokenContract.address === ''}
             >
               Add Token
