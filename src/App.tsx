@@ -1,12 +1,15 @@
 /* eslint-disable sort-imports */
 import './App.scss';
 import React from 'react';
-import { Route } from 'react-router-dom';
-import { Header } from './components/Header/Header';
+import { Route, Redirect } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
+
+import Header from './components/Header/Header';
+import Main from './components/Main/Main';
+import TokenManagement from './components/TokenManagement/TokenManagement';
 
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
-import Main from './components/Main/Main';
 
 import ReactNotification from 'react-notifications-component';
 
@@ -24,7 +27,11 @@ export class App extends React.Component<{}, {}> {
         />
         <Header />
         <Container className="container py-5 flex-fill flex-grow-1">
-          <Route path="/" component={Main}></Route>
+          <BrowserRouter>
+            <Route path="/" exact={true} component={Main}></Route>
+            <Redirect from="/token" to="/"></Redirect>
+            <Route path="/token/:address" component={TokenManagement}></Route>
+          </BrowserRouter>
         </Container>
         {/* Footer */}
         <Navbar bg="light" sticky="bottom">
