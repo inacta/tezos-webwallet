@@ -11,8 +11,9 @@ import Col from 'react-bootstrap/Col';
 import TokenModal from './TokenModal/TokenModal';
 import TokenContractInput from './TokenContractInput/TokenContractInput';
 import TezosBalance from './TezosBalance/TezosBalance';
-import TokenBalances from './TokenBalances/TokenBalances';
 import TokenSelection from './TokenSelection/TokenSelection';
+import { InMemorySigner } from '@taquito/signer';
+import { TezBridgeSigner } from '@taquito/tezbridge-signer';
 
 const store = configureStore().store;
 
@@ -31,11 +32,8 @@ export default function Balances(props: IBalancesProps) {
 
   const [tokenModal, handleModal] = useState({
     show: false,
-    new: false,
     address: ''
   });
-
-  const [tokenBalances, updateTokenbalances] = useState([]);
 
   useEffect(() => {
     // when the component is loaded, get the tezos balance and token balances of the address
@@ -44,24 +42,9 @@ export default function Balances(props: IBalancesProps) {
       const state = store.getState();
       const address = state.accounts[state.network].address;
       const client = state.net2client[state.network];
-      const tokenContracts = state.tokens[state.network];
       if (address !== '') {
         // update Tezos balance
         updateBalance((await client.rpc.getBalance(address)).dividedBy(new BigNumber(10).pow(6)).toString());
-        // update Balances
-        const tokenBalances = [];
-        for (const contractAddress in tokenContracts) {
-          const tokenBalance = await getTokenBalance(contractAddress, address);
-          // if token was deleted while fetching the balance, this can cause issues
-          if (tokenContracts[contractAddress] !== undefined) {
-            tokenBalances.push({
-              name: tokenContracts[contractAddress].name,
-              symbol: tokenContracts[contractAddress].symbol,
-              amount: tokenBalance
-            });
-          }
-        }
-        updateTokenbalances(tokenBalances);
       } else {
         updateBalance('');
       }
@@ -76,22 +59,11 @@ export default function Balances(props: IBalancesProps) {
       ) : (
         <>
           <Row className="mt-3">
-            {/* TEZOS BALANCE */}
-            <Col sm="12" md="auto" className="mt-4">
+            <Col sm="12" md="4" className="mt-4">
               <TezosBalance balance={balance} />
             </Col>
-            {/* TOKEN BALANCES */}
-            <Col sm="12" md="4" className="mt-4">
-              <TokenBalances tokenBalances={tokenBalances}></TokenBalances>
-            </Col>
-            {/* TOKEN SELECTION */}
             <Col sm="12" md className="mt-4">
-              <TokenSelection
-                network={props.network}
-                tokens={props.tokens}
-                removeToken={props.removeToken}
-                handleModal={handleModal}
-              />
+              <TokenSelection network={props.network} tokens={props.tokens} removeToken={props.removeToken} />
             </Col>
           </Row>
           <TokenContractInput handleModal={handleModal} />

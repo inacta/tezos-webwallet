@@ -18,14 +18,12 @@ interface ITokenModalProps {
   network: Net;
   tokenModal: {
     show: boolean;
-    new: boolean;
     address: string;
   };
   addToken: (network: Net, address: string, token) => void;
   handleModal: React.Dispatch<
     React.SetStateAction<{
       show: boolean;
-      new: boolean;
       address: string;
     }>
   >;
@@ -55,7 +53,6 @@ export default function TokenModal(props: ITokenModalProps) {
     updateTokenData(undefined);
     props.handleModal({
       show: false,
-      new: false,
       address: ''
     });
   };
@@ -103,7 +100,6 @@ export default function TokenModal(props: ITokenModalProps) {
                       {Object.keys(tokenData.token.extras).map((key, i) => {
                         return (
                           <p key={i}>
-                            {/* Capitalize first letter */}
                             <b>{key}: </b>
                             {tokenData.token.extras[key]}
                           </p>
@@ -123,7 +119,7 @@ export default function TokenModal(props: ITokenModalProps) {
         <Button variant="secondary" onClick={hideModal}>
           Close
         </Button>
-        {props.tokenModal.new && tokenData !== undefined ? (
+        {tokenData !== undefined ? (
           <Button variant="primary" onClick={saveToken}>
             Add Token
           </Button>
