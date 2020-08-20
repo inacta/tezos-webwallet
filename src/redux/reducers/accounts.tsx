@@ -1,12 +1,21 @@
 import { Net } from '../../shared/TezosTypes';
+import { InMemorySigner } from '@taquito/signer';
+import { TezBridgeSigner } from '@taquito/tezbridge-signer';
 
-const initalState = {
+interface IAccountState {
+  [key: string]: {
+    signer?: InMemorySigner | TezBridgeSigner;
+    address: string;
+  };
+}
+
+const initalState: IAccountState = {
   [Net.Mainnet]: {
-    privKey: '',
+    signer: undefined,
     address: ''
   },
   [Net.Testnet]: {
-    privKey: '',
+    signer: undefined,
     address: ''
   }
 };
@@ -16,7 +25,7 @@ export default function(state = initalState, action) {
     if (action.network === Net.Mainnet) {
       state = {
         [Net.Mainnet]: {
-          privKey: '',
+          signer: undefined,
           address: action.address
         },
         [Net.Testnet]: state[Net.Testnet]
@@ -25,7 +34,7 @@ export default function(state = initalState, action) {
       state = {
         [Net.Mainnet]: state[Net.Mainnet],
         [Net.Testnet]: {
-          privKey: '',
+          signer: undefined,
           address: action.address
         }
       };
@@ -35,7 +44,7 @@ export default function(state = initalState, action) {
     if (action.network === Net.Mainnet) {
       state = {
         [Net.Mainnet]: {
-          privKey: action.privateKey,
+          signer: action.signer,
           address: action.address
         },
         [Net.Testnet]: state[Net.Testnet]
@@ -44,7 +53,7 @@ export default function(state = initalState, action) {
       state = {
         [Net.Mainnet]: state[Net.Mainnet],
         [Net.Testnet]: {
-          privKey: action.privateKey,
+          signer: action.signer,
           address: action.address
         }
       };
@@ -52,7 +61,7 @@ export default function(state = initalState, action) {
     action.asyncDispatch({
       type: 'SET_SIGNER',
       network: action.network,
-      key: action.privateKey
+      signer: action.signer
     });
     return state;
   }
