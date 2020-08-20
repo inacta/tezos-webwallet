@@ -1509,10 +1509,27 @@
     rx-sandbox "^1.0.3"
     rxjs "^6.5.5"
 
+"@taquito/tezbridge-signer@^6.3.5-beta.0":
+  version "6.3.5-beta.0"
+  resolved "https://registry.yarnpkg.com/@taquito/tezbridge-signer/-/tezbridge-signer-6.3.5-beta.0.tgz#c48bab7fc5aacf5fdb2a770944d3d3d469fded2e"
+  integrity sha512-F56vdrNBnyTydyTNKMWjAfCSNW0vge+ZaUMAx7/xoMx3L0wi8dHFzg4LkoVwEtq+pgg5dhxmPlu3930FmmRX9Q==
+  dependencies:
+    "@taquito/utils" "^6.3.5-beta.0"
+    typedarray-to-buffer "^3.1.5"
+
 "@taquito/utils@^6.3.3-beta.0":
   version "6.3.3-beta.0"
   resolved "https://registry.yarnpkg.com/@taquito/utils/-/utils-6.3.3-beta.0.tgz#91affabfd57e408873bab6e15c404e9e13cc28d9"
   integrity sha512-ebwhl6zk+RGdHj3wA5WqZz6Sz5MWg+N4+F9Vqzmk3M3zOI0UHux6XIl4qnRwU6stc0RpuQR65Mi/fgTByzqRyw==
+  dependencies:
+    blakejs "^1.1.0"
+    bs58check "^2.1.2"
+    buffer "^5.6.0"
+
+"@taquito/utils@^6.3.5-beta.0":
+  version "6.3.5-beta.0"
+  resolved "https://registry.yarnpkg.com/@taquito/utils/-/utils-6.3.5-beta.0.tgz#a4101d384ccc966591b38db77456cb2a36a13963"
+  integrity sha512-EFzDnTXMctbIEnt3yfgqPmogwxR2jTYnAZqxGOgfycYlZQWGNAfvgW5KFMlhYPAfYEAU/2euvE5BYMgnexBIOA==
   dependencies:
     blakejs "^1.1.0"
     bs58check "^2.1.2"

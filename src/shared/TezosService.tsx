@@ -48,7 +48,7 @@ export async function getTokenData(contractAddress: string) {
   return await storage.token_metadata.get('0');
 }
 
-export function convertMap(map: Map<string, string>): Object {
+export function convertMap(map: Map<string, string>): Record<string, string> {
   return [...map.entries()].reduce((obj, [key, value]) => {
     obj[key] = value;
     return obj;
@@ -63,7 +63,7 @@ export async function getTokenBalance(contractAddress: string, holderAddress: st
   const contract = await state.net2client[state.network].contract.at(contractAddress);
   const storage: any = await contract.storage();
   const token_metadata = await storage.token_metadata.get('0');
-  const balance: BigNumber = (await storage.ledger.get(holderAddress)).balance;
+  const balance: BigNumber = (await storage.ledger.get(holderAddress))?.balance ?? new BigNumber(0);
   const adjustedBalance = balance.dividedBy(new BigNumber(10).pow(token_metadata.decimals));
 
   return adjustedBalance.toString();
