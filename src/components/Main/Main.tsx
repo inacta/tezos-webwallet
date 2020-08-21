@@ -76,6 +76,7 @@ class Main extends Component<IMainProps, {}> {
           addPrivateKey={this.props.addPrivateKey}
           net2client={this.props.net2client}
           network={this.props.network}
+          accounts={this.props.accounts}
         />
         <Balances
           network={this.props.network}

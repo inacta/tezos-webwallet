@@ -4,7 +4,6 @@ import { Net } from '../../../shared/TezosTypes';
 import { EnumDictionary } from '../../../shared/AbstractTypes';
 import { TezosToolkit } from '@taquito/taquito';
 import configureStore from '../../../redux/store';
-import { getTokenBalance } from '../../../shared/TezosService';
 import BigNumber from 'bignumber.js';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -36,21 +35,18 @@ export default function Balances(props: IBalancesProps) {
   });
 
   useEffect(() => {
-    // when the component is loaded, get the tezos balance and token balances of the address
-    store.subscribe(async () => {
-      // get current state
-      const state = store.getState();
-      const address = state.accounts[state.network].address;
-      const client = state.net2client[state.network];
-      if (address !== '') {
-        // update Tezos balance
-        updateBalance((await client.rpc.getBalance(address)).dividedBy(new BigNumber(10).pow(6)).toString());
-      } else {
-        updateBalance('');
-      }
-    });
+    const client = props.net2client[props.network];
+    const address = props.accounts[props.network].address;
+    if (address !== '') {
+      // update Tezos balance
+      client.rpc.getBalance(address).then((fetchedBalance) => {
+        updateBalance(fetchedBalance.dividedBy(new BigNumber(10).pow(6)).toString());
+      });
+    } else {
+      updateBalance('');
+    }
     return function cleanup() {};
-  }, []);
+  }, [props]);
 
   return (
     <>
