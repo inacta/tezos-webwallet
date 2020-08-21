@@ -6,7 +6,7 @@ import storage from 'redux-persist/lib/storage'; // defaults to localStorage for
 
 const persistConfig = {
   key: 'root',
-  whitelist: ['network', 'tokens', 'persistRPC', 'accounts'],
+  whitelist: ['network', 'tokens', 'persistRPC'],
   storage
 };
 
