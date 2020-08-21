@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './WalletManagement.scss';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -17,6 +17,7 @@ import ImportWalletModal from './ImportWalletModal/ImportWalletModal';
 interface IWalletManagementProps {
   network: Net;
   net2client: EnumDictionary<Net, TezosToolkit>;
+  accounts: EnumDictionary<Net, { address: string; signer?: InMemorySigner | TezBridgeSigner }>;
 
   changeAddress: (address: string, network: Net) => void;
   addPrivateKey: (address: string, network: Net, signer?: InMemorySigner | TezBridgeSigner) => void;
@@ -35,6 +36,15 @@ export default function WalletManagement(props: IWalletManagementProps) {
     [Net.Mainnet]: '',
     [Net.Testnet]: ''
   });
+
+  // set address in redux on page load
+  useEffect(() => {
+    updateAddress({
+      [Net.Mainnet]: props.accounts[Net.Mainnet].address,
+      [Net.Testnet]: props.accounts[Net.Testnet].address
+    });
+    return function cleanup() {};
+  }, []);
 
   const handleShow = (newWallet: boolean) => {
     if (newWallet) {
