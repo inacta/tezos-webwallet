@@ -34,12 +34,12 @@ export default function(state = initialState, action) {
     action.asyncDispatch({
       type: 'SET_RPC_PROVIDER',
       network: Net.Testnet,
-      rpc: state[Net.Testnet]
+      rpc: action.payload === undefined ? state[Net.Testnet] : action.payload.persistRPC[Net.Testnet]
     });
     action.asyncDispatch({
       type: 'SET_RPC_PROVIDER',
       network: Net.Mainnet,
-      rpc: state[Net.Mainnet]
+      rpc: action.payload === undefined ? state[Net.Mainnet] : action.payload.persistRPC[Net.Mainnet]
     });
   }
   return state;
