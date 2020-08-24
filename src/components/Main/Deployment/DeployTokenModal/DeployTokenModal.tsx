@@ -3,8 +3,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Col from 'react-bootstrap/Col';
-import { validateAddress, ValidationResult } from '@taquito/utils';
-import { deployToken } from '../../../../shared/TezosService';
+import { deployToken, checkAddress } from '../../../../shared/TezosService';
 import { EnumDictionary } from '../../../../shared/AbstractTypes';
 import { Net, IExtraData } from '../../../../shared/TezosTypes';
 import { TezosToolkit } from '@taquito/taquito';
@@ -88,18 +87,6 @@ export default function DeployTokenModal(props) {
     updateDecimals('6');
     updateAmount('');
     updateExtraData([{ key: 'Deployed with', value: 'Tokengate' }]);
-  };
-
-  const checkAddress = (value) => {
-    const res = validateAddress(value);
-    if (res === ValidationResult.NO_PREFIX_MATCHED) {
-      return 'Invalid Address: no prefix matched';
-    } else if (res === ValidationResult.INVALID_CHECKSUM) {
-      return 'Invalid checksum';
-    } else if (res === ValidationResult.INVALID_LENGTH) {
-      return 'Invalid length';
-    }
-    return '';
   };
 
   const handleDecimalUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
