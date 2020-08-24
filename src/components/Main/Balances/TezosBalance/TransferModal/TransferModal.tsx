@@ -18,11 +18,11 @@ interface ITransferModal {
 export default function TransferModal(props: ITransferModal) {
   const [validated, setValidated] = useState(false);
   const [address, updateAddress] = useState('');
+  const [amount, updateAmount] = useState('');
   const [addressError, updateAddressError] = useState('');
   const [amountError, updateAmountError] = useState('');
   const [fee, updateFee] = useState('');
   const [calculatingFee, updateCF] = useState(false);
-  const [amount, updateAmount] = useState('');
   const [loading, updateLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -103,6 +103,12 @@ export default function TransferModal(props: ITransferModal) {
   const reset = () => {
     setValidated(false);
     updateLoading(false);
+    updateAddress('');
+    updateAmount('');
+    updateAddressError('');
+    updateAmountError('');
+    updateFee('');
+    updateCF(false);
   };
   return (
     <Modal show={props.show} centered size="lg" onHide={props.hideModal} onSubmit={handleSubmit} onEntered={reset}>
