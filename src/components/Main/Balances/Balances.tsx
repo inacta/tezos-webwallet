@@ -35,18 +35,21 @@ export default function Balances(props: IBalancesProps) {
   });
 
   useEffect(() => {
-    const client = props.net2client[props.network];
-    const address = props.accounts[props.network].address;
-    if (address !== '') {
-      // update Tezos balance
-      client.rpc.getBalance(address).then((fetchedBalance) => {
-        updateBalance(fetchedBalance.dividedBy(new BigNumber(10).pow(6)).toString());
-      });
+    if (props.accounts[props.network].address !== '') {
+      getBalance();
     } else {
       updateBalance('');
     }
     return function cleanup() {};
   }, [props]);
+
+  const getBalance = async () => {
+    const client = props.net2client[props.network];
+    const address = props.accounts[props.network].address;
+    client.rpc.getBalance(address).then((fetchedBalance) => {
+      updateBalance(fetchedBalance.dividedBy(new BigNumber(10).pow(6)).toString());
+    });
+  };
 
   return (
     <>
@@ -56,7 +59,11 @@ export default function Balances(props: IBalancesProps) {
         <>
           <Row className="mt-3">
             <Col sm="12" md="4" className="mt-4">
-              <TezosBalance balance={balance} />
+              <TezosBalance
+                balance={balance}
+                balanceCallback={getBalance}
+                showTransfer={props.net2client[props.network].signer !== undefined}
+              />
             </Col>
             <Col sm="12" md className="mt-4">
               <TokenSelection network={props.network} tokens={props.tokens} removeToken={props.removeToken} />

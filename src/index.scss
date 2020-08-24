@@ -68,6 +68,10 @@ button:focus {
 
 @import '~bootstrap/scss/bootstrap';
 
+.notification-parent {
+  width: auto !important;
+}
+
 .permanent-notification {
   background-color: $secondary;
   border-left: 8px solid darken($secondary, 15%);

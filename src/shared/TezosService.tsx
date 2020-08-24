@@ -27,6 +27,18 @@ export function isValidSecretKey(key: string): boolean {
   }
 }
 
+export function checkAddress(value): string {
+  const res = validateAddress(value);
+  if (res === ValidationResult.NO_PREFIX_MATCHED) {
+    return 'Invalid Address: no prefix matched';
+  } else if (res === ValidationResult.INVALID_CHECKSUM) {
+    return 'Invalid checksum';
+  } else if (res === ValidationResult.INVALID_LENGTH) {
+    return 'Invalid length';
+  }
+  return '';
+}
+
 export const CONTRACT_ADDRESS_PREFIX = 'KT1';
 
 export function isContractAddress(address: string) {
@@ -36,6 +48,44 @@ export function isContractAddress(address: string) {
 
   // A valid contract address starts with 'KT1'
   return address.substring(0, 3) === CONTRACT_ADDRESS_PREFIX && validateAddress(address) === ValidationResult.VALID;
+}
+
+export async function estimateCosts(recipient: string, amount: number) {
+  const state = store.getState();
+  return await state.net2client[state.network].estimate.transfer({ to: recipient, amount });
+}
+
+export async function transferTezos(
+  recipient: string,
+  amount: number,
+  afterDeploymentCallback: Function,
+  afterConfirmationCallback: Function
+): Promise<void> {
+  const state = store.getState();
+  state.net2client[state.network].contract
+    .transfer({
+      to: recipient,
+      amount: amount
+    })
+    .then((op) => {
+      if (afterDeploymentCallback) {
+        afterDeploymentCallback();
+      }
+      const id = addPermanentNotification('Transaction was sent successfully: ' + op.hash);
+      op.confirmation(1)
+        .then(() => {
+          addNotification('success', 'Transaction completed successfully');
+        })
+        .catch((e) => {
+          addNotification('danger', 'Transaction failed');
+        })
+        .finally(() => {
+          removeNotification(id);
+          if (afterConfirmationCallback) {
+            afterConfirmationCallback();
+          }
+        });
+    });
 }
 
 export async function getTokenData(contractAddress: string) {
