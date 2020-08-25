@@ -24,14 +24,16 @@ export default function TezosBalance(props: ITezosBalance) {
           <h5>
             {props.balance} <b>ꜩ</b>
           </h5>
-          <Button onClick={() => updateModal(true)}>Transfer</Button>
           {props.showTransfer ? (
-            <TransferModal
-              show={showModal}
-              hideModal={hideModal}
-              balance={props.balance}
-              balanceCallback={props.balanceCallback}
-            ></TransferModal>
+            <>
+              <Button onClick={() => updateModal(true)}>Transfer</Button>
+              <TransferModal
+                show={showModal}
+                hideModal={hideModal}
+                balance={props.balance}
+                balanceCallback={props.balanceCallback}
+              ></TransferModal>
+            </>
           ) : (
             <></>
           )}

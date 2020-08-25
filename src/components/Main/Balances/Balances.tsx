@@ -62,7 +62,7 @@ export default function Balances(props: IBalancesProps) {
               <TezosBalance
                 balance={balance}
                 balanceCallback={getBalance}
-                showTransfer={props.net2client[props.network].signer !== undefined}
+                showTransfer={props.accounts[props.network].signer !== undefined}
               />
             </Col>
             <Col sm="12" md className="mt-4">
