@@ -55,6 +55,7 @@ export default function TransferModal(props: ITransferModal) {
 
     if (formValue === '') {
       updateAmount('');
+      updateAmountError('');
       return;
     }
 
@@ -73,8 +74,13 @@ export default function TransferModal(props: ITransferModal) {
     // check if address is valid
     const err = checkAddress(formValue);
     // set form validation according to result. Empty string means it passed validation
-    updateAddressError(err);
     updateAddress(formValue);
+    if (formValue === '') {
+      updateAddressError('');
+      return;
+    }
+    updateAddressError(err);
+
     if (err === '') {
       estimateFee(formValue, amount);
     }
@@ -83,6 +89,7 @@ export default function TransferModal(props: ITransferModal) {
   const estimateFee = async (recipient: string, amount: string) => {
     if (checkAddress(recipient) === '' && amount !== '') {
       let _amountError = '';
+      updateAmountError(_amountError);
       updateCF(true);
       try {
         const gasEstimations = await estimateCosts(recipient, parseFloat(amount));
@@ -94,8 +101,8 @@ export default function TransferModal(props: ITransferModal) {
           _amountError = 'You cannot send an empty transaction';
         }
       } finally {
-        updateCF(false);
         updateAmountError(_amountError);
+        updateCF(false);
       }
     }
   };
@@ -125,6 +132,7 @@ export default function TransferModal(props: ITransferModal) {
                 placeholder="Tezos address"
                 value={address}
                 onChange={_updateAddress}
+                className={addressError !== '' ? 'is-invalid' : ''}
                 required
               ></Form.Control>
               <Form.Control.Feedback type="invalid">{addressError}</Form.Control.Feedback>
@@ -138,6 +146,7 @@ export default function TransferModal(props: ITransferModal) {
                   value={amount}
                   onChange={checkAmount}
                   required
+                  className={amountError !== '' ? 'is-invalid' : ''}
                 ></Form.Control>
                 <InputGroup.Append>
                   <InputGroup.Text>ꜩ</InputGroup.Text>
@@ -145,14 +154,15 @@ export default function TransferModal(props: ITransferModal) {
                 <Form.Control.Feedback type="invalid">{amountError}</Form.Control.Feedback>
               </InputGroup>
               <Form.Text className="text-muted">
-                {calculatingFee ? `Calculating fee...` : fee !== '' ? `Fee for this transaction : ${fee} ꜩ` : ''}
+                {calculatingFee
+                  ? `Calculating fee...`
+                  : fee !== '' && amountError === '' && addressError === ''
+                  ? `Fee for this transaction : ${fee} ꜩ`
+                  : ''}
               </Form.Text>
             </Form.Group>
           </Form.Row>
         </Form>
-        {/* <span className="text-muted">
-          {calculatingFee ? 'Calculating fee ...' : fee !== '' ? `Fee for this transaction : ${fee} ꜩ` : ''}
-        </span> */}
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={props.hideModal}>
