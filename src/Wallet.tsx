@@ -5,7 +5,7 @@ import { EnumDictionary } from './shared/AbstractTypes';
 import { Net } from './shared/TezosTypes';
 import React from 'react';
 import { TezosToolkit } from '@taquito/taquito';
-import { printPdf } from './helpers/walletPdf';
+import { printPdf } from './helpers/walletPdf.bak';
 import { sha256 } from 'crypto-hash';
 
 export interface IWalletProps {
