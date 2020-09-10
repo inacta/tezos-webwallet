@@ -5,6 +5,7 @@
   "main": "src/public/index.html",
   "scripts": {
     "build": "yarn run clean && yarn eslint src/**/*.{ts,tsx} && react-scripts build",
+    "build:bamboo": "react-scripts build",
     "clean": "rm -rf dist",
     "eject": "react-scripts eject",
     "lint": "yarn eslint src/*.ts src/*.tsx",
