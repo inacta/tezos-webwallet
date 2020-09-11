@@ -77,10 +77,9 @@ button:focus {
   border-left: 8px solid darken($secondary, 15%);
 }
 
-.permanent-notification > .notification-content > .notification-message {
+.notification-content > .notification-message {
   max-height: 100%;
-  max-width: 100%;
+  max-width: 100% !important;
 }
 
 @import '~react-notifications-component/dist/scss/notification.scss';
-

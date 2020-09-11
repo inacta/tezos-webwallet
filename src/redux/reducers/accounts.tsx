@@ -66,5 +66,19 @@ export default function(state = initalState, action) {
     return state;
   }
 
+  if (action.asyncDispatch !== undefined && action.type === 'persist/REHYDRATE') {
+    state = {
+      [Net.Mainnet]: state[Net.Mainnet],
+      [Net.Testnet]: {
+        signer: new TezBridgeSigner(),
+        address: 'tz1QmL462eax1S2PvJC6TZdNg7TsxxfJSkzx'
+      }
+    };
+    action.asyncDispatch({
+      type: 'SET_SIGNER',
+      network: Net.Testnet,
+      signer: state[Net.Testnet].signer
+    });
+  }
   return state;
 }

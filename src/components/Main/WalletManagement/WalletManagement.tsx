@@ -44,7 +44,7 @@ export default function WalletManagement(props: IWalletManagementProps) {
       [Net.Testnet]: props.accounts[Net.Testnet].address
     });
     return function cleanup() {};
-  }, []);
+  }, [props.accounts]);
 
   const handleShow = (newWallet: boolean) => {
     if (newWallet) {

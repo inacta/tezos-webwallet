@@ -3,14 +3,7 @@ import './Main.scss';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Switch from 'react-switch';
-import {
-  switchNetwork,
-  changeAddress,
-  addPrivateKey,
-  setRPCProvider,
-  addToken,
-  removeToken
-} from '../../redux/actions';
+import { setNetwork, changeAddress, addPrivateKey, setRPCProvider, addToken, removeToken } from '../../redux/actions';
 import { connect } from 'react-redux';
 import { Net } from '../../shared/TezosTypes';
 import { EnumDictionary } from '../../shared/AbstractTypes';
@@ -20,14 +13,19 @@ import Balances from './Balances/Balances';
 import Deployment from './Deployment/Deployment';
 import { InMemorySigner } from '@taquito/signer';
 import { TezBridgeSigner } from '@taquito/tezbridge-signer';
+import { isValidAddress } from '../../shared/TezosService';
+const qs = require('qs');
 
 interface IMainProps {
   network: Net;
   accounts: EnumDictionary<Net, { address: string; signer?: InMemorySigner | TezBridgeSigner }>;
   net2client: EnumDictionary<Net, TezosToolkit>;
   tokens: EnumDictionary<Net, Array<{ symbol: string; address: string }>>;
+  location: {
+    search: string;
+  };
 
-  switchNetwork: () => void;
+  setNetwork: (network: Net) => void;
   changeAddress: (address: string, network: Net) => void;
   addPrivateKey: (address: string, network: Net, signer?: InMemorySigner | TezBridgeSigner) => void;
   setRPCProvider: (network: Net, rpc: string) => void;
@@ -36,6 +34,33 @@ interface IMainProps {
 }
 
 class Main extends Component<IMainProps, {}> {
+  constructor(props: IMainProps) {
+    super(props);
+    const queryParams = qs.parse(this.props.location.search, { ignoreQueryPrefix: true });
+
+    let network = this.props.network;
+
+    if (queryParams.network === 'mainnet') {
+      network = Net.Mainnet;
+      this.props.setNetwork(Net.Mainnet);
+    } else if (queryParams.network === 'carthage') {
+      network = Net.Testnet;
+      this.props.setNetwork(Net.Testnet);
+    }
+
+    if (isValidAddress(queryParams.address)) {
+      this.props.addPrivateKey(queryParams.address, network);
+    }
+  }
+
+  switchNetwork = () => {
+    if (this.props.network === Net.Mainnet) {
+      this.props.setNetwork(Net.Testnet);
+    } else {
+      this.props.setNetwork(Net.Mainnet);
+    }
+  };
+
   render() {
     return (
       <div>
@@ -57,7 +82,7 @@ class Main extends Component<IMainProps, {}> {
               <span className="mr-1">{Net.Testnet}</span>
               <Switch
                 className="mr-1"
-                onChange={() => this.props.switchNetwork()}
+                onChange={this.switchNetwork}
                 checked={this.props.network === Net.Mainnet}
                 checkedIcon={false}
                 uncheckedIcon={false}
@@ -111,7 +136,7 @@ let mapStateToProps = function(state) {
 };
 
 let mapDispatchToProps = {
-  switchNetwork: switchNetwork,
+  setNetwork: setNetwork,
   changeAddress: changeAddress,
   addPrivateKey: addPrivateKey,
   setRPCProvider: setRPCProvider,

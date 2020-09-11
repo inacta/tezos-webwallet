@@ -2,9 +2,10 @@ import { Net } from '../../shared/TezosTypes';
 import { InMemorySigner } from '@taquito/signer';
 import { TezBridgeSigner } from '@taquito/tezbridge-signer';
 
-export function switchNetwork() {
+export function setNetwork(network: Net) {
   return {
-    type: 'SWITCH'
+    type: 'SET_NETWORK',
+    network
   };
 }
 

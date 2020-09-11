@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Modal from 'react-bootstrap/Modal';
 import BigNumber from 'bignumber.js';
-import { Net } from '../../../../shared/TezosTypes';
+import { Net, TokenStandard } from '../../../../shared/TezosTypes';
 import Loading from '../../../Loading/Loading';
 import { convertMap, getTokenData } from '../../../../shared/TezosService';
 import { addNotification } from '../../../../shared/NotificationService';
@@ -37,7 +37,7 @@ export default function TokenModal(props: ITokenModalProps) {
   };
 
   const getContractInfo = async () => {
-    const fetchedTokenData = await getTokenData(props.tokenModal.address);
+    const fetchedTokenData = await getTokenData(props.tokenModal.address, TokenStandard.fa2);
     updateTokenData({
       address: props.tokenModal.address,
       token: {

@@ -27,7 +27,7 @@ export default function Deployment(props: IDeployment) {
       <Row>
         <Col sm="6" xs="12" className="mt-3">
           <Button block onClick={() => updateModal(true)}>
-            Deploy new FA2 Token
+            Deploy new Token
           </Button>
         </Col>
         <Col sm="6" xs="12" className="mt-3">

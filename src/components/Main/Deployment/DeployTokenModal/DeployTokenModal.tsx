@@ -3,9 +3,11 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Col from 'react-bootstrap/Col';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import ToggleButton from 'react-bootstrap/ToggleButton';
 import { deployToken, checkAddress } from '../../../../shared/TezosService';
 import { EnumDictionary } from '../../../../shared/AbstractTypes';
-import { Net, IExtraData } from '../../../../shared/TezosTypes';
+import { Net, IExtraData, TokenStandard } from '../../../../shared/TezosTypes';
 import { TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import Loading from '../../../Loading/Loading';
@@ -24,6 +26,7 @@ export default function DeployTokenModal(props) {
   const decimalsMax = 18;
   const decimalsMin = 0;
 
+  const [tokenStandard, updateTokenStandard] = useState(TokenStandard.fa1_2);
   const [validated, setValidated] = useState(false);
   const [addressError, updateAddressError] = useState('');
   const [amount, updateAmount] = useState('');
@@ -67,11 +70,12 @@ export default function DeployTokenModal(props) {
 
       updateDeploymentState(true);
       deployToken(
+        tokenStandard,
         tokenName,
         tokenSymbol,
         tokenDecimals,
         addressInput.value,
-        mintingAmountBN.toString(),
+        mintingAmountBN.toFixed(),
         extraData,
         props.addToken,
         () => props.updateModal(false)
@@ -79,6 +83,11 @@ export default function DeployTokenModal(props) {
     }
 
     setValidated(true);
+  };
+
+  const switchTokenType = (newType: TokenStandard) => {
+    updateTokenStandard(newType);
+    _checkAmount(amount, decimals, newType);
   };
 
   const reset = () => {
@@ -102,21 +111,28 @@ export default function DeployTokenModal(props) {
     // update the stored value
     updateDecimals(formValue);
     // adjust minting amount according to decimals
-    _checkAmount(amount, formValue);
+    _checkAmount(amount, formValue, tokenStandard);
   };
 
   const checkAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
     let formValue = event.currentTarget.value;
-    _checkAmount(formValue, decimals);
+    _checkAmount(formValue, decimals, tokenStandard);
   };
 
   // we have to pass the values to the function, as when updating the state, the new value only becomes available after rerendering
-  const _checkAmount = (amount: string, _decimals: string) => {
+  const _checkAmount = (amount: string, _decimals: string, tokenType: TokenStandard) => {
     // if no decimals are provided, assume the maximum number of decimals
     if (_decimals === '') {
       _decimals = decimalsMax.toString();
     }
-    const regexString = `^(0|[1-9][0-9]{0,10})(\\.([0-9]{0,${_decimals}}))?`;
+    let regexString: string;
+    if (tokenType === TokenStandard.fa1_2) {
+      regexString = `^(0|[1-9][0-9]{0,18})?`;
+    } else if (tokenType === TokenStandard.fa2) {
+      regexString = `^(0|[1-9][0-9]{0,18})(\\.([0-9]{0,${_decimals}}))?`;
+    } else {
+      return;
+    }
     const decimalRegex = new RegExp(regexString);
     const matchedFloat = amount.match(decimalRegex);
     if (amount === '') {
@@ -136,37 +152,66 @@ export default function DeployTokenModal(props) {
       onEntered={reset}
     >
       <Modal.Header closeButton>
-        <Modal.Title>Deploy a new FA2 Token</Modal.Title>
+        <Modal.Title>Deploy a new Token</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        <h5 className="mb-3">
+          Token type
+          <ButtonGroup toggle className="ml-2">
+            <ToggleButton
+              type="radio"
+              variant="primary"
+              name="radio"
+              value={TokenStandard.fa1_2}
+              checked={tokenStandard === TokenStandard.fa1_2}
+              onChange={(e) => switchTokenType(e.currentTarget.value)}
+            >
+              FA1.2
+            </ToggleButton>
+            <ToggleButton
+              type="radio"
+              variant="primary"
+              name="radio"
+              value={TokenStandard.fa2}
+              checked={tokenStandard === TokenStandard.fa2}
+              onChange={(e) => switchTokenType(e.currentTarget.value)}
+            >
+              FA2
+            </ToggleButton>
+          </ButtonGroup>
+        </h5>
         <Form noValidate validated={validated} id="token-deployment-form">
           <Form.Row>
-            <Form.Group as={Col} md="4" controlId="name">
+            <Form.Group as={Col} md controlId="name">
               <Form.Label>Token name</Form.Label>
               <Form.Control type="text" placeholder="Token name" pattern="^[a-zA-Z0-9 ]{0,}$" required />
               <Form.Control.Feedback type="invalid">
                 Please enter a token name that only contains numbers, letters and spaces
               </Form.Control.Feedback>
             </Form.Group>
-            <Form.Group as={Col} md="4" controlId="symbol">
+            <Form.Group as={Col} md controlId="symbol">
               <Form.Label>Token symbol</Form.Label>
               <Form.Control type="text" placeholder="Token symbol" pattern="^[A-Z0-9]{0,6}$" required />
               <Form.Control.Feedback type="invalid">
                 The token symbol can be up to 6 uppercase letters and numbers
               </Form.Control.Feedback>
             </Form.Group>
-            <Form.Group as={Col} md="4" controlId="decimals">
-              <Form.Label>Number of decimals</Form.Label>
-              <Form.Control
-                type="string"
-                placeholder={decimalsMax.toString()}
-                value={decimals}
-                onChange={handleDecimalUpdate}
-              />
-              <Form.Control.Feedback type="invalid">Please enter the number of decimals</Form.Control.Feedback>
-            </Form.Group>
+            {tokenStandard === TokenStandard.fa2 ? (
+              <Form.Group as={Col} md controlId="decimals">
+                <Form.Label>Number of decimals</Form.Label>
+                <Form.Control
+                  type="string"
+                  placeholder={decimalsMax.toString()}
+                  value={decimals}
+                  onChange={handleDecimalUpdate}
+                />
+                <Form.Control.Feedback type="invalid">Please enter the number of decimals</Form.Control.Feedback>
+              </Form.Group>
+            ) : (
+              <></>
+            )}
           </Form.Row>
-          {/* <h4>Initial balance</h4> */}
+          <h5>Initial balance</h5>
           <Form.Row>
             <Form.Group as={Col} md="6" controlId="address">
               <Form.Label>Tezos address</Form.Label>
@@ -179,7 +224,11 @@ export default function DeployTokenModal(props) {
               <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
             </Form.Group>
           </Form.Row>
-          <DeployTokenModalExtraField extraData={extraData} updateExtraData={updateExtraData} />
+          {tokenStandard === TokenStandard.fa2 ? (
+            <DeployTokenModalExtraField extraData={extraData} updateExtraData={updateExtraData} />
+          ) : (
+            <></>
+          )}
         </Form>
       </Modal.Body>
       <Modal.Footer>

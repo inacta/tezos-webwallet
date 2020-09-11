@@ -1,9 +1,70 @@
-import React from 'react';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Net, TokenStandard } from '../../shared/TezosTypes';
+import { EnumDictionary } from '../../shared/AbstractTypes';
+import { TezosToolkit } from '@taquito/taquito';
+import { InMemorySigner } from '@taquito/signer';
+import { TezBridgeSigner } from '@taquito/tezbridge-signer';
+import FA1_2Component from './FA1_2Component/FA1_2Component';
+import FA2Component from './FA2Component/FA2Component';
 
-export default function TokenManagement() {
-  return (
-    <div>
-      <h3>Token</h3>
-    </div>
-  );
+interface ITokenManagement {
+  network: Net;
+  accounts: EnumDictionary<Net, { address: string; signer?: InMemorySigner | TezBridgeSigner }>;
+  net2client: EnumDictionary<Net, TezosToolkit>;
+  tokens: EnumDictionary<Net, Array<{ symbol: string; address: string }>>;
+  match: {
+    params: {
+      address: string;
+    };
+  };
 }
+
+class TokenManagement extends Component<ITokenManagement, {}> {
+  private contractAddress: string;
+  private token;
+
+  public constructor(props: ITokenManagement) {
+    super(props);
+    this.contractAddress = this.props.match.params.address;
+    this.token = this.props.tokens[this.props.network][this.contractAddress];
+  }
+
+  render() {
+    return (
+      <div>
+        <h3>
+          {this.token.name}
+          <small>
+            <span className="text-muted ml-2">{this.token.type === TokenStandard.fa1_2 ? 'FA1.2' : 'FA2'}</span>
+          </small>
+        </h3>
+        {this.token.type === TokenStandard.fa1_2 ? (
+          <FA1_2Component
+            address={this.props.accounts[this.props.network].address}
+            contractAddress={this.contractAddress}
+            symbol={this.token.symbol}
+            showTransfer={this.props.accounts[this.props.network].signer !== undefined}
+          />
+        ) : (
+          <FA2Component />
+        )}
+      </div>
+    );
+  }
+}
+
+let mapStateToProps = function(state) {
+  return {
+    network: state.network,
+    accounts: state.accounts,
+    net2client: state.net2client,
+    tokens: state.tokens
+  };
+};
+
+let mapDispatchToProps = {};
+
+let TokenManagementContainer = connect(mapStateToProps, mapDispatchToProps)(TokenManagement);
+
+export default TokenManagementContainer;
