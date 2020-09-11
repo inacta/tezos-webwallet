@@ -1,6 +1,7 @@
+/* eslint-disable sort-imports */
 import React from 'react';
-import { store } from 'react-notifications-component';
 import ProgressBar from 'react-bootstrap/ProgressBar';
+import { store } from 'react-notifications-component';
 
 export function addNotification(type: string, message: string): number {
   return store.addNotification({

@@ -1,10 +1,11 @@
-import { Net } from '../../shared/TezosTypes';
+import { Net, TokenStandard } from '../../shared/TezosTypes';
 import BigNumber from 'bignumber.js';
 
 const initialState = {
   [Net.Mainnet]: {},
   [Net.Testnet]: {
     KT1JE97wUP7pmWRy7vKYHbuVoMnF9tcX4cY7: {
+      type: TokenStandard.fa2,
       name: 'CVL',
       symbol: 'CVL',
       decimals: new BigNumber(8),

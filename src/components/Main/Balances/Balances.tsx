@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import './Balances.scss';
 import { Net } from '../../../shared/TezosTypes';
 import { EnumDictionary } from '../../../shared/AbstractTypes';
 import { TezosToolkit } from '@taquito/taquito';
-import configureStore from '../../../redux/store';
 import BigNumber from 'bignumber.js';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -13,8 +12,6 @@ import TezosBalance from './TezosBalance/TezosBalance';
 import TokenSelection from './TokenSelection/TokenSelection';
 import { InMemorySigner } from '@taquito/signer';
 import { TezBridgeSigner } from '@taquito/tezbridge-signer';
-
-const store = configureStore().store;
 
 interface IBalancesProps {
   network: Net;
@@ -34,6 +31,14 @@ export default function Balances(props: IBalancesProps) {
     address: ''
   });
 
+  const getBalance = useCallback(async () => {
+    const client = props.net2client[props.network];
+    const address = props.accounts[props.network].address;
+    client.rpc.getBalance(address).then((fetchedBalance) => {
+      updateBalance(fetchedBalance.dividedBy(new BigNumber(10).pow(6)).toString());
+    });
+  }, [props]);
+
   useEffect(() => {
     if (props.accounts[props.network].address !== '') {
       getBalance();
@@ -41,15 +46,7 @@ export default function Balances(props: IBalancesProps) {
       updateBalance('');
     }
     return function cleanup() {};
-  }, [props]);
-
-  const getBalance = async () => {
-    const client = props.net2client[props.network];
-    const address = props.accounts[props.network].address;
-    client.rpc.getBalance(address).then((fetchedBalance) => {
-      updateBalance(fetchedBalance.dividedBy(new BigNumber(10).pow(6)).toString());
-    });
-  };
+  }, [props, getBalance]);
 
   return (
     <>

@@ -1,7 +1,7 @@
 /* eslint-disable sort-imports */
 import './App.scss';
 import React from 'react';
-import { Route, Redirect } from 'react-router-dom';
+import { Route, Redirect, Switch } from 'react-router-dom';
 import { BrowserRouter } from 'react-router-dom';
 
 import Header from './components/Header/Header';
@@ -26,11 +26,13 @@ export class App extends React.Component<{}, {}> {
           ]}
         />
         <Header />
-        <Container className="container py-5 flex-fill flex-grow-1">
+        <Container className="py-5 flex-fill flex-grow-1">
           <BrowserRouter>
-            <Route path="/" exact={true} component={Main}></Route>
-            <Redirect from="/token" to="/"></Redirect>
-            <Route path="/token/:address" component={TokenManagement}></Route>
+            <Switch>
+              <Route path="/" exact={true} component={Main}></Route>
+              <Route path="/token/:address" component={TokenManagement}></Route>
+              <Redirect from="*" to="/" strict={true}></Redirect>
+            </Switch>
           </BrowserRouter>
         </Container>
         {/* Footer */}
