@@ -36,10 +36,10 @@ class TokenManagement extends Component<ITokenManagement, {}> {
         <h3>
           {this.token.name}
           <small>
-            <span className="text-muted ml-2">{this.token.type === TokenStandard.fa1_2 ? 'FA1.2' : 'FA2'}</span>
+            <span className="text-muted ml-2">{this.token.type === TokenStandard.FA1_2 ? 'FA1.2' : 'FA2'}</span>
           </small>
         </h3>
-        {this.token.type === TokenStandard.fa1_2 ? (
+        {this.token.type === TokenStandard.FA1_2 ? (
           <FA1_2Component
             address={this.props.accounts[this.props.network].address}
             contractAddress={this.contractAddress}

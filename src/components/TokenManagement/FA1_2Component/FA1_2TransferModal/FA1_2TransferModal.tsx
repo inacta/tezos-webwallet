@@ -4,17 +4,21 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { transferTezos, checkAddress, estimateCosts } from '../../../../shared/TezosService';
+import { checkAddress, estimateTokenTransferCosts, transferToken } from '../../../../shared/TezosService';
 import BigNumber from 'bignumber.js';
 import Loading from '../../../Loading/Loading';
+import { TokenStandard } from '../../../../shared/TezosTypes';
 
 interface IFA1_2TransferModal {
   show: boolean;
   balance: string;
   symbol: string;
+  contractAddress: string;
   hideModal: () => void;
   balanceCallback: () => void;
 }
+
+let nonce = 0;
 
 export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
   const [validated, setValidated] = useState(false);
@@ -26,6 +30,7 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
   const [calculatingFee, updateCF] = useState(false);
   const [loading, updateLoading] = useState(false);
 
+  // nonce for fee estimation
   const handleSubmit = async (event: React.FormEvent) => {
     // get form from event
     const form = event.target as HTMLFormElement;
@@ -44,7 +49,14 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
     if (form.checkValidity() === false) {
       event.stopPropagation();
     } else {
-      transferTezos(addressInput.value, parseFloat(amount), props.hideModal, props.balanceCallback);
+      transferToken(
+        TokenStandard.FA1_2,
+        props.contractAddress,
+        addressInput.value,
+        amount,
+        props.hideModal,
+        props.balanceCallback
+      );
       updateLoading(true);
     }
 
@@ -60,7 +72,7 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
       return;
     }
 
-    const regexString = `^(0|[1-9][0-9]{0,18})?`;
+    const regexString = `^(0|[1-9][0-9]*)?`;
     const decimalRegex = new RegExp(regexString);
     const matchedFloat = formValue.match(decimalRegex);
     if (matchedFloat !== null) {
@@ -89,21 +101,44 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
 
   const estimateFee = async (recipient: string, amount: string) => {
     if (checkAddress(recipient) === '' && amount !== '') {
+      // keep track of fee estimation requests
+      nonce += 1;
+      const nonceTmp = nonce;
       let _amountError = '';
+      if (new BigNumber(amount).gt(new BigNumber(props.balance))) {
+        updateAmountError('Insufficient token balance');
+        updateCF(false);
+        return;
+      }
       updateAmountError(_amountError);
       updateCF(true);
       try {
-        const gasEstimations = await estimateCosts(recipient, parseFloat(amount));
-        updateFee(new BigNumber(gasEstimations.suggestedFeeMutez).dividedBy(new BigNumber(10).pow(6)).toString());
+        const gasEstimations = await estimateTokenTransferCosts(
+          TokenStandard.FA1_2,
+          props.contractAddress,
+          recipient,
+          amount
+        );
+        const res = new BigNumber(gasEstimations.suggestedFeeMutez).dividedBy(new BigNumber(10).pow(6)).toString();
+        // only update the fee if this is the latest request
+        if (nonce === nonceTmp) {
+          updateFee(res);
+        } else {
+          return;
+        }
       } catch (e) {
+        console.warn(e);
         if (e.id === 'proto.006-PsCARTHA.contract.balance_too_low') {
           _amountError = 'Insufficient balance';
         } else if (e.id === 'proto.006-PsCARTHA.contract.empty_transaction') {
           _amountError = 'You cannot send an empty transaction';
         }
       } finally {
-        updateAmountError(_amountError);
-        updateCF(false);
+        // only update the fee if this is the latest request
+        if (nonce === nonceTmp) {
+          updateAmountError(_amountError);
+          updateCF(false);
+        }
       }
     }
   };

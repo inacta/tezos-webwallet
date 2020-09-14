@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Loading from '../../Loading/Loading';
 import FA1_2TransferModal from './FA1_2TransferModal/FA1_2TransferModal';
-import { getTokenData } from '../../../shared/TezosService';
+import { getContract, getTokenData } from '../../../shared/TezosService';
 import { TokenStandard } from '../../../shared/TezosTypes';
 import { Button } from 'react-bootstrap';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { Redirect } from 'react-router-dom';
 
 interface IFA1_2Component {
   address: string;
@@ -14,6 +15,7 @@ interface IFA1_2Component {
 }
 
 export default function FA1_2Component(props: IFA1_2Component) {
+  const [accountExists, updateExistance] = useState(true);
   const [balance, updateBalance] = useState('');
   const [showModal, updateModal] = useState(false);
   const [whitelisted, updateWhitelisted] = useState(false);
@@ -24,16 +26,16 @@ export default function FA1_2Component(props: IFA1_2Component) {
   }, []);
 
   const getTokenInfo = async () => {
-    console.log(props.address);
-    console.log(props.contractAddress);
-    const data = await getTokenData(props.contractAddress, TokenStandard.fa1_2);
+    const contract = await getContract(props.contractAddress);
+    const data = await getTokenData(contract, TokenStandard.FA1_2);
     const ledgerEntry = await data.ledger.get(props.address);
     updateWhitelisted(data.whitelisteds.includes(props.address));
-    updateBalance(ledgerEntry.balance.toFixed());
+    updateBalance(ledgerEntry ? ledgerEntry.balance.toFixed() : '0');
   };
 
   return (
     <div>
+      {accountExists ? <></> : <Redirect to="/" />}
       {balance !== '' ? (
         <div className="d-flex justify-content-between">
           <div>
@@ -50,6 +52,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
                   symbol={props.symbol}
                   balance={balance}
                   balanceCallback={getTokenInfo}
+                  contractAddress={props.contractAddress}
                 ></FA1_2TransferModal>
               </>
             ) : (

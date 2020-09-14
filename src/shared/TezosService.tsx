@@ -5,7 +5,8 @@ import configureStore from '../redux/store';
 import BigNumber from 'bignumber.js';
 import { FA2_BASIC, FA2_BASIC_STORAGE, FA1_2_WHITELIST, FA1_2_WHITELIST_STORAGE } from './ContractAssembly';
 import { addPermanentNotification, removeNotification, addNotification } from './NotificationService';
-import { IExtraData, TokenStandard } from './TezosTypes';
+import { IContractInformation, IExtraData, ITokenMetadata, TokenStandard } from './TezosTypes';
+import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
 
 const store = configureStore().store;
 
@@ -59,11 +60,107 @@ export async function estimateCosts(recipient: string, amount: number) {
   return await state.net2client[state.network].estimate.transfer({ to: recipient, amount });
 }
 
+export async function estimateTokenTransferCosts(
+  tokenType: TokenStandard,
+  contractAddress: string,
+  recipient: string,
+  amount: string,
+  decimals?: number,
+  tokenId?: number
+) {
+  const state = store.getState();
+  const client = state.net2client[state.network];
+  const sender = await state.accounts[state.network].address;
+  const contract: ContractAbstraction<ContractProvider> = await client.contract.at(contractAddress);
+
+  let tx;
+  if (tokenType === TokenStandard.FA1_2) {
+    tx = await contract.methods.transfer(sender, recipient, amount).toTransferParams({});
+  } else if (tokenType === TokenStandard.FA2) {
+    if (decimals === undefined) throw new Error('decimals is undefined');
+    if (tokenId === undefined) throw new Error('tokenId is undefined');
+    const transferParam = [
+      {
+        from_: sender,
+        txs: [
+          {
+            amount: new BigNumber(amount).multipliedBy(new BigNumber(10).pow(new BigNumber(decimals))),
+            to_: recipient,
+            token_id: tokenId
+          }
+        ]
+      }
+    ];
+    tx = await contract.methods.transfer(transferParam).toTransferParams({});
+  }
+
+  return await client.estimate.transfer(tx);
+}
+
+function getObjectMethodNames(obj: any): string[] {
+  if (!obj) {
+    return [];
+  }
+
+  return Object.getOwnPropertyNames(obj)
+    .filter((p) => typeof obj[p] === 'function')
+    .map((name) => name.toLowerCase());
+}
+
+export function getContractInterface(contract: ContractAbstraction<ContractProvider>): [TokenStandard, string[]] {
+  const methodNames: string[] = getObjectMethodNames(contract.methods);
+  let standard;
+  if (
+    // These function names are specified in FA2/TZIP-12
+    ['transfer', 'balance_of', 'update_operators', 'token_metadata_registry'].every((mn) => methodNames.includes(mn))
+  ) {
+    standard = TokenStandard.FA2;
+  } else if (
+    // These function names are specified in FA1.2/TZIP-7
+    ['transfer', 'approve', 'get_allowance', 'get_balance', 'get_total_supply'].every((mn) => methodNames.includes(mn))
+  ) {
+    standard = TokenStandard.FA1_2;
+  }
+  return [standard, methodNames];
+}
+
+// // Given a contract, fetch information about it from the blockchain and return
+// // an object describing the deployed token contract
+// export async function getContractInformation(
+//   contract: ContractAbstraction<ContractProvider>
+// ): Promise<IContractInformation> {
+//   const info = getContractInterface(contract);
+//   if (info && info[0] === TokenStandard.FA2) {
+//     const storage: any = await contract.storage();
+//     const tokenMetadata: ITokenMetadata = await storage.token_metadata.get('0');
+//     return {
+//       address: contract.address,
+//       contract,
+//       conversionFactor: new BigNumber(10).pow(tokenMetadata?.decimals ?? new BigNumber(0)),
+//       decimals: tokenMetadata.decimals,
+//       methods: info[1],
+//       symbol: tokenMetadata.symbol,
+//       tokenStandard: info[0]
+//     };
+//   } else if (info && info[0] === TokenStandard.FA1_2) {
+//     return {
+//       address: contract.address,
+//       contract,
+//       conversionFactor: new BigNumber(1),
+//       decimals: 0,
+//       methods: info[1],
+//       symbol: 'Unknown',
+//       tokenStandard: info[0]
+//     };
+//   }
+
+// }
+
 export async function transferTezos(
   recipient: string,
   amount: number,
-  afterDeploymentCallback: Function,
-  afterConfirmationCallback: Function
+  afterDeploymentCallback?: Function,
+  afterConfirmationCallback?: Function
 ): Promise<void> {
   const state = store.getState();
   state.net2client[state.network].contract
@@ -92,16 +189,78 @@ export async function transferTezos(
     });
 }
 
-export async function getTokenData(contractAddress: string, tokenType: TokenStandard) {
+export async function transferToken(
+  tokenType: TokenStandard,
+  contractAddress: string,
+  recipient: string,
+  amount: string,
+  afterDeploymentCallback?: Function,
+  afterConfirmationCallback?: Function,
+  decimals?: number,
+  tokenId?: number
+) {
+  const state = store.getState();
+  const sender = await state.accounts[state.network].address;
+  const contract: ContractAbstraction<ContractProvider> = await state.net2client[state.network].contract.at(
+    contractAddress
+  );
+
+  let tx;
+
+  if (tokenType === TokenStandard.FA1_2) {
+    tx = await contract.methods.transfer(sender, recipient, amount);
+  } else if (tokenType === TokenStandard.FA2) {
+    if (decimals === undefined) throw new Error('decimals is undefined');
+    if (tokenId === undefined) throw new Error('tokenId is undefined');
+    const transferParam = [
+      {
+        from_: sender,
+        txs: [
+          {
+            amount: new BigNumber(amount).multipliedBy(new BigNumber(10).pow(new BigNumber(decimals))),
+            to_: recipient,
+            token_id: tokenId
+          }
+        ]
+      }
+    ];
+    tx = await contract.methods.transfer(transferParam);
+  }
+
+  tx.send().then((op) => {
+    if (afterDeploymentCallback) {
+      afterDeploymentCallback();
+    }
+    const id = addPermanentNotification('Transaction was sent successfully: ' + op.hash);
+    op.confirmation(1)
+      .then(() => {
+        addNotification('success', 'Transaction completed successfully');
+      })
+      .catch((e) => {
+        addNotification('danger', 'Transaction failed');
+      })
+      .finally(() => {
+        removeNotification(id);
+        if (afterConfirmationCallback) {
+          afterConfirmationCallback();
+        }
+      });
+  });
+}
+
+export async function getContract(contractAddress: string) {
   if (!isContractAddress(contractAddress)) {
     return;
   }
   const state = store.getState();
-  const contract = await state.net2client[state.network].contract.at(contractAddress);
+  return await state.net2client[state.network].contract.at(contractAddress);
+}
+
+export async function getTokenData(contract: ContractAbstraction<ContractProvider>, tokenType: TokenStandard) {
   const storage: any = await contract.storage();
-  if (tokenType === TokenStandard.fa2) {
+  if (tokenType === TokenStandard.FA2) {
     return await storage.token_metadata.get('0');
-  } else if (tokenType === TokenStandard.fa1_2) {
+  } else if (tokenType === TokenStandard.FA1_2) {
     return storage;
   } else {
     throw new Error('not implemented');
@@ -126,13 +285,13 @@ export async function getTokenBalance(
   const state = store.getState();
   const contract = await state.net2client[state.network].contract.at(contractAddress);
   const storage: any = await contract.storage();
-  if (tokenType === TokenStandard.fa2) {
+  if (tokenType === TokenStandard.FA2) {
     const token_metadata = await storage.token_metadata.get('0');
     const balance: BigNumber = (await storage.ledger.get(holderAddress))?.balance ?? new BigNumber(0);
     const adjustedBalance = balance.dividedBy(new BigNumber(10).pow(token_metadata.decimals));
 
     return adjustedBalance.toFixed();
-  } else if (tokenType === TokenStandard.fa1_2) {
+  } else if (tokenType === TokenStandard.FA1_2) {
     const ledgerEntry = await storage.ledger.get(holderAddress);
     return ledgerEntry.balance.toFixed();
   } else {
@@ -154,10 +313,10 @@ export function deployToken(
 ) {
   let storage;
   let byteCode;
-  if (tokenStandard === TokenStandard.fa1_2) {
+  if (tokenStandard === TokenStandard.FA1_2) {
     byteCode = FA1_2_WHITELIST;
     storage = FA1_2_WHITELIST_STORAGE(issuedTo, amountIssued, issuedTo, issuedTo, issuedTo, issuedTo);
-  } else if (tokenStandard === TokenStandard.fa2) {
+  } else if (tokenStandard === TokenStandard.FA2) {
     byteCode = FA2_BASIC;
     // format extra fields
     const convertedExtraData = [];
@@ -197,15 +356,15 @@ export function deployToken(
           }
           // remove pending contract deployment notification
           removeNotification(contractId);
-          if (tokenStandard === TokenStandard.fa1_2) {
+          if (tokenStandard === TokenStandard.FA1_2) {
             // update redux store
             addTokenReduxCallback(state.network, contract.address, {
-              type: TokenStandard.fa1_2,
+              type: TokenStandard.FA1_2,
               name: tokenName,
               symbol: tokenSymbol
             });
             addNotification('success', 'The token was added successfully');
-          } else if (tokenStandard === TokenStandard.fa2) {
+          } else if (tokenStandard === TokenStandard.FA2) {
             const tokenId = addNotification('success', 'The smart contract deployed successfully, adding token...');
             getTokenData(contract.address, tokenStandard).then((fetchedTokenData) => {
               removeNotification(tokenId);

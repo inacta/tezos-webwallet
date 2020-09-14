@@ -26,7 +26,7 @@ export default function DeployTokenModal(props) {
   const decimalsMax = 18;
   const decimalsMin = 0;
 
-  const [tokenStandard, updateTokenStandard] = useState(TokenStandard.fa1_2);
+  const [tokenStandard, updateTokenStandard] = useState(TokenStandard.FA1_2);
   const [validated, setValidated] = useState(false);
   const [addressError, updateAddressError] = useState('');
   const [amount, updateAmount] = useState('');
@@ -126,10 +126,10 @@ export default function DeployTokenModal(props) {
       _decimals = decimalsMax.toString();
     }
     let regexString: string;
-    if (tokenType === TokenStandard.fa1_2) {
-      regexString = `^(0|[1-9][0-9]{0,18})?`;
-    } else if (tokenType === TokenStandard.fa2) {
-      regexString = `^(0|[1-9][0-9]{0,18})(\\.([0-9]{0,${_decimals}}))?`;
+    if (tokenType === TokenStandard.FA1_2) {
+      regexString = `^(0|[1-9][0-9]*)?`;
+    } else if (tokenType === TokenStandard.FA2) {
+      regexString = `^(0|[1-9][0-9]*)(\\.([0-9]{0,${_decimals}}))?`;
     } else {
       return;
     }
@@ -162,9 +162,9 @@ export default function DeployTokenModal(props) {
               type="radio"
               variant="primary"
               name="radio"
-              value={TokenStandard.fa1_2}
-              checked={tokenStandard === TokenStandard.fa1_2}
-              onChange={(e) => switchTokenType(e.currentTarget.value)}
+              value={TokenStandard.FA1_2}
+              checked={tokenStandard === TokenStandard.FA1_2}
+              onChange={(e) => switchTokenType(TokenStandard.FA1_2)}
             >
               FA1.2
             </ToggleButton>
@@ -172,9 +172,9 @@ export default function DeployTokenModal(props) {
               type="radio"
               variant="primary"
               name="radio"
-              value={TokenStandard.fa2}
-              checked={tokenStandard === TokenStandard.fa2}
-              onChange={(e) => switchTokenType(e.currentTarget.value)}
+              value={TokenStandard.FA2}
+              checked={tokenStandard === TokenStandard.FA2}
+              onChange={(e) => switchTokenType(TokenStandard.FA2)}
             >
               FA2
             </ToggleButton>
@@ -196,7 +196,7 @@ export default function DeployTokenModal(props) {
                 The token symbol can be up to 6 uppercase letters and numbers
               </Form.Control.Feedback>
             </Form.Group>
-            {tokenStandard === TokenStandard.fa2 ? (
+            {tokenStandard === TokenStandard.FA2 ? (
               <Form.Group as={Col} md controlId="decimals">
                 <Form.Label>Number of decimals</Form.Label>
                 <Form.Control
@@ -224,7 +224,7 @@ export default function DeployTokenModal(props) {
               <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
             </Form.Group>
           </Form.Row>
-          {tokenStandard === TokenStandard.fa2 ? (
+          {tokenStandard === TokenStandard.FA2 ? (
             <DeployTokenModalExtraField extraData={extraData} updateExtraData={updateExtraData} />
           ) : (
             <></>
