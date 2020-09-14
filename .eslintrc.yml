@@ -23,13 +23,9 @@ rules:
   sort-imports:
   - error
   - ignoreCase: false
-  ignoreDeclarationSort: false
-  ignoreMemberSort: false
-  memberSyntaxSortOrder:
-  - none
-  - all
-  - multiple
-  - single
+  ignoreDeclarationSort: 0
+  ignoreMemberSort: 0
+  memberSyntaxSortOrder: 0
   prettier/prettier:
   - error
   - singleQuote: true
