@@ -3,15 +3,17 @@ import Accordion from 'react-bootstrap/Accordion';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Modal from 'react-bootstrap/Modal';
+import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
 import BigNumber from 'bignumber.js';
 import { Net, TokenStandard } from '../../../../shared/TezosTypes';
 import Loading from '../../../Loading/Loading';
-import { convertMap, getTokenData } from '../../../../shared/TezosService';
+import { convertMap, getContract, getTokenData, getContractInterface } from '../../../../shared/TezosService';
 import { addNotification } from '../../../../shared/NotificationService';
 
 export interface TokenData {
   address: string;
-  token: { name: string; symbol: string; decimals: BigNumber; extras: Object };
+  token: { type: TokenStandard; name: string; symbol: string; decimals?: BigNumber; extras?: Object };
 }
 
 interface ITokenModalProps {
@@ -37,14 +39,51 @@ export default function TokenModal(props: ITokenModalProps) {
   };
 
   const getContractInfo = async () => {
-    const fetchedTokenData = await getTokenData(props.tokenModal.address, TokenStandard.fa2);
+    const contract = await getContract(props.tokenModal.address);
+    const type = getContractInterface(contract);
+
+    if (type[0] === TokenStandard.FA2) {
+      const fetchedTokenData = await getTokenData(contract, TokenStandard.FA2);
+      updateTokenData({
+        address: props.tokenModal.address,
+        token: {
+          type: TokenStandard.FA2,
+          name: fetchedTokenData.name,
+          symbol: fetchedTokenData.symbol,
+          decimals: fetchedTokenData.decimals,
+          extras: convertMap(fetchedTokenData.extras)
+        }
+      });
+    } else if (type[0] === TokenStandard.FA1_2) {
+      updateTokenData({
+        address: props.tokenModal.address,
+        token: {
+          type: TokenStandard.FA1_2,
+          name: '',
+          symbol: ''
+        }
+      });
+    }
+  };
+
+  const updateName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let formValue = event.currentTarget.value;
     updateTokenData({
-      address: props.tokenModal.address,
+      ...tokenData,
       token: {
-        name: fetchedTokenData.name,
-        symbol: fetchedTokenData.symbol,
-        decimals: fetchedTokenData.decimals,
-        extras: convertMap(fetchedTokenData.extras)
+        ...tokenData.token,
+        name: formValue
+      }
+    });
+  };
+
+  const updateSymbol = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let formValue = event.currentTarget.value;
+    updateTokenData({
+      ...tokenData,
+      token: {
+        ...tokenData.token,
+        symbol: formValue
       }
     });
   };
@@ -76,43 +115,83 @@ export default function TokenModal(props: ITokenModalProps) {
         </div>
       ) : (
         <div>
-          <Modal.Header closeButton>
-            <Modal.Title>{tokenData.token.name}</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <p>
-              <b>Address: </b> {tokenData.address}
-            </p>
-            <p>
-              <b>Symbol: </b> {tokenData.token.symbol}
-            </p>
-            <p>
-              <b>Decimals: </b> {tokenData.token.decimals.toString()}
-            </p>
-            {Object.keys(tokenData.token.extras).length !== 0 ? (
-              <Accordion>
-                <Card>
-                  <Accordion.Toggle as={Card.Header} eventKey="0" style={{ cursor: 'pointer' }}>
-                    Show additional information
-                  </Accordion.Toggle>
-                  <Accordion.Collapse eventKey="0">
-                    <Card.Body>
-                      {Object.keys(tokenData.token.extras).map((key, i) => {
-                        return (
-                          <p key={i}>
-                            <b>{key}: </b>
-                            {tokenData.token.extras[key]}
-                          </p>
-                        );
-                      })}
-                    </Card.Body>
-                  </Accordion.Collapse>
-                </Card>
-              </Accordion>
-            ) : (
-              <div></div>
-            )}
-          </Modal.Body>
+          {tokenData.token.type === TokenStandard.FA1_2 ? (
+            <>
+              <Modal.Header closeButton>
+                <Modal.Title>Import FA1.2 Token</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <p>
+                  <b>Address: </b> {tokenData.address}
+                </p>
+
+                <Form>
+                  <Form.Row>
+                    <Form.Group as={Col} md controlId="name">
+                      <Form.Label>Token name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Token name"
+                        value={tokenData.token.name}
+                        onChange={updateName}
+                        required
+                      />
+                    </Form.Group>
+                    <Form.Group as={Col} md controlId="symbol">
+                      <Form.Label>Token symbol</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Token symbol"
+                        value={tokenData.token.symbol}
+                        onChange={updateSymbol}
+                        required
+                      />
+                    </Form.Group>
+                  </Form.Row>
+                </Form>
+              </Modal.Body>
+            </>
+          ) : (
+            <>
+              <Modal.Header closeButton>
+                <Modal.Title>{tokenData.token.name}</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <p>
+                  <b>Address: </b> {tokenData.address}
+                </p>
+                <p>
+                  <b>Symbol: </b> {tokenData.token.symbol}
+                </p>
+                <p>
+                  <b>Decimals: </b> {tokenData.token.decimals.toString()}
+                </p>
+                {Object.keys(tokenData.token.extras).length !== 0 ? (
+                  <Accordion>
+                    <Card>
+                      <Accordion.Toggle as={Card.Header} eventKey="0" style={{ cursor: 'pointer' }}>
+                        Show additional information
+                      </Accordion.Toggle>
+                      <Accordion.Collapse eventKey="0">
+                        <Card.Body>
+                          {Object.keys(tokenData.token.extras).map((key, i) => {
+                            return (
+                              <p key={i}>
+                                <b>{key}: </b>
+                                {tokenData.token.extras[key]}
+                              </p>
+                            );
+                          })}
+                        </Card.Body>
+                      </Accordion.Collapse>
+                    </Card>
+                  </Accordion>
+                ) : (
+                  <div></div>
+                )}
+              </Modal.Body>
+            </>
+          )}
         </div>
       )}
       <Modal.Footer>

@@ -29,17 +29,19 @@ export function isContractAddress(address: string) {
 
 export function getContractInterface(contract: ContractAbstraction<ContractProvider>): [TokenStandard, string[]] {
   const methodNames: string[] = getObjectMethodNames(contract.methods);
-  var standard = TokenStandard.unknown;
+  let standard;
   if (
     // These function names are specified in FA2/TZIP-12
     ['transfer', 'balance_of', 'update_operators', 'token_metadata_registry'].every((mn) => methodNames.includes(mn))
   ) {
-    standard = TokenStandard.fa2;
+    standard = TokenStandard.FA2;
   } else if (
     // These function names are specified in FA1.2/TZIP-7
     ['transfer', 'approve', 'getallowance', 'getbalance', 'gettotalsupply'].every((mn) => methodNames.includes(mn))
   ) {
-    standard = TokenStandard.fa1_2;
+    standard = TokenStandard.FA1_2;
+  } else {
+    throw new Error('Unknown token standard');
   }
 
   return [standard, methodNames];
@@ -49,7 +51,7 @@ export function getContractInterface(contract: ContractAbstraction<ContractProvi
 // an object describing the deployed token contract
 export function getContractInformation(contract: ContractAbstraction<ContractProvider>): Promise<IContractInformation> {
   const info = getContractInterface(contract);
-  if (info && info[0] === TokenStandard.fa2) {
+  if (info && info[0] === TokenStandard.FA2) {
     return (
       contract
         .storage()
@@ -67,7 +69,7 @@ export function getContractInformation(contract: ContractAbstraction<ContractPro
           };
         })
     );
-  } else if (info && info[0] === TokenStandard.fa1_2) {
+  } else if (info && info[0] === TokenStandard.FA1_2) {
     return Promise.resolve({
       address: contract.address,
       contract,
@@ -91,7 +93,7 @@ export function getContractInformation(contract: ContractAbstraction<ContractPro
 }
 
 export function getSymbol(info: IContractInformation): string {
-  if (!info || info.tokenStandard !== TokenStandard.fa2) {
+  if (!info || info.tokenStandard !== TokenStandard.FA2) {
     return 'tokens';
   } else {
     return info.symbol;

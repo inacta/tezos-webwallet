@@ -277,11 +277,11 @@ export class AccountCard extends React.Component<IAccountCardProps, IAccountCard
       this.props.client.contract
         .at(this.state.contractAddress)
         .then((contract) => {
-          if (this.state.contractInformation.tokenStandard === TokenStandard.fa1_2) {
+          if (this.state.contractInformation.tokenStandard === TokenStandard.FA1_2) {
             return contract.methods
               .transfer(this.state.ownAddress, this.state.recipient, this.state.transferAmount)
               .send();
-          } else if (this.state.contractInformation.tokenStandard === TokenStandard.fa2) {
+          } else if (this.state.contractInformation.tokenStandard === TokenStandard.FA2) {
             const transferParam = [
               {
                 from_: this.state.ownAddress,

@@ -48,10 +48,8 @@ export enum TransactionState {
 }
 
 export enum TokenStandard {
-  // eslint-disable-next-line @typescript-eslint/camelcase
-  fa1_2 = 'fa1_2',
-  fa2 = 'fa2',
-  unknown = 'unknown'
+  FA1_2 = 'FA1_2',
+  FA2 = 'FA2'
 }
 
 export interface IExtraData {
