@@ -38,8 +38,6 @@ export default function FA1_2Component(props: IFA1_2Component) {
     const contract = await getContract(props.contractAddress);
     const data = await getTokenData(contract, TokenStandard.FA1_2);
     const ledgerEntry = await data.ledger.get(props.address);
-    console.log(props.token);
-    console.log(data);
     if (props.token.whitelistVersion === WhitelistVersion.V0) {
       // if token has whitelisting capabilities, check if user is whitelisted, whitelister or whitelist admin
       updateWhitelistedList(data.whitelisteds);
@@ -76,7 +74,8 @@ export default function FA1_2Component(props: IFA1_2Component) {
                   <h5>
                     {balance} <b>{props.token.symbol}</b>
                   </h5>
-                  {props.showTransfer && whitelistedList.includes(props.address) ? (
+                  {props.showTransfer &&
+                  (whitelistVersion === WhitelistVersion.NO_WHITELIST || whitelistedList.includes(props.address)) ? (
                     <>
                       <Button onClick={() => updateModal(true)}>Transfer</Button>
                       <FA1_2TransferModal

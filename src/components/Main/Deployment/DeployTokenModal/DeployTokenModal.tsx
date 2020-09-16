@@ -5,6 +5,8 @@ import Modal from 'react-bootstrap/Modal';
 import Col from 'react-bootstrap/Col';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ToggleButton from 'react-bootstrap/ToggleButton';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 import { deployToken, checkAddress } from '../../../../shared/TezosService';
 import { EnumDictionary } from '../../../../shared/AbstractTypes';
 import { Net, IExtraData, TokenStandard } from '../../../../shared/TezosTypes';
@@ -12,6 +14,7 @@ import { TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import Loading from '../../../Loading/Loading';
 import DeployTokenModalExtraField from './DeployTokenModalExtraField/DeployTokenModalExtraField';
+import { FaInfoCircle } from 'react-icons/fa';
 
 interface DeployTokenModal {
   network: Net;
@@ -47,6 +50,9 @@ export default function DeployTokenModal(props) {
 
     // prevent the default behaviour of the form
     event.preventDefault();
+
+    const whitelist = form.elements.namedItem('whitelist-switch') as HTMLInputElement;
+
     // check if the rest of the form is valid
     if (form.checkValidity() === false) {
       event.stopPropagation();
@@ -59,6 +65,11 @@ export default function DeployTokenModal(props) {
       if (tokenDecimals === '') {
         tokenDecimals = decimalsMax.toString();
       }
+
+      if (tokenStandard === TokenStandard.FA1_2) {
+        tokenDecimals = '0';
+      }
+
       let mintingAmount = amount;
       if (mintingAmount === '') {
         mintingAmount = '0';
@@ -71,6 +82,7 @@ export default function DeployTokenModal(props) {
       updateDeploymentState(true);
       deployToken(
         tokenStandard,
+        whitelist === null ? false : whitelist.checked,
         tokenName,
         tokenSymbol,
         tokenDecimals,
@@ -226,6 +238,31 @@ export default function DeployTokenModal(props) {
           </Form.Row>
           {tokenStandard === TokenStandard.FA2 ? (
             <DeployTokenModalExtraField extraData={extraData} updateExtraData={updateExtraData} />
+          ) : (
+            <></>
+          )}
+          {tokenStandard === TokenStandard.FA1_2 ? (
+            <Form.Check
+              type="switch"
+              size={15}
+              id="whitelist-switch"
+              label={
+                <span>
+                  Enable Whitelisting
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={
+                      <Tooltip id={'tooltip-whitelist-info'}>
+                        The address receiving the initial balance will be whitelisted and becomes the whitelist
+                        administrator automatically
+                      </Tooltip>
+                    }
+                  >
+                    <FaInfoCircle className="text-primary ml-1" />
+                  </OverlayTrigger>
+                </span>
+              }
+            />
           ) : (
             <></>
           )}

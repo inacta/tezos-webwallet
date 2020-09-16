@@ -3,9 +3,16 @@ import { b58cencode, Prefix, prefix, validateAddress, ValidationResult } from '@
 import { InMemorySigner } from '@taquito/signer';
 import configureStore from '../redux/store';
 import BigNumber from 'bignumber.js';
-import { FA2_BASIC, FA2_BASIC_STORAGE, FA1_2_WHITELIST, FA1_2_WHITELIST_STORAGE } from './ContractAssembly';
+import {
+  FA2_BASIC,
+  FA2_BASIC_STORAGE,
+  FA1_2_WHITELIST,
+  FA1_2_WHITELIST_STORAGE,
+  FA1_2_BASIC,
+  FA1_2_BASIC_STORAGE
+} from './ContractAssembly';
 import { addPermanentNotification, removeNotification, addNotification } from './NotificationService';
-import { IContractInformation, IExtraData, ITokenMetadata, TokenStandard, WhitelistVersion } from './TezosTypes';
+import { IExtraData, TokenStandard, WhitelistVersion } from './TezosTypes';
 import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
 import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
 
@@ -392,6 +399,7 @@ export async function getTokenBalance(
 
 export function deployToken(
   tokenStandard: TokenStandard,
+  whitelist: boolean,
   tokenName: string,
   tokenSymbol: string,
   decimals: string,
@@ -405,8 +413,13 @@ export function deployToken(
   let storage;
   let byteCode;
   if (tokenStandard === TokenStandard.FA1_2) {
-    byteCode = FA1_2_WHITELIST;
-    storage = FA1_2_WHITELIST_STORAGE(issuedTo, amountIssued, issuedTo, issuedTo, issuedTo, issuedTo);
+    if (whitelist) {
+      byteCode = FA1_2_WHITELIST;
+      storage = FA1_2_WHITELIST_STORAGE(issuedTo, amountIssued, issuedTo, issuedTo, issuedTo, issuedTo);
+    } else {
+      byteCode = FA1_2_BASIC;
+      storage = FA1_2_BASIC_STORAGE(issuedTo, amountIssued);
+    }
   } else if (tokenStandard === TokenStandard.FA2) {
     byteCode = FA2_BASIC;
     // format extra fields
