@@ -54,15 +54,15 @@ export default function Balances(props: IBalancesProps) {
         <></>
       ) : (
         <>
-          <Row className="mt-3">
-            <Col sm="12" md="4" className="mt-4">
+          <Row className="mt-5">
+            <Col sm="12" md="4">
               <TezosBalance
                 balance={balance}
                 balanceCallback={getBalance}
                 showTransfer={props.accounts[props.network].signer !== undefined}
               />
             </Col>
-            <Col sm="12" md className="mt-4">
+            <Col sm="12" md>
               <TokenSelection network={props.network} tokens={props.tokens} removeToken={props.removeToken} />
             </Col>
           </Row>
