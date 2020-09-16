@@ -52,6 +52,11 @@ export enum TokenStandard {
   FA2 = 'FA2'
 }
 
+export enum WhitelistVersion {
+  NO_WHITELIST = 'NO_WHITELIST',
+  V0 = 'V0'
+}
+
 export interface IExtraData {
   key: string;
   value: string;
