@@ -8,7 +8,7 @@ import { TezBridgeSigner } from '@taquito/tezbridge-signer';
 import FA1_2Component from './FA1_2Component/FA1_2Component';
 import FA2Component from './FA2Component/FA2Component';
 import { FiArrowLeftCircle } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 
 interface ITokenManagement {
   network: Net;
@@ -33,6 +33,9 @@ class TokenManagement extends Component<ITokenManagement, {}> {
   }
 
   render() {
+    if (this.props.accounts[this.props.network].address === '') {
+      return <Redirect to="/" />;
+    }
     return (
       <div>
         <h3>
