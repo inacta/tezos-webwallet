@@ -7,6 +7,8 @@ import { InMemorySigner } from '@taquito/signer';
 import { TezBridgeSigner } from '@taquito/tezbridge-signer';
 import FA1_2Component from './FA1_2Component/FA1_2Component';
 import FA2Component from './FA2Component/FA2Component';
+import { FiArrowLeftCircle } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 
 interface ITokenManagement {
   network: Net;
@@ -34,6 +36,9 @@ class TokenManagement extends Component<ITokenManagement, {}> {
     return (
       <div>
         <h3>
+          <Link to="/" className="mr-2">
+            <FiArrowLeftCircle className="align-bottom text-primary" />
+          </Link>
           {this.token.name}
           <small>
             <span className="text-muted ml-2">{this.token.type === TokenStandard.FA1_2 ? 'FA1.2' : 'FA2'}</span>

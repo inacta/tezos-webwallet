@@ -19,7 +19,7 @@ export default function Deployment(props: IDeployment) {
 
   return (
     <>
-      <Row className="mt-4">
+      <Row className="mt-5">
         <Col>
           <h3>Deploy Tokens & Smart Contracts</h3>
         </Col>
