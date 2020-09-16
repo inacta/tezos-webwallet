@@ -1,7 +1,7 @@
 import { InMemorySigner, importKey } from '@taquito/signer';
 import { ContractPublicationCard } from './ContractPublicationCard';
-import { EnumDictionary } from './shared/AbstractTypes';
-import { Net } from './shared/TezosTypes';
+import { EnumDictionary } from '../shared/AbstractTypes';
+import { Net } from '../shared/TezosTypes';
 import React from 'react';
 import { TezosToolkit } from '@taquito/taquito';
 

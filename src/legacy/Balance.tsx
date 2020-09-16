@@ -1,9 +1,9 @@
 import { ValidationResult, validateAddress } from '@taquito/utils';
-import { getTokenBalance, isContractAddress } from './shared/TokenImplementation';
+import { getTokenBalance, isContractAddress } from '../shared/TokenImplementation';
 import BigNumber from 'bignumber.js';
-import { EnumDictionary } from './shared/AbstractTypes';
-import { IInfoMessage } from './shared/OtherTypes';
-import { Net } from './shared/TezosTypes';
+import { EnumDictionary } from '../shared/AbstractTypes';
+import { IInfoMessage } from '../shared/OtherTypes';
+import { Net } from '../shared/TezosTypes';
 import React from 'react';
 import { TezosToolkit } from '@taquito/taquito';
 import { conversionFactor } from './numbers';
