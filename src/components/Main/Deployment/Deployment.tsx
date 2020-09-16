@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import Row from 'react-bootstrap/esm/Row';
-import Col from 'react-bootstrap/esm/Col';
-import Button from 'react-bootstrap/esm/Button';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
 import DeployTokenModal from './DeployTokenModal/DeployTokenModal';
 import { EnumDictionary } from '../../../shared/AbstractTypes';
 import { Net } from '../../../shared/TezosTypes';
 import { TezosToolkit } from '@taquito/taquito';
+import { InMemorySigner } from '@taquito/signer';
+import { TezBridgeSigner } from '@taquito/tezbridge-signer';
+import DeploySmartContractModal from './DeploySmartContractModal/DeploySmartContractModal';
 
 interface IDeployment {
   network: Net;
@@ -15,7 +18,8 @@ interface IDeployment {
 }
 
 export default function Deployment(props: IDeployment) {
-  const [showModal, updateModal] = useState(false);
+  const [showTModal, updateTModal] = useState(false);
+  const [showSCModal, updateSCModal] = useState(false);
 
   return (
     <>
@@ -26,21 +30,29 @@ export default function Deployment(props: IDeployment) {
       </Row>
       <Row>
         <Col sm="6" xs="12" className="mt-3">
-          <Button block onClick={() => updateModal(true)}>
+          <Button block onClick={() => updateTModal(true)}>
             Deploy new Token
           </Button>
         </Col>
         <Col sm="6" xs="12" className="mt-3">
-          <Button block>Deploy a smart contract</Button>
+          <Button block onClick={() => updateSCModal(true)}>
+            Deploy a smart contract
+          </Button>
         </Col>
       </Row>
       <DeployTokenModal
         network={props.network}
         net2client={props.net2client}
-        showModal={showModal}
-        updateModal={updateModal}
+        showModal={showTModal}
+        updateModal={updateTModal}
         addToken={props.addToken}
         address={props.accounts[props.network].address}
+      />
+      <DeploySmartContractModal
+        network={props.network}
+        net2client={props.net2client}
+        showModal={showSCModal}
+        updateModal={updateSCModal}
       />
     </>
   );

@@ -447,14 +447,14 @@ export function deployToken(
       code: JSON.parse(byteCode),
       init: JSON.parse(storage)
     })
-    .then((originationOp) => {
+    .then((op) => {
       const contractId = addPermanentNotification('The smart contract is deploying...');
       if (afterDeploymentCallback) {
         afterDeploymentCallback();
       }
       // get contract
-      originationOp.contract().then((contract) => {
-        originationOp.confirmation(1).then(() => {
+      op.contract().then((contract) => {
+        op.confirmation(1).then(() => {
           if (afterConfirmationCallback) {
             afterConfirmationCallback();
           }
@@ -485,4 +485,39 @@ export function deployToken(
         });
       });
     });
+}
+
+export async function handleContractDeployment(
+  byteCode: string,
+  storage: string,
+  afterDeploymentCallback?: Function,
+  afterConfirmationCallback?: Function
+) {
+  // deploy contract
+  const state = store.getState();
+  const op = await state.net2client[state.network].contract.originate({
+    code: JSON.parse(byteCode),
+    init: JSON.parse(storage)
+  });
+
+  const notificationId = addPermanentNotification('The smart contract is deploying...');
+  if (afterDeploymentCallback) {
+    afterDeploymentCallback();
+  }
+  // get contract
+  op.contract().then((contract) => {
+    op.confirmation(1)
+      .then(() => {
+        addNotification('success', 'Transaction completed successfully');
+      })
+      .catch((e) => {
+        addNotification('danger', 'Transaction failed');
+      })
+      .finally(() => {
+        removeNotification(notificationId);
+        if (afterConfirmationCallback) {
+          afterConfirmationCallback();
+        }
+      });
+  });
 }
