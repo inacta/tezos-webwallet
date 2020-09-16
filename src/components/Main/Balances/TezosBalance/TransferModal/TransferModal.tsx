@@ -7,6 +7,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { transferTezos, checkAddress, estimateCosts } from '../../../../../shared/TezosService';
 import BigNumber from 'bignumber.js';
 import Loading from '../../../../Loading/Loading';
+import { addNotification } from '../../../../../shared/NotificationService';
 
 interface ITransferModal {
   show: boolean;
@@ -43,8 +44,16 @@ export default function TransferModal(props: ITransferModal) {
     if (form.checkValidity() === false) {
       event.stopPropagation();
     } else {
-      transferTezos(addressInput.value, parseFloat(amount), props.hideModal, props.balanceCallback);
       updateLoading(true);
+      transferTezos(addressInput.value, parseFloat(amount), props.hideModal, props.balanceCallback).catch((e) => {
+        updateLoading(false);
+        if (e.message === 'rejected') {
+          addNotification('danger', 'The user rejected the transaction');
+        } else {
+          console.error(e);
+          addNotification('danger', 'An error occurred');
+        }
+      });
     }
 
     setValidated(true);

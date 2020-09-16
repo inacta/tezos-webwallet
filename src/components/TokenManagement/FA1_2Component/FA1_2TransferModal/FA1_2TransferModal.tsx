@@ -8,6 +8,7 @@ import { checkAddress, estimateTokenTransferCosts, transferToken } from '../../.
 import BigNumber from 'bignumber.js';
 import Loading from '../../../Loading/Loading';
 import { TokenStandard } from '../../../../shared/TezosTypes';
+import { addNotification } from '../../../../shared/NotificationService';
 
 interface IFA1_2TransferModal {
   show: boolean;
@@ -49,6 +50,7 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
     if (form.checkValidity() === false) {
       event.stopPropagation();
     } else {
+      updateLoading(true);
       transferToken(
         TokenStandard.FA1_2,
         props.contractAddress,
@@ -56,7 +58,16 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
         amount,
         props.hideModal,
         props.balanceCallback
-      );
+      ).catch((e) => {
+        updateLoading(false);
+        if (e.message === 'rejected') {
+          addNotification('danger', 'The user rejected the transaction');
+        } else {
+          console.error(e);
+          addNotification('danger', 'An error occurred');
+        }
+      });
+
       updateLoading(true);
     }
 
