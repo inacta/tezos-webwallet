@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { IContractInformation, IPaymentStatus, Net, TokenStandard, TransactionState } from './shared/TezosTypes';
+import { IContractInformation, IPaymentStatus, Net, TokenStandard, TransactionState } from '../shared/TezosTypes';
 import { ValidationResult, validateAddress } from '@taquito/utils';
-import { getContractInformation, getSymbol, getTokenBalance, isContractAddress } from './shared/TokenImplementation';
+import { getContractInformation, getSymbol, getTokenBalance, isContractAddress } from '../shared/TokenImplementation';
 import BigNumber from 'bignumber.js';
-import { IInfoMessage } from './shared/OtherTypes';
-import { InfoMessage } from './shared/components/InfoMessage';
-import { PaymentStatus } from './shared/components/PaymentStatus';
+import { IInfoMessage } from '../shared/OtherTypes';
+import { InfoMessage } from '../shared/components/InfoMessage';
+import { PaymentStatus } from '../shared/components/PaymentStatus';
 import React from 'react';
 import { TezosToolkit } from '@taquito/taquito';
 import { TransferParams } from '@taquito/taquito/dist/types/operations/types';

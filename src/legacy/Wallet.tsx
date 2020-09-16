@@ -1,11 +1,11 @@
 import { InMemorySigner, importKey } from '@taquito/signer';
 import { Prefix, b58cencode, prefix } from '@taquito/utils';
 import { AccountCard } from './AccountCard';
-import { EnumDictionary } from './shared/AbstractTypes';
-import { Net } from './shared/TezosTypes';
+import { EnumDictionary } from '../shared/AbstractTypes';
+import { Net } from '../shared/TezosTypes';
 import React from 'react';
 import { TezosToolkit } from '@taquito/taquito';
-import { printPdf } from './helpers/walletPdf.bak';
+import { printPdf } from '../helpers/walletPdf.bak';
 import { sha256 } from 'crypto-hash';
 
 export interface IWalletProps {
