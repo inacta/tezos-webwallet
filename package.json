@@ -52,11 +52,13 @@
     "typescript": "^3.9.5"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.0",
     "@taquito/taquito": "^6.3.3-beta.0",
     "@taquito/tezbridge-signer": "^6.3.5-beta.0",
     "bignumber.js": "9.0.0",
     "bootstrap": "^4.5.1",
     "crypto-hash": "^1.2.2",
+    "material-table": "^1.69.0",
     "node-sass": "^4.14.1",
     "pdfmake": "0.1.66",
     "qs": "^6.9.4",

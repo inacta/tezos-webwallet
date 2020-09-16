@@ -6,14 +6,21 @@ import Modal from 'react-bootstrap/Modal';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import BigNumber from 'bignumber.js';
-import { Net, TokenStandard } from '../../../../shared/TezosTypes';
+import { Net, TokenStandard, WhitelistVersion } from '../../../../shared/TezosTypes';
 import Loading from '../../../Loading/Loading';
 import { convertMap, getContract, getTokenData, getContractInterface } from '../../../../shared/TezosService';
 import { addNotification } from '../../../../shared/NotificationService';
 
 export interface TokenData {
   address: string;
-  token: { type: TokenStandard; name: string; symbol: string; decimals?: BigNumber; extras?: Object };
+  token: {
+    type: TokenStandard;
+    name: string;
+    symbol: string;
+    whitelistVersion: WhitelistVersion;
+    decimals?: BigNumber;
+    extras?: Object;
+  };
 }
 
 interface ITokenModalProps {
@@ -40,9 +47,24 @@ export default function TokenModal(props: ITokenModalProps) {
 
   const getContractInfo = async () => {
     const contract = await getContract(props.tokenModal.address);
-    const type = getContractInterface(contract);
+    const contractInterface = getContractInterface(contract);
+    const type = contractInterface[0];
+    const methods = contractInterface[1];
 
-    if (type[0] === TokenStandard.FA2) {
+    let whitelistVersion = WhitelistVersion.NO_WHITELIST;
+    if (
+      [
+        'update_whitelisters',
+        'update_whitelisteds',
+        'set_non_revocable_wl_admin',
+        'renounce_wl_admin',
+        'add_wl_admin'
+      ].every((mn) => methods.includes(mn))
+    ) {
+      whitelistVersion = WhitelistVersion.V0;
+    }
+
+    if (type === TokenStandard.FA2) {
       const fetchedTokenData = await getTokenData(contract, TokenStandard.FA2);
       updateTokenData({
         address: props.tokenModal.address,
@@ -51,18 +73,23 @@ export default function TokenModal(props: ITokenModalProps) {
           name: fetchedTokenData.name,
           symbol: fetchedTokenData.symbol,
           decimals: fetchedTokenData.decimals,
-          extras: convertMap(fetchedTokenData.extras)
+          extras: convertMap(fetchedTokenData.extras),
+          whitelistVersion
         }
       });
-    } else if (type[0] === TokenStandard.FA1_2) {
+    } else if (type === TokenStandard.FA1_2) {
       updateTokenData({
         address: props.tokenModal.address,
         token: {
           type: TokenStandard.FA1_2,
           name: '',
-          symbol: ''
+          symbol: '',
+          whitelistVersion
         }
       });
+    } else {
+      addNotification('danger', 'Unsupported token type');
+      hideModal();
     }
   };
 

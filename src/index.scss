@@ -83,3 +83,13 @@ button:focus {
 }
 
 @import '~react-notifications-component/dist/scss/notification.scss';
+
+// style material-table
+.MuiIcon-root {
+  color: map-get($theme-colors, 'primary');
+}
+
+// material table tooltip size
+.MuiTooltip-tooltip {
+  font-size: 0.8rem !important;
+}

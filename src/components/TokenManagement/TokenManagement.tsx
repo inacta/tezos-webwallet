@@ -39,11 +39,12 @@ class TokenManagement extends Component<ITokenManagement, {}> {
             <span className="text-muted ml-2">{this.token.type === TokenStandard.FA1_2 ? 'FA1.2' : 'FA2'}</span>
           </small>
         </h3>
+        <hr />
         {this.token.type === TokenStandard.FA1_2 ? (
           <FA1_2Component
             address={this.props.accounts[this.props.network].address}
             contractAddress={this.contractAddress}
-            symbol={this.token.symbol}
+            token={this.token}
             showTransfer={this.props.accounts[this.props.network].signer !== undefined}
           />
         ) : (
