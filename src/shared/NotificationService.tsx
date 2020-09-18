@@ -3,7 +3,7 @@ import React from 'react';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import { store } from 'react-notifications-component';
 
-export function addNotification(type: string, message: string): number {
+export function addNotification(type: string, message: string, duration?: number): number {
   return store.addNotification({
     message,
     type,
@@ -12,7 +12,7 @@ export function addNotification(type: string, message: string): number {
     animationIn: ['animated', 'fadeIn'],
     animationOut: ['animated', 'fadeOut'],
     dismiss: {
-      duration: 3000,
+      duration: duration ?? 3000,
       pauseOnHover: true,
       onScreen: true
     }

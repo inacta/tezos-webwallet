@@ -2,7 +2,7 @@ import { Net } from '../../shared/TezosTypes';
 
 const initialState = {
   [Net.Mainnet]: 'https://mainnet-tezos.giganode.io',
-  [Net.Testnet]: 'https://api.tez.ie/rpc/carthagenet'
+  [Net.Testnet]: 'https://tezos-carthagenet.inacta.services/'
 };
 
 export default function(state = initialState, action) {
