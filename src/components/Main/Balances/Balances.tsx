@@ -12,6 +12,7 @@ import TezosBalance from './TezosBalance/TezosBalance';
 import TokenSelection from './TokenSelection/TokenSelection';
 import { InMemorySigner } from '@taquito/signer';
 import { TezBridgeSigner } from '@taquito/tezbridge-signer';
+import { addNotification } from '../../../shared/NotificationService';
 
 interface IBalancesProps {
   network: Net;
@@ -34,9 +35,20 @@ export default function Balances(props: IBalancesProps) {
   const getBalance = useCallback(async () => {
     const client = props.net2client[props.network];
     const address = props.accounts[props.network].address;
-    client.rpc.getBalance(address).then((fetchedBalance) => {
-      updateBalance(fetchedBalance.dividedBy(new BigNumber(10).pow(6)).toString());
-    });
+    client.rpc
+      .getBalance(address)
+      .then((fetchedBalance) => {
+        updateBalance(fetchedBalance.dividedBy(new BigNumber(10).pow(6)).toString());
+      })
+      .catch((e) => {
+        if (e.name === 'HttpRequestFailed') {
+          addNotification(
+            'danger',
+            'The Tezos node seems to be offline. You can set another node or API provider in the settings.',
+            10000
+          );
+        }
+      });
   }, [props]);
 
   useEffect(() => {

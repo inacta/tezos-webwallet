@@ -7,6 +7,7 @@ import { BrowserRouter } from 'react-router-dom';
 import Header from './components/Header/Header';
 import Main from './components/Main/Main';
 import TokenManagement from './components/TokenManagement/TokenManagement';
+import Settings from './components/Settings/Settings';
 
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
@@ -25,20 +26,21 @@ export class App extends React.Component<{}, {}> {
             }
           ]}
         />
-        <Header />
-        <Container className="py-5 flex-fill flex-grow-1">
-          <BrowserRouter>
+        <BrowserRouter>
+          <Header />
+          <Container className="py-5 flex-fill flex-grow-1">
             <Switch>
               <Route path="/" exact={true} component={Main}></Route>
+              <Route path="/settings" exact={true} component={Settings}></Route>
               <Route path="/token/:address" component={TokenManagement}></Route>
               <Redirect from="*" to="/" strict={true}></Redirect>
             </Switch>
-          </BrowserRouter>
-        </Container>
-        {/* Footer */}
-        <Navbar bg="light" sticky="bottom">
-          &copy; {new Date().getFullYear()} inacta AG
-        </Navbar>
+          </Container>
+          {/* Footer */}
+          <Navbar bg="light" sticky="bottom">
+            &copy; {new Date().getFullYear()} inacta AG
+          </Navbar>
+        </BrowserRouter>
       </div>
     );
   }
