@@ -15,6 +15,8 @@ import Col from 'react-bootstrap/Col';
 import { FaCheckCircle, FaMinusCircle, FaTimesCircle } from 'react-icons/fa';
 import MaterialTable from 'material-table';
 import { addNotification } from '../../../shared/NotificationService';
+import IconButton from '../../shared/IconButton/IconButton';
+import { AiOutlineReload } from 'react-icons/ai';
 
 interface IFA1_2Component {
   address: string;
@@ -34,6 +36,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
   const [whitelisterList, updateWhitelisterList] = useState([]);
   const [whitelistedList, updateWhitelistedList] = useState([]);
   const [disabled, updateDisabled] = useState(false);
+  const [numRotations, rotate] = useState(0);
 
   const getTokenInfo = useCallback(async () => {
     const contract = await getContract(props.contractAddress);
@@ -50,6 +53,11 @@ export default function FA1_2Component(props: IFA1_2Component) {
     }
     updateBalance(ledgerEntry ? ledgerEntry.balance.toFixed() : '0');
   }, [props]);
+
+  const clickUpdateBalance = () => {
+    rotate(numRotations + 1);
+    getTokenInfo();
+  };
 
   useEffect(() => {
     getTokenInfo();
@@ -75,6 +83,11 @@ export default function FA1_2Component(props: IFA1_2Component) {
                   <h4>Balance</h4>
                   <h5>
                     {balance} <b>{props.token.symbol}</b>
+                    <IconButton onClick={clickUpdateBalance} overlay="Reload balance" placement="right">
+                      <AiOutlineReload
+                        style={{ transform: `rotate(${numRotations * 360}deg)`, transition: 'all 0.75s ease-in-out' }}
+                      />
+                    </IconButton>
                   </h5>
                   {props.showTransfer &&
                   (whitelistVersion === WhitelistVersion.NO_WHITELIST || whitelistedList.includes(props.address)) ? (
