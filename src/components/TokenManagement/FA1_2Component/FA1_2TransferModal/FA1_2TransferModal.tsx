@@ -62,8 +62,10 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
         updateLoading(false);
         if (e.message === 'rejected') {
           addNotification('danger', 'The user rejected the transaction');
+        } else if (e.message === 'RECEIVER_NOT_WHITELISTED') {
+          addNotification('danger', 'The recipient is not whitelisted');
         } else {
-          console.error(e);
+          console.error(JSON.stringify(e));
           addNotification('danger', 'An error occurred');
         }
       });
@@ -138,11 +140,14 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
           return;
         }
       } catch (e) {
-        console.warn(e);
         if (e.id === 'proto.006-PsCARTHA.contract.balance_too_low') {
           _amountError = 'Insufficient balance';
         } else if (e.id === 'proto.006-PsCARTHA.contract.empty_transaction') {
           _amountError = 'You cannot send an empty transaction';
+        } else if (e.message === 'RECEIVER_NOT_WHITELISTED') {
+          _amountError = 'The recipient is not whitelisted';
+        } else {
+          console.error(e);
         }
       } finally {
         // only update the fee if this is the latest request
