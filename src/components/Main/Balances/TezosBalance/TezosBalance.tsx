@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import Loading from '../../../Loading/Loading';
+import Loading from '../../../shared/Loading/Loading';
 import TransferModal from './TransferModal/TransferModal';
 import Button from 'react-bootstrap/Button';
+import { AiOutlineReload } from 'react-icons/ai';
+import IconButton from '../../../shared/IconButton/IconButton';
 
 interface ITezosBalance {
   balance: string;
@@ -11,9 +13,15 @@ interface ITezosBalance {
 
 export default function TezosBalance(props: ITezosBalance) {
   const [showModal, updateModal] = useState(false);
+  const [numRotations, rotate] = useState(0);
 
   const hideModal = () => {
     updateModal(false);
+  };
+
+  const clickUpdateBalance = () => {
+    rotate(numRotations + 1);
+    props.balanceCallback();
   };
 
   return (
@@ -23,6 +31,11 @@ export default function TezosBalance(props: ITezosBalance) {
         <>
           <h5>
             {props.balance} <b>ꜩ</b>
+            <IconButton onClick={clickUpdateBalance} overlay="Reload balance" placement="right">
+              <AiOutlineReload
+                style={{ transform: `rotate(${numRotations * 360}deg)`, transition: 'all 0.75s ease-in-out' }}
+              />
+            </IconButton>
           </h5>
           {props.showTransfer ? (
             <>
