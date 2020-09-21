@@ -61,3 +61,5 @@ export interface IExtraData {
   key: string;
   value: string;
 }
+
+export type WalletTypes = 'privKey' | 'tezbridge' | 'file' | 'ledger';
