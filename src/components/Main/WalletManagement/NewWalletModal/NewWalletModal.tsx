@@ -14,6 +14,7 @@ import { addNotification } from '../../../../shared/NotificationService';
 import { generatePrivateKey } from '../../../../shared/TezosService';
 import { Net } from '../../../../shared/TezosTypes';
 import { TezosToolkit } from '@taquito/taquito';
+import IconButton from '../../../shared/IconButton/IconButton';
 
 interface INewWalletModal {
   show: boolean;
@@ -66,7 +67,7 @@ export default function NewWalletModal(props: INewWalletModal) {
     // when copying the span, set the copied data to the entire key
     event.clipboardData.setData('text/plain', privateKey);
     event.preventDefault();
-    setGuardForCurrentTab(true);
+    _handleCopy();
   };
 
   const handleSave = async () => {
@@ -163,29 +164,17 @@ export default function NewWalletModal(props: INewWalletModal) {
                 <span className="align-with-icon mr-1" onCopy={(e) => handleCopy(e)}>
                   {privateKey}
                 </span>
-                <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip-copy">Copy</Tooltip>}>
-                  <CopyToClipboard text={privateKey} onCopy={_handleCopy}>
-                    <button className="icon-button">
-                      <div>
-                        <FaCopy aria-label="copy" />
-                      </div>
-                    </button>
-                  </CopyToClipboard>
-                </OverlayTrigger>
-                <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip-download">Download</Tooltip>}>
-                  <button className="icon-button" onClick={() => handlePrintDownload(true)}>
-                    <div>
-                      <FaDownload aria-label="download file" />
-                    </div>
-                  </button>
-                </OverlayTrigger>
-                <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip-print">Print</Tooltip>}>
-                  <button className="icon-button" onClick={() => handlePrintDownload(false)}>
-                    <div>
-                      <FaPrint aria-label="print key" />
-                    </div>
-                  </button>
-                </OverlayTrigger>
+                <CopyToClipboard text={privateKey} onCopy={_handleCopy}>
+                  <IconButton onClick={() => {}} overlay="Copy">
+                    <FaCopy />
+                  </IconButton>
+                </CopyToClipboard>
+                <IconButton onClick={() => handlePrintDownload(true)} overlay="Download">
+                  <FaDownload />
+                </IconButton>
+                <IconButton onClick={() => handlePrintDownload(false)} overlay="Print">
+                  <FaPrint />
+                </IconButton>
                 <p className="text-danger">
                   To proceed, please copy, download or print the private key and store it somewhere safe. Caution,
                   losing the key will result in a loss of funds!

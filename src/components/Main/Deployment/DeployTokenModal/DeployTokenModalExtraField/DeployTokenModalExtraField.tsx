@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import { FaMinusCircle, FaPlusCircle } from 'react-icons/fa';
 import { IExtraData } from '../../../../../shared/TezosTypes';
+import IconButton from '../../../../shared/IconButton/IconButton';
 
 interface IDeployTokenModalExtraField {
   extraData: IExtraData[];
@@ -61,20 +62,16 @@ export default function DeployTokenModalExtraField(props: IDeployTokenModalExtra
                     ></Form.Control>
                   </Form.Group>
                   <Col md="auto" xs="2">
-                    <button className="icon-button" type="button" onClick={() => removeField(i)}>
-                      <div>
-                        <FaMinusCircle aria-label="delete" />
-                      </div>
-                    </button>
+                    <IconButton onClick={() => removeField(i)}>
+                      <FaMinusCircle />
+                    </IconButton>
                   </Col>
                 </Form.Row>
               );
             })}
-            <button type="button" className="icon-button" onClick={addField}>
-              <div>
-                <FaPlusCircle aria-label="add new" />
-              </div>
-            </button>
+            <IconButton onClick={addField}>
+              <FaPlusCircle />
+            </IconButton>
           </Card.Body>
         </Accordion.Collapse>
       </Card>
