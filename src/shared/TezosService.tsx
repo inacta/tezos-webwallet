@@ -153,7 +153,7 @@ export async function transferTezos(
     notificationId = addPermanentNotification('Transaction was sent successfully: ' + op.hash);
   } catch (e) {
     console.warn(e);
-    throw new Error(e);
+    throw e;
   }
   op.confirmation(1)
     .then(() => {
@@ -217,7 +217,7 @@ export async function transferToken(
     }
     notificationId = addPermanentNotification('Transaction was sent successfully: ' + op.hash);
   } catch (e) {
-    throw new Error(e);
+    throw e;
   }
   op.confirmation(1)
     .then(() => {
@@ -270,7 +270,7 @@ export async function modifyWhitelist(
       }
       notificationId = addPermanentNotification('Transaction was sent successfully: ' + op.hash);
     } catch (e) {
-      throw new Error(e);
+      throw e;
     }
     op.confirmation(1)
       .then(() => {
@@ -326,7 +326,7 @@ export async function modifyWhitelistAdmin(
       }
       notificationId = addPermanentNotification('Transaction was sent successfully: ' + op.hash);
     } catch (e) {
-      throw new Error(e);
+      throw e;
     }
     op.confirmation(1)
       .then(() => {
