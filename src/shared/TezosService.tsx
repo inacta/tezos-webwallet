@@ -12,7 +12,7 @@ import {
   FA1_2_BASIC_STORAGE
 } from './ContractAssembly';
 import { addPermanentNotification, removeNotification, addNotification } from './NotificationService';
-import { IExtraData, TokenStandard, WhitelistVersion } from './TezosTypes';
+import { IExtraData, Net, TokenStandard, WhitelistVersion } from './TezosTypes';
 import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
 import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
 
@@ -509,6 +509,11 @@ export async function handleContractDeployment(
     op.confirmation(1)
       .then(() => {
         addNotification('success', 'Transaction completed successfully');
+        const url =
+          'https://better-call.dev/' +
+          (state.network === Net.Mainnet ? 'mainnet/' : 'carthagenet/') +
+          op.contractAddress;
+        window.open(url);
       })
       .catch((e) => {
         addNotification('danger', 'Transaction failed');
