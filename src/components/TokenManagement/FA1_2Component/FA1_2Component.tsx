@@ -26,6 +26,7 @@ interface IFA1_2Component {
 export default function FA1_2Component(props: IFA1_2Component) {
   const materialTableRef = React.createRef() as any;
   const [balance, updateBalance] = useState('');
+  const [totalSupply, updateTotalSupply] = useState('');
   const [whitelistVersion, updateWhitelistVersion] = useState(WhitelistVersion.NO_WHITELIST);
   const [showModal, updateModal] = useState(false);
   const [whitelistAdmin, updateWhitelistAdmin] = useState(false);
@@ -37,6 +38,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
   const getTokenInfo = useCallback(async () => {
     const contract = await getContract(props.contractAddress);
     const data = await getTokenData(contract, TokenStandard.FA1_2);
+    updateTotalSupply(data.total_supply.toFixed());
     const ledgerEntry = await data.ledger.get(props.address);
     if (props.token.whitelistVersion === WhitelistVersion.V0) {
       // if token has whitelisting capabilities, check if user is whitelisted, whitelister or whitelist admin
@@ -108,34 +110,85 @@ export default function FA1_2Component(props: IFA1_2Component) {
               </div>
             </Col>
           </Row>
+          <hr />
+          <Row>
+            <Col>
+              <h4>Details</h4>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <b>Total supply:</b> {totalSupply} {props.token.symbol}
+            </Col>
+            <Col>
+              <b>Decimals: </b> 0
+            </Col>
+          </Row>
           {whitelistVersion === WhitelistVersion.V0 ? (
             <>
-              {whitelisterList.includes(props.address) ? (
-                <>
-                  <hr />
-                  <Row>
-                    <Col>
-                      <h4>Whitelist management</h4>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col>
-                      <MaterialTable
-                        title="Whitelisted addresses"
-                        columns={[{ title: 'Address', field: 'address', width: 'auto' }]}
-                        actions={[
-                          {
-                            icon: () => <FaMinusCircle className={disabled ? 'text-muted' : 'text-primary'} />,
-                            disabled: disabled,
-                            tooltip: 'Remove from whitelist',
-                            onClick: async (event, rowData: { address: string }) => {
-                              updateDisabled(true);
+              <hr />
+              <Row>
+                <Col>
+                  <h4>Whitelist</h4>
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <MaterialTable
+                    title="Whitelisted addresses"
+                    columns={[{ title: 'Address', field: 'address', width: 'auto' }]}
+                    actions={
+                      props.showTransfer && whitelisterList.includes(props.address)
+                        ? [
+                            {
+                              icon: () => <FaMinusCircle className={disabled ? 'text-muted' : 'text-primary'} />,
+                              disabled: disabled,
+                              tooltip: 'Remove from whitelist',
+                              onClick: async (event, rowData: { address: string }) => {
+                                updateDisabled(true);
+                                try {
+                                  await modifyWhitelist(
+                                    whitelistVersion,
+                                    props.contractAddress,
+                                    rowData.address,
+                                    false,
+                                    null,
+                                    getTokenInfo
+                                  );
+                                } catch (e) {
+                                  if (e.message === 'rejected') {
+                                    addNotification('danger', 'The user rejected the transaction');
+                                  } else {
+                                    console.error(e);
+                                    addNotification('danger', 'An error occurred');
+                                  }
+                                }
+                                updateDisabled(false);
+                              }
+                            }
+                          ]
+                        : []
+                    }
+                    data={transformArray(whitelistedList)}
+                    editable={
+                      props.showTransfer && whitelisterList.includes(props.address)
+                        ? {
+                            onRowAdd: async (newData) => {
+                              const valid = checkAddress(newData.address);
+                              if (valid !== '') {
+                                addNotification('danger', valid);
+                                throw new Error('Invalid address');
+                              }
+                              if (whitelistedList.includes(newData.address)) {
+                                addNotification('danger', 'Address is already whitelisted');
+                                throw new Error('Address is already whitelisted');
+                              }
                               try {
                                 await modifyWhitelist(
                                   whitelistVersion,
                                   props.contractAddress,
-                                  rowData.address,
-                                  false,
+                                  newData.address,
+                                  true,
                                   null,
                                   getTokenInfo
                                 );
@@ -146,99 +199,84 @@ export default function FA1_2Component(props: IFA1_2Component) {
                                   console.error(e);
                                   addNotification('danger', 'An error occurred');
                                 }
+                                // keep address input active by throwing an errors
+                                throw new Error();
                               }
-                              updateDisabled(false);
                             }
                           }
-                          // {
-                          //   icon: 'add_box',
-                          //   tooltip: 'Add to whitelist',
-                          //   position: 'toolbar',
-                          //   isFreeAction: true,
-                          //   onClick: () => {
-                          //     const materialTable = materialTableRef.current;
-                          //     materialTable.dataManager.changeRowEditing();
-                          //     materialTable.setState({
-                          //       ...materialTable.dataManager.getRenderState(),
-                          //       showAddRow: true
-                          //     });
-                          //     // updateWhitelistedList([...whitelistedList, '']);
-                          //     // TODO: save functionality
-                          //     // TODO: check validity
-                          //   }
-                          // }
-                        ]}
-                        data={transformArray(whitelistedList)}
-                        editable={{
-                          onRowAdd: async (newData) => {
-                            const valid = checkAddress(newData.address);
-                            if (valid !== '') {
-                              addNotification('danger', valid);
-                              throw new Error('Invalid address');
-                            }
-                            if (whitelistedList.includes(newData.address)) {
-                              addNotification('danger', 'Address is already whitelisted');
-                              throw new Error('Address is already whitelisted');
-                            }
-                            try {
-                              await modifyWhitelist(
-                                whitelistVersion,
-                                props.contractAddress,
-                                newData.address,
-                                true,
-                                null,
-                                getTokenInfo
-                              );
-                            } catch (e) {
-                              if (e.message === 'rejected') {
-                                addNotification('danger', 'The user rejected the transaction');
-                              } else {
-                                console.error(e);
-                                addNotification('danger', 'An error occurred');
-                              }
-                              // keep address input active by throwing an errors
-                              throw new Error();
-                            }
-                          }
-                        }}
-                        tableRef={materialTableRef}
-                      ></MaterialTable>
-                    </Col>
-                  </Row>
-                </>
-              ) : (
-                <></>
-              )}
+                        : {}
+                    }
+                    tableRef={materialTableRef}
+                  ></MaterialTable>
+                </Col>
+              </Row>
 
-              {whitelistAdmin || NRWwhitelistAdmin ? (
-                <>
-                  <hr />
-                  <Row>
-                    <Col>
-                      <h4>
-                        Whitelist administration
-                        {NRWwhitelistAdmin ? <small className="ml-2 text-muted">non revokable admin</small> : <></>}
-                      </h4>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col>
-                      <MaterialTable
-                        title="Whitelist admins"
-                        columns={[{ title: 'Address', field: 'address', width: 'auto' }]}
-                        actions={[
-                          {
-                            icon: () => <FaMinusCircle className={disabled ? 'text-muted' : 'text-primary'} />,
-                            disabled: disabled,
-                            tooltip: 'Remove admin',
-                            onClick: async (event, rowData: { address: string }) => {
-                              updateDisabled(true);
+              <hr />
+              <Row>
+                <Col>
+                  <h4>
+                    Whitelist administration
+                    {NRWwhitelistAdmin ? <small className="ml-2 text-muted">non revokable admin</small> : <></>}
+                  </h4>
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <MaterialTable
+                    title="Whitelist admins"
+                    columns={[{ title: 'Address', field: 'address', width: 'auto' }]}
+                    actions={
+                      props.showTransfer && (whitelistAdmin || NRWwhitelistAdmin)
+                        ? [
+                            {
+                              icon: () => <FaMinusCircle className={disabled ? 'text-muted' : 'text-primary'} />,
+                              disabled: disabled,
+                              tooltip: 'Remove admin',
+                              onClick: async (event, rowData: { address: string }) => {
+                                updateDisabled(true);
+                                try {
+                                  await modifyWhitelistAdmin(
+                                    whitelistVersion,
+                                    props.contractAddress,
+                                    rowData.address,
+                                    false,
+                                    null,
+                                    getTokenInfo
+                                  );
+                                } catch (e) {
+                                  if (e.message === 'rejected') {
+                                    addNotification('danger', 'The user rejected the transaction');
+                                  } else {
+                                    console.error(e);
+                                    addNotification('danger', 'An error occurred');
+                                  }
+                                }
+                                updateDisabled(false);
+                              }
+                            }
+                          ]
+                        : []
+                    }
+                    data={transformArray(whitelisterList)}
+                    editable={
+                      props.showTransfer && (whitelistAdmin || NRWwhitelistAdmin)
+                        ? {
+                            onRowAdd: async (newData) => {
+                              const valid = checkAddress(newData.address);
+                              if (valid !== '') {
+                                addNotification('danger', valid);
+                                throw new Error('Invalid address');
+                              }
+                              if (whitelisterList.includes(newData.address)) {
+                                addNotification('danger', 'Address is already administrator');
+                                throw new Error('Address is already administrator');
+                              }
                               try {
                                 await modifyWhitelistAdmin(
                                   whitelistVersion,
                                   props.contractAddress,
-                                  rowData.address,
-                                  false,
+                                  newData.address,
+                                  true,
                                   null,
                                   getTokenInfo
                                 );
@@ -249,52 +287,17 @@ export default function FA1_2Component(props: IFA1_2Component) {
                                   console.error(e);
                                   addNotification('danger', 'An error occurred');
                                 }
+                                // keep address input active by throwing an error
+                                throw new Error();
                               }
-                              updateDisabled(false);
                             }
                           }
-                        ]}
-                        data={transformArray(whitelisterList)}
-                        editable={{
-                          onRowAdd: async (newData) => {
-                            const valid = checkAddress(newData.address);
-                            if (valid !== '') {
-                              addNotification('danger', valid);
-                              throw new Error('Invalid address');
-                            }
-                            if (whitelisterList.includes(newData.address)) {
-                              addNotification('danger', 'Address is already administrator');
-                              throw new Error('Address is already administrator');
-                            }
-                            try {
-                              await modifyWhitelistAdmin(
-                                whitelistVersion,
-                                props.contractAddress,
-                                newData.address,
-                                true,
-                                null,
-                                getTokenInfo
-                              );
-                            } catch (e) {
-                              if (e.message === 'rejected') {
-                                addNotification('danger', 'The user rejected the transaction');
-                              } else {
-                                console.error(e);
-                                addNotification('danger', 'An error occurred');
-                              }
-                              // keep address input active by throwing an error
-                              throw new Error();
-                            }
-                          }
-                        }}
-                        tableRef={materialTableRef}
-                      ></MaterialTable>
-                    </Col>
-                  </Row>
-                </>
-              ) : (
-                <></>
-              )}
+                        : {}
+                    }
+                    tableRef={materialTableRef}
+                  ></MaterialTable>
+                </Col>
+              </Row>
             </>
           ) : (
             <></>
