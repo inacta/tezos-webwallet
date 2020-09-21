@@ -12,7 +12,7 @@ import { EnumDictionary } from '../../../../shared/AbstractTypes';
 import { Net, IExtraData, TokenStandard } from '../../../../shared/TezosTypes';
 import { TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import Loading from '../../../Loading/Loading';
+import Loading from '../../../shared/Loading/Loading';
 import DeployTokenModalExtraField from './DeployTokenModalExtraField/DeployTokenModalExtraField';
 import { FaInfoCircle } from 'react-icons/fa';
 

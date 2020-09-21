@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import Loading from '../../Loading/Loading';
+import Loading from '../../shared/Loading/Loading';
 import FA1_2TransferModal from './FA1_2TransferModal/FA1_2TransferModal';
 import {
   getContract,

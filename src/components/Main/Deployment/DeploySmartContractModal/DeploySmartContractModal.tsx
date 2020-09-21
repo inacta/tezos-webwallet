@@ -5,7 +5,7 @@ import { EnumDictionary } from '../../../../shared/AbstractTypes';
 import { TezosToolkit } from '@taquito/taquito';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import Loading from '../../../Loading/Loading';
+import Loading from '../../../shared/Loading/Loading';
 import { handleContractDeployment } from '../../../../shared/TezosService';
 import { addNotification } from '../../../../shared/NotificationService';
 

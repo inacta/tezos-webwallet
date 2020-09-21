@@ -6,7 +6,7 @@ import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { transferTezos, checkAddress, estimateCosts } from '../../../../../shared/TezosService';
 import BigNumber from 'bignumber.js';
-import Loading from '../../../../Loading/Loading';
+import Loading from '../../../../shared/Loading/Loading';
 import { addNotification } from '../../../../../shared/NotificationService';
 
 interface ITransferModal {
