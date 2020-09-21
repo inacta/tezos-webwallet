@@ -40,7 +40,7 @@ export default function(state = initalState, action) {
       };
     }
     return state;
-  } else if (action.type === 'ADD_PRIVATE_KEY') {
+  } else if (action.type === 'ADD_SIGNER') {
     if (action.network === Net.Mainnet) {
       state = {
         [Net.Mainnet]: {

@@ -17,9 +17,9 @@ export function changeAddress(address: string, network: Net) {
   };
 }
 
-export function addPrivateKey(address: string, network: Net, signer?: InMemorySigner | TezBridgeSigner) {
+export function addSigner(address: string, network: Net, signer?: InMemorySigner | TezBridgeSigner) {
   return {
-    type: 'ADD_PRIVATE_KEY',
+    type: 'ADD_SIGNER',
     signer,
     address,
     network

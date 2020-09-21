@@ -3,7 +3,7 @@ import './Main.scss';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Switch from 'react-switch';
-import { setNetwork, changeAddress, addPrivateKey, setRPCProvider, addToken, removeToken } from '../../redux/actions';
+import { setNetwork, changeAddress, addSigner, setRPCProvider, addToken, removeToken } from '../../redux/actions';
 import { connect } from 'react-redux';
 import { Net } from '../../shared/TezosTypes';
 import { EnumDictionary } from '../../shared/AbstractTypes';
@@ -27,7 +27,7 @@ interface IMainProps {
 
   setNetwork: (network: Net) => void;
   changeAddress: (address: string, network: Net) => void;
-  addPrivateKey: (address: string, network: Net, signer?: InMemorySigner | TezBridgeSigner) => void;
+  addSigner: (address: string, network: Net, signer?: InMemorySigner | TezBridgeSigner) => void;
   setRPCProvider: (network: Net, rpc: string) => void;
   addToken: (network: Net, address: string, token) => void;
   removeToken: (network: Net, address: string) => void;
@@ -49,7 +49,7 @@ class Main extends Component<IMainProps, {}> {
     }
 
     if (isValidAddress(queryParams.address)) {
-      this.props.addPrivateKey(queryParams.address, network);
+      this.props.addSigner(queryParams.address, network);
     }
   }
 
@@ -98,7 +98,7 @@ class Main extends Component<IMainProps, {}> {
         </Row>
         <WalletManagement
           changeAddress={this.props.changeAddress}
-          addPrivateKey={this.props.addPrivateKey}
+          addSigner={this.props.addSigner}
           net2client={this.props.net2client}
           network={this.props.network}
           accounts={this.props.accounts}
@@ -138,7 +138,7 @@ let mapStateToProps = function(state) {
 let mapDispatchToProps = {
   setNetwork: setNetwork,
   changeAddress: changeAddress,
-  addPrivateKey: addPrivateKey,
+  addSigner: addSigner,
   setRPCProvider: setRPCProvider,
   addToken: addToken,
   removeToken: removeToken

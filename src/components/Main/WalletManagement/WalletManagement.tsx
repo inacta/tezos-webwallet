@@ -20,7 +20,7 @@ interface IWalletManagementProps {
   accounts: EnumDictionary<Net, { address: string; signer?: InMemorySigner | TezBridgeSigner }>;
 
   changeAddress: (address: string, network: Net) => void;
-  addPrivateKey: (address: string, network: Net, signer?: InMemorySigner | TezBridgeSigner) => void;
+  addSigner: (address: string, network: Net, signer?: InMemorySigner | TezBridgeSigner) => void;
 }
 
 export default function WalletManagement(props: IWalletManagementProps) {
@@ -139,7 +139,7 @@ export default function WalletManagement(props: IWalletManagementProps) {
         network={props.network}
         address={address}
         closeDialog={closeDialog}
-        addPrivateKey={props.addPrivateKey}
+        addSigner={props.addSigner}
         updateAddress={updateAddress}
       ></NewWalletModal>
       <ImportWalletModal
@@ -147,7 +147,7 @@ export default function WalletManagement(props: IWalletManagementProps) {
         network={props.network}
         address={address}
         closeDialog={closeDialog}
-        addPrivateKey={props.addPrivateKey}
+        addSigner={props.addSigner}
         updateAddress={updateAddress}
       ></ImportWalletModal>
     </div>
