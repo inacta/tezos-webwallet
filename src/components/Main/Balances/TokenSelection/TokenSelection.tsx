@@ -7,6 +7,7 @@ import { FaMinusCircle } from 'react-icons/fa';
 import { Net } from '../../../../shared/TezosTypes';
 import { EnumDictionary } from '../../../../shared/AbstractTypes';
 import { Link } from 'react-router-dom';
+import IconButton from '../../../shared/IconButton/IconButton';
 
 interface ITokenSelection {
   network: Net;
@@ -34,11 +35,9 @@ export default function TokenSelection(props: ITokenSelection) {
                       <span className="mr-1 pointer">{props.tokens[props.network][tokenAddress].symbol}</span>
                     </OverlayTrigger>
                   </Link>
-                  <button className="icon-button" onClick={() => props.removeToken(props.network, tokenAddress)}>
-                    <div>
-                      <FaMinusCircle className="text-light" aria-label="delete" />
-                    </div>
-                  </button>
+                  <IconButton onClick={() => props.removeToken(props.network, tokenAddress)}>
+                    <FaMinusCircle className="text-light" />
+                  </IconButton>
                 </Badge>
               </h4>
             );
