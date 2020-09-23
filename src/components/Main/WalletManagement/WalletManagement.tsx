@@ -27,10 +27,7 @@ export default function WalletManagement(props: IWalletManagementProps) {
     import: false
   });
   const [addressError, updateAddressError] = useState('');
-  const [address, updateAddress]: [
-    { [key: string]: string },
-    React.Dispatch<React.SetStateAction<{ [key: string]: string }>>
-  ] = useState({
+  const [address, updateAddress] = useState<{ [key: string]: string }>({
     [Net.Mainnet]: '',
     [Net.Carthage]: ''
   });
