@@ -32,14 +32,14 @@ export default function WalletManagement(props: IWalletManagementProps) {
     React.Dispatch<React.SetStateAction<{ [key: string]: string }>>
   ] = useState({
     [Net.Mainnet]: '',
-    [Net.Testnet]: ''
+    [Net.Carthage]: ''
   });
 
   // set address in redux on page load
   useEffect(() => {
     updateAddress({
       [Net.Mainnet]: props.accounts[Net.Mainnet].address,
-      [Net.Testnet]: props.accounts[Net.Testnet].address
+      [Net.Carthage]: props.accounts[Net.Carthage].address
     });
     return function cleanup() {};
   }, [props.accounts]);

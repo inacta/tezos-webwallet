@@ -40,7 +40,7 @@ export class ContractPublication extends React.Component<IContractPublicationPro
 
   public render() {
     const validMainnetSk = this.isValidSecretKey(Net.Mainnet);
-    const validTestnetSk = this.isValidSecretKey(Net.Testnet);
+    const validTestnetSk = this.isValidSecretKey(Net.Carthage);
     return (
       <div>
         <form>
@@ -98,7 +98,7 @@ export class ContractPublication extends React.Component<IContractPublicationPro
                     <button
                       className={'btn btn-secondary add-outline ' + (validTestnetSk ? '' : 'btn-disabled')}
                       disabled={!validTestnetSk}
-                      onClick={() => this.pickSecretKey(Net.Testnet)}
+                      onClick={() => this.pickSecretKey(Net.Carthage)}
                       type="button"
                     >
                       Use key
@@ -110,7 +110,7 @@ export class ContractPublication extends React.Component<IContractPublicationPro
           </div>
         </form>
         {this.state.testnetAddress && (
-          <ContractPublicationCard client={this.props.net2Client[Net.Testnet]} net={Net.Testnet} />
+          <ContractPublicationCard client={this.props.net2Client[Net.Carthage]} net={Net.Carthage} />
         )}
       </div>
     );
@@ -144,7 +144,7 @@ export class ContractPublication extends React.Component<IContractPublicationPro
       await this.props.net2Client[net].signer
         .publicKeyHash()
         .then((address) => this.setState({ mainnetAddress: address }));
-    } else if (net === Net.Testnet) {
+    } else if (net === Net.Carthage) {
       await this.props.net2Client[net].signer
         .publicKeyHash()
         .then((address) => this.setState({ testnetAddress: address }));

@@ -4,7 +4,7 @@ import { TezosToolkit } from '@taquito/taquito';
 
 const initialState: EnumDictionary<Net, TezosToolkit> = {
   [Net.Mainnet]: new TezosToolkit(),
-  [Net.Testnet]: new TezosToolkit()
+  [Net.Carthage]: new TezosToolkit()
 };
 
 export default function(state = initialState, action) {

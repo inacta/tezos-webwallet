@@ -42,8 +42,8 @@ class Main extends Component<IMainProps, {}> {
       network = Net.Mainnet;
       this.props.setNetwork(Net.Mainnet);
     } else if (queryParams.network === 'carthage') {
-      network = Net.Testnet;
-      this.props.setNetwork(Net.Testnet);
+      network = Net.Carthage;
+      this.props.setNetwork(Net.Carthage);
     }
 
     if (isValidAddress(queryParams.address)) {
@@ -53,7 +53,7 @@ class Main extends Component<IMainProps, {}> {
 
   switchNetwork = () => {
     if (this.props.network === Net.Mainnet) {
-      this.props.setNetwork(Net.Testnet);
+      this.props.setNetwork(Net.Carthage);
     } else {
       this.props.setNetwork(Net.Mainnet);
     }
@@ -77,7 +77,7 @@ class Main extends Component<IMainProps, {}> {
           </Col>
           <Col sm={6} className="mb-3">
             <div className="Main-buttongroup d-flex mt-3 justify-content-end align-items-center">
-              <span className="mr-1">{Net.Testnet}</span>
+              <span className="mr-1">{Net.Carthage}</span>
               <Switch
                 className="mr-1"
                 onChange={this.switchNetwork}

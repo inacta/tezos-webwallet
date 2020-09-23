@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 
 const initialState = {
   [Net.Mainnet]: {},
-  [Net.Testnet]: {
+  [Net.Carthage]: {
     KT1JE97wUP7pmWRy7vKYHbuVoMnF9tcX4cY7: {
       type: TokenStandard.FA2,
       name: 'CVL',

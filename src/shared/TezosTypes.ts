@@ -43,7 +43,7 @@ export interface ITokenMetadata {
 
 export enum Net {
   Mainnet = 'Mainnet',
-  Testnet = 'Testnet'
+  Carthage = 'Carthage'
 }
 
 export enum TransactionState {

@@ -43,7 +43,7 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
 
   public render() {
     const validMainnetSk = this.isValidSecretKey(Net.Mainnet);
-    const validTestnetSk = this.isValidSecretKey(Net.Testnet);
+    const validTestnetSk = this.isValidSecretKey(Net.Carthage);
     return (
       <form>
         <div className="row">
@@ -104,7 +104,7 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
                 <div className="input-group-append">
                   <button
                     className="btn btn-outline-secondary"
-                    onClick={() => this.getRandomSecretKey(Net.Testnet)}
+                    onClick={() => this.getRandomSecretKey(Net.Carthage)}
                     type="button"
                   >
                     Generate key
@@ -114,7 +114,7 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
                   <button
                     className={'btn btn-secondary add-outline ' + (validTestnetSk ? '' : 'btn-disabled')}
                     disabled={!validTestnetSk}
-                    onClick={() => this.pickSecretKey(Net.Testnet)}
+                    onClick={() => this.pickSecretKey(Net.Carthage)}
                     type="button"
                   >
                     Use key
@@ -122,7 +122,9 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
                 </div>
               </div>
             </div>
-            {this.state.testnetAddress && <AccountCard client={this.props.net2Client[Net.Testnet]} net={Net.Testnet} />}
+            {this.state.testnetAddress && (
+              <AccountCard client={this.props.net2Client[Net.Carthage]} net={Net.Carthage} />
+            )}
           </div>
         </div>
       </form>
@@ -179,7 +181,7 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
     const key = b58cencode(randGood, prefix[Prefix.SPSK]);
 
     // Use this value to set the secret key
-    if (net === Net.Testnet) {
+    if (net === Net.Carthage) {
       this.setState({ testnetSecretKey: key });
       this.setState({ testnetAddress: '' });
     } else {
@@ -231,7 +233,7 @@ export class Wallet extends React.Component<IWalletProps, IWalletState> {
       await this.props.net2Client[net].signer
         .publicKeyHash()
         .then((address) => this.setState({ mainnetAddress: address }));
-    } else if (net === Net.Testnet) {
+    } else if (net === Net.Carthage) {
       await this.props.net2Client[net].signer
         .publicKeyHash()
         .then((address) => this.setState({ testnetAddress: address }));

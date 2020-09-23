@@ -2,7 +2,7 @@ import { Net } from '../../shared/TezosTypes';
 
 const initialState = {
   [Net.Mainnet]: 'https://mainnet-tezos.giganode.io',
-  [Net.Testnet]: 'https://tezos-carthagenet.inacta.services/'
+  [Net.Carthage]: 'https://tezos-carthagenet.inacta.services/'
 };
 
 export default function(state = initialState, action) {
@@ -10,7 +10,7 @@ export default function(state = initialState, action) {
     if (action.network === Net.Mainnet) {
       state = {
         [Net.Mainnet]: action.rpc,
-        [Net.Testnet]: state[Net.Testnet]
+        [Net.Carthage]: state[Net.Carthage]
       };
       action.asyncDispatch({
         type: 'SET_RPC_PROVIDER',
@@ -20,12 +20,12 @@ export default function(state = initialState, action) {
     } else {
       state = {
         [Net.Mainnet]: state[Net.Mainnet],
-        [Net.Testnet]: action.rpc
+        [Net.Carthage]: action.rpc
       };
       action.asyncDispatch({
         type: 'SET_RPC_PROVIDER',
-        network: Net.Testnet,
-        rpc: state[Net.Testnet]
+        network: Net.Carthage,
+        rpc: state[Net.Carthage]
       });
     }
   }
@@ -33,8 +33,8 @@ export default function(state = initialState, action) {
   if (action.asyncDispatch !== undefined && action.type === 'persist/REHYDRATE') {
     action.asyncDispatch({
       type: 'SET_RPC_PROVIDER',
-      network: Net.Testnet,
-      rpc: action.payload === undefined ? state[Net.Testnet] : action.payload.persistRPC[Net.Testnet]
+      network: Net.Carthage,
+      rpc: action.payload === undefined ? state[Net.Carthage] : action.payload.persistRPC[Net.Carthage]
     });
     action.asyncDispatch({
       type: 'SET_RPC_PROVIDER',

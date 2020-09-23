@@ -120,7 +120,7 @@ export class Balance extends React.Component<IBalanceProps, IBalanceState> {
                     <button
                       className="btn btn-outline-secondary"
                       disabled={validateAddress(this.state.testnetAddress) !== ValidationResult.VALID}
-                      onClick={() => this.setBalances(Net.Testnet)}
+                      onClick={() => this.setBalances(Net.Carthage)}
                       type="button"
                     >
                       Show

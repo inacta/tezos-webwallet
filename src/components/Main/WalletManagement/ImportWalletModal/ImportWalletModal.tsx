@@ -120,7 +120,7 @@ export default function ImportWalletModal(props: IImportWalletModal) {
       try {
         if (props.network === Net.Mainnet) {
           await wallet.connect('mainnet');
-        } else if (props.network === Net.Testnet) {
+        } else if (props.network === Net.Carthage) {
           await wallet.connect('carthagenet');
         } else {
           addNotification('danger', 'The network is currently not supported');
