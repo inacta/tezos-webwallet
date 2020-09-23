@@ -1,6 +1,4 @@
 /* eslint-disable */
-import { b58cencode, Prefix, prefix, validateAddress, ValidationResult } from '@taquito/utils';
-import { InMemorySigner } from '@taquito/signer';
 import configureStore from '../redux/store';
 import BigNumber from 'bignumber.js';
 import {
@@ -13,85 +11,47 @@ import {
 } from './ContractAssembly';
 import { addPermanentNotification, removeNotification, addNotification } from './NotificationService';
 import { IExtraData, Net, TokenStandard, WhitelistVersion } from './TezosTypes';
-import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
+import { ContractAbstraction, ContractProvider, TransactionWalletOperation } from '@taquito/taquito';
 import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
+import { convertMap } from './Util';
+import { getTxHash, isContractAddress, isWallet } from './TezosUtil';
 
 const store = configureStore().store;
 
-export function generatePrivateKey() {
-  // define empty Uint8 Array for private key
-  let randomBytes = new Uint8Array(32);
-  // Cryptographically secure PRNG
-  window.crypto.getRandomValues(randomBytes);
-
-  return b58cencode(randomBytes, prefix[Prefix.SPSK]);
-}
-
-export function isValidSecretKey(key: string): boolean {
+async function handleTx(func: Function, afterDeploymentCallback?: Function, afterConfirmationCallback?: Function) {
+  let op: TransactionOperation | TransactionWalletOperation;
+  let notificationId;
   try {
-    new InMemorySigner(key);
-    return true;
-  } catch (error) {
-    return false;
+    op = await func();
+    if (afterDeploymentCallback) {
+      afterDeploymentCallback();
+    }
+    notificationId = addPermanentNotification('Transaction was sent successfully: ' + getTxHash(op));
+  } catch (e) {
+    console.error(e);
+    throw e;
   }
-}
-
-export function checkAddress(value): string {
-  const res = validateAddress(value);
-  if (res === ValidationResult.NO_PREFIX_MATCHED) {
-    return 'Invalid Address: no prefix matched';
-  } else if (res === ValidationResult.INVALID_CHECKSUM) {
-    return 'Invalid Address: Invalid checksum';
-  } else if (res === ValidationResult.INVALID_LENGTH) {
-    return 'Invalid Address: Invalid length';
-  }
-  return '';
-}
-
-export function isValidAddress(address: string): boolean {
-  return validateAddress(address) === ValidationResult.VALID;
-}
-
-export const CONTRACT_ADDRESS_PREFIX = 'KT1';
-
-export function isContractAddress(address: string) {
-  if (!address || address.length < 3) {
-    return false;
-  }
-
-  // A valid contract address starts with 'KT1'
-  return address.substring(0, 3) === CONTRACT_ADDRESS_PREFIX && validateAddress(address) === ValidationResult.VALID;
-}
-
-function getObjectMethodNames(obj: any): string[] {
-  if (!obj) {
-    return [];
-  }
-
-  return Object.getOwnPropertyNames(obj)
-    .filter((p) => typeof obj[p] === 'function')
-    .map((name) => name.toLowerCase());
-}
-
-export function getContractInterface(contract: ContractAbstraction<ContractProvider>): [TokenStandard, string[]] {
-  const methodNames: string[] = getObjectMethodNames(contract.methods);
-  let standard;
-  if (
-    // These function names are specified in FA2/TZIP-12
-    ['transfer', 'balance_of', 'update_operators', 'token_metadata_registry'].every((mn) => methodNames.includes(mn))
-  ) {
-    standard = TokenStandard.FA2;
-  } else if (
-    // These function names are specified in FA1.2/TZIP-7
-    ['transfer', 'approve', 'get_allowance', 'get_balance', 'get_total_supply'].every((mn) => methodNames.includes(mn))
-  ) {
-    standard = TokenStandard.FA1_2;
-  }
-  return [standard, methodNames];
+  (op as TransactionOperation)
+    .confirmation(1)
+    .then(() => {
+      addNotification('success', 'Transaction completed successfully');
+    })
+    .catch((e) => {
+      addNotification('danger', 'Transaction failed');
+    })
+    .finally(() => {
+      removeNotification(notificationId);
+      if (afterConfirmationCallback) {
+        afterConfirmationCallback();
+      }
+    });
 }
 
 export async function estimateCosts(recipient: string, amount: number) {
   const state = store.getState();
+  if (isWallet()) {
+    return;
+  }
   return await state.net2client[state.network].estimate.transfer({ to: recipient, amount });
 }
 
@@ -105,6 +65,11 @@ export async function estimateTokenTransferCosts(
 ) {
   const state = store.getState();
   const client = state.net2client[state.network];
+
+  if (isWallet()) {
+    return;
+  }
+
   const sender = await state.accounts[state.network].address;
   const contract: ContractAbstraction<ContractProvider> = await client.contract.at(contractAddress);
 
@@ -139,35 +104,26 @@ export async function transferTezos(
   afterConfirmationCallback?: Function
 ): Promise<void> {
   const state = store.getState();
+  const client = state.net2client[state.network];
 
-  let op: TransactionOperation;
-  let notificationId;
-  try {
-    op = await state.net2client[state.network].contract.transfer({
-      to: recipient,
-      amount: amount
-    });
-    if (afterDeploymentCallback) {
-      afterDeploymentCallback();
-    }
-    notificationId = addPermanentNotification('Transaction was sent successfully: ' + op.hash);
-  } catch (e) {
-    console.warn(e);
-    throw e;
+  let func: Function;
+  if (isWallet()) {
+    func = () =>
+      client.wallet
+        .transfer({
+          to: recipient,
+          amount: amount
+        })
+        .send();
+  } else {
+    func = () =>
+      client.contract.transfer({
+        to: recipient,
+        amount: amount
+      });
   }
-  op.confirmation(1)
-    .then(() => {
-      addNotification('success', 'Transaction completed successfully');
-    })
-    .catch((e) => {
-      addNotification('danger', 'Transaction failed');
-    })
-    .finally(() => {
-      removeNotification(notificationId);
-      if (afterConfirmationCallback) {
-        afterConfirmationCallback();
-      }
-    });
+
+  handleTx(func, afterDeploymentCallback, afterConfirmationCallback);
 }
 
 export async function transferToken(
@@ -182,9 +138,7 @@ export async function transferToken(
 ) {
   const state = store.getState();
   const sender = await state.accounts[state.network].address;
-  const contract: ContractAbstraction<ContractProvider> = await state.net2client[state.network].contract.at(
-    contractAddress
-  );
+  const contract: ContractAbstraction<ContractProvider> = await getContract(contractAddress);
 
   let tx;
 
@@ -208,30 +162,8 @@ export async function transferToken(
     tx = await contract.methods.transfer(transferParam);
   }
 
-  let op: TransactionOperation;
-  let notificationId;
-  try {
-    op = await tx.send();
-    if (afterDeploymentCallback) {
-      afterDeploymentCallback();
-    }
-    notificationId = addPermanentNotification('Transaction was sent successfully: ' + op.hash);
-  } catch (e) {
-    throw e;
-  }
-  op.confirmation(1)
-    .then(() => {
-      addNotification('success', 'Transaction completed successfully');
-    })
-    .catch((e) => {
-      addNotification('danger', 'Transaction failed');
-    })
-    .finally(() => {
-      removeNotification(notificationId);
-      if (afterConfirmationCallback) {
-        afterConfirmationCallback();
-      }
-    });
+  const func = () => tx.send();
+  handleTx(func, afterDeploymentCallback, afterConfirmationCallback);
 }
 
 export async function modifyWhitelist(
@@ -244,10 +176,7 @@ export async function modifyWhitelist(
 ) {
   if (version === WhitelistVersion.V0) {
     // input validation
-    const state = store.getState();
-    const contract: ContractAbstraction<ContractProvider> = await state.net2client[state.network].contract.at(
-      contractAddress
-    );
+    const contract: ContractAbstraction<ContractProvider> = await getContract(contractAddress);
 
     let whitelistParam = add
       ? [
@@ -261,30 +190,8 @@ export async function modifyWhitelist(
           }
         ];
 
-    let op: TransactionOperation;
-    let notificationId;
-    try {
-      op = await contract.methods.update_whitelisteds(whitelistParam).send();
-      if (afterDeploymentCallback) {
-        afterDeploymentCallback();
-      }
-      notificationId = addPermanentNotification('Transaction was sent successfully: ' + op.hash);
-    } catch (e) {
-      throw e;
-    }
-    op.confirmation(1)
-      .then(() => {
-        addNotification('success', 'Transaction completed successfully');
-      })
-      .catch((e) => {
-        addNotification('danger', 'Transaction failed');
-      })
-      .finally(() => {
-        removeNotification(notificationId);
-        if (afterConfirmationCallback) {
-          afterConfirmationCallback();
-        }
-      });
+    const func = () => contract.methods.update_whitelisteds(whitelistParam).send();
+    handleTx(func, afterDeploymentCallback, afterConfirmationCallback);
   } else {
     throw new Error('Unsupported whitelist version');
   }
@@ -300,10 +207,7 @@ export async function modifyWhitelistAdmin(
 ) {
   if (version === WhitelistVersion.V0) {
     // input validation
-    const state = store.getState();
-    const contract: ContractAbstraction<ContractProvider> = await state.net2client[state.network].contract.at(
-      contractAddress
-    );
+    const contract: ContractAbstraction<ContractProvider> = await getContract(contractAddress);
 
     let whitelistAdminParam = add
       ? [
@@ -317,30 +221,8 @@ export async function modifyWhitelistAdmin(
           }
         ];
 
-    let op: TransactionOperation;
-    let notificationId;
-    try {
-      op = await contract.methods.update_whitelisters(whitelistAdminParam).send();
-      if (afterDeploymentCallback) {
-        afterDeploymentCallback();
-      }
-      notificationId = addPermanentNotification('Transaction was sent successfully: ' + op.hash);
-    } catch (e) {
-      throw e;
-    }
-    op.confirmation(1)
-      .then(() => {
-        addNotification('success', 'Transaction completed successfully');
-      })
-      .catch((e) => {
-        addNotification('danger', 'Transaction failed');
-      })
-      .finally(() => {
-        removeNotification(notificationId);
-        if (afterConfirmationCallback) {
-          afterConfirmationCallback();
-        }
-      });
+    const func = () => contract.methods.update_whitelisters(whitelistAdminParam).send();
+    handleTx(func, afterDeploymentCallback, afterConfirmationCallback);
   } else {
     throw new Error('Unsupported whitelist version');
   }
@@ -351,7 +233,16 @@ export async function getContract(contractAddress: string) {
     return;
   }
   const state = store.getState();
-  return await state.net2client[state.network].contract.at(contractAddress);
+  let client;
+
+  const wallet = isWallet();
+  if (wallet) {
+    client = state.net2client[state.network].wallet;
+  } else {
+    client = state.net2client[state.network].contract;
+  }
+
+  return await client.at(contractAddress);
 }
 
 export async function getTokenData(contract: ContractAbstraction<ContractProvider>, tokenType: TokenStandard) {
@@ -363,13 +254,6 @@ export async function getTokenData(contract: ContractAbstraction<ContractProvide
   } else {
     throw new Error('not implemented');
   }
-}
-
-export function convertMap(map: Map<string, string>): Record<string, string> {
-  return [...map.entries()].reduce((obj, [key, value]) => {
-    obj[key] = value;
-    return obj;
-  }, {});
 }
 
 export async function getTokenBalance(
@@ -397,7 +281,7 @@ export async function getTokenBalance(
   }
 }
 
-export function deployToken(
+export async function deployToken(
   tokenStandard: TokenStandard,
   whitelist: boolean,
   tokenName: string,
@@ -440,51 +324,54 @@ export function deployToken(
     throw new Error('unsupported token type');
   }
 
+  const originationParams = {
+    code: JSON.parse(byteCode),
+    init: JSON.parse(storage)
+  };
   // deploy contract
   const state = store.getState();
-  state.net2client[state.network].contract
-    .originate({
-      code: JSON.parse(byteCode),
-      init: JSON.parse(storage)
-    })
-    .then((op) => {
-      const contractId = addPermanentNotification('The smart contract is deploying...');
-      if (afterDeploymentCallback) {
-        afterDeploymentCallback();
+  let op;
+  if (isWallet()) {
+    op = await state.net2client[state.network].wallet.originate(originationParams).send();
+  } else {
+    op = state.net2client[state.network].contract.originate(originationParams);
+  }
+  const contractId = addPermanentNotification('The smart contract is deploying...');
+  if (afterDeploymentCallback) {
+    afterDeploymentCallback();
+  }
+  // get contract
+  op.contract().then((contract) => {
+    op.confirmation(1).then(() => {
+      if (afterConfirmationCallback) {
+        afterConfirmationCallback();
       }
-      // get contract
-      op.contract().then((contract) => {
-        op.confirmation(1).then(() => {
-          if (afterConfirmationCallback) {
-            afterConfirmationCallback();
-          }
-          // remove pending contract deployment notification
-          removeNotification(contractId);
-          if (tokenStandard === TokenStandard.FA1_2) {
-            // update redux store
-            addTokenReduxCallback(state.network, contract.address, {
-              type: TokenStandard.FA1_2,
-              name: tokenName,
-              symbol: tokenSymbol
-            });
-            addNotification('success', 'The token was added successfully');
-          } else if (tokenStandard === TokenStandard.FA2) {
-            const tokenId = addNotification('success', 'The smart contract deployed successfully, adding token...');
-            getTokenData(contract, tokenStandard).then((fetchedTokenData) => {
-              removeNotification(tokenId);
-              // update redux store
-              addTokenReduxCallback(state.network, contract.address, {
-                name: fetchedTokenData.name,
-                symbol: fetchedTokenData.symbol,
-                decimals: fetchedTokenData.decimals,
-                extras: convertMap(fetchedTokenData.extras)
-              });
-              addNotification('success', 'The token was added successfully');
-            });
-          }
+      // remove pending contract deployment notification
+      removeNotification(contractId);
+      if (tokenStandard === TokenStandard.FA1_2) {
+        // update redux store
+        addTokenReduxCallback(state.network, contract.address, {
+          type: TokenStandard.FA1_2,
+          name: tokenName,
+          symbol: tokenSymbol
         });
-      });
+        addNotification('success', 'The token was added successfully');
+      } else if (tokenStandard === TokenStandard.FA2) {
+        const tokenId = addNotification('success', 'The smart contract deployed successfully, adding token...');
+        getTokenData(contract, tokenStandard).then((fetchedTokenData) => {
+          removeNotification(tokenId);
+          // update redux store
+          addTokenReduxCallback(state.network, contract.address, {
+            name: fetchedTokenData.name,
+            symbol: fetchedTokenData.symbol,
+            decimals: fetchedTokenData.decimals,
+            extras: convertMap(fetchedTokenData.extras)
+          });
+          addNotification('success', 'The token was added successfully');
+        });
+      }
     });
+  });
 }
 
 export async function handleContractDeployment(
@@ -495,11 +382,16 @@ export async function handleContractDeployment(
 ) {
   // deploy contract
   const state = store.getState();
-  const op = await state.net2client[state.network].contract.originate({
+  const originationParams = {
     code: JSON.parse(byteCode),
     init: JSON.parse(storage)
-  });
-
+  };
+  let op;
+  if (isWallet()) {
+    op = await state.net2client[state.network].wallet.originate(originationParams).send();
+  } else {
+    op = state.net2client[state.network].contract.originate(originationParams);
+  }
   const notificationId = addPermanentNotification('The smart contract is deploying...');
   if (afterDeploymentCallback) {
     afterDeploymentCallback();

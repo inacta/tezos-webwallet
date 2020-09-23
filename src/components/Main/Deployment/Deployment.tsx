@@ -4,15 +4,13 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import DeployTokenModal from './DeployTokenModal/DeployTokenModal';
 import { EnumDictionary } from '../../../shared/AbstractTypes';
-import { Net } from '../../../shared/TezosTypes';
+import { Net, WalletTypes } from '../../../shared/TezosTypes';
 import { TezosToolkit } from '@taquito/taquito';
-import { InMemorySigner } from '@taquito/signer';
-import { TezBridgeSigner } from '@taquito/tezbridge-signer';
 import DeploySmartContractModal from './DeploySmartContractModal/DeploySmartContractModal';
 
 interface IDeployment {
   network: Net;
-  accounts: EnumDictionary<Net, { address: string; signer?: InMemorySigner | TezBridgeSigner }>;
+  accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
   net2client: EnumDictionary<Net, TezosToolkit>;
   addToken: (network: Net, address: string, token) => void;
 }

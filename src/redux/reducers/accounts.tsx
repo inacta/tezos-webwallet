@@ -1,10 +1,8 @@
-import { Net } from '../../shared/TezosTypes';
-import { InMemorySigner } from '@taquito/signer';
-import { TezBridgeSigner } from '@taquito/tezbridge-signer';
+import { Net, WalletTypes } from '../../shared/TezosTypes';
 
 interface IAccountState {
   [key: string]: {
-    signer?: InMemorySigner | TezBridgeSigner;
+    signer?: WalletTypes;
     address: string;
   };
 }
@@ -58,11 +56,19 @@ export default function(state = initalState, action) {
         }
       };
     }
-    action.asyncDispatch({
-      type: 'SET_SIGNER',
-      network: action.network,
-      signer: action.signer
-    });
+    if (action.wallet) {
+      action.asyncDispatch({
+        type: 'SET_WALLET',
+        network: action.network,
+        wallet: action.signer
+      });
+    } else {
+      action.asyncDispatch({
+        type: 'SET_SIGNER',
+        network: action.network,
+        signer: action.signer
+      });
+    }
     return state;
   }
 

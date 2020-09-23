@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Net, TokenStandard } from '../../shared/TezosTypes';
+import { Net, TokenStandard, WalletTypes } from '../../shared/TezosTypes';
 import { EnumDictionary } from '../../shared/AbstractTypes';
 import { TezosToolkit } from '@taquito/taquito';
-import { InMemorySigner } from '@taquito/signer';
-import { TezBridgeSigner } from '@taquito/tezbridge-signer';
 import FA1_2Component from './FA1_2Component/FA1_2Component';
 import FA2Component from './FA2Component/FA2Component';
 import { FiArrowLeftCircle } from 'react-icons/fi';
@@ -12,7 +10,7 @@ import { Link, Redirect } from 'react-router-dom';
 
 interface ITokenManagement {
   network: Net;
-  accounts: EnumDictionary<Net, { address: string; signer?: InMemorySigner | TezBridgeSigner }>;
+  accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
   net2client: EnumDictionary<Net, TezosToolkit>;
   tokens: EnumDictionary<Net, Array<{ symbol: string; address: string }>>;
   match: {

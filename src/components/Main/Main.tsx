@@ -5,20 +5,18 @@ import Col from 'react-bootstrap/Col';
 import Switch from 'react-switch';
 import { setNetwork, changeAddress, addSigner, setRPCProvider, addToken, removeToken } from '../../redux/actions';
 import { connect } from 'react-redux';
-import { Net } from '../../shared/TezosTypes';
+import { Net, WalletTypes } from '../../shared/TezosTypes';
 import { EnumDictionary } from '../../shared/AbstractTypes';
 import { TezosToolkit } from '@taquito/taquito';
 import WalletManagement from './WalletManagement/WalletManagement';
 import Balances from './Balances/Balances';
 import Deployment from './Deployment/Deployment';
-import { InMemorySigner } from '@taquito/signer';
-import { TezBridgeSigner } from '@taquito/tezbridge-signer';
-import { isValidAddress } from '../../shared/TezosService';
+import { isValidAddress } from '../../shared/TezosUtil';
 const qs = require('qs');
 
 interface IMainProps {
   network: Net;
-  accounts: EnumDictionary<Net, { address: string; signer?: InMemorySigner | TezBridgeSigner }>;
+  accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
   net2client: EnumDictionary<Net, TezosToolkit>;
   tokens: EnumDictionary<Net, Array<{ symbol: string; address: string }>>;
   location: {
@@ -27,7 +25,7 @@ interface IMainProps {
 
   setNetwork: (network: Net) => void;
   changeAddress: (address: string, network: Net) => void;
-  addSigner: (address: string, network: Net, signer?: InMemorySigner | TezBridgeSigner) => void;
+  addSigner: (address: string, network: Net, signer?: WalletTypes, wallet?: boolean) => void;
   setRPCProvider: (network: Net, rpc: string) => void;
   addToken: (network: Net, address: string, token) => void;
   removeToken: (network: Net, address: string) => void;

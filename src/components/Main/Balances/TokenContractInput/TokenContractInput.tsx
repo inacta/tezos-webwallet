@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 import FormText from 'react-bootstrap/FormText';
-import { isContractAddress } from '../../../../shared/TezosService';
+import { isContractAddress } from '../../../../shared/TezosUtil';
 
 interface ITokenContractInput {
   handleModal: React.Dispatch<

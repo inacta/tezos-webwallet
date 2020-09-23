@@ -4,12 +4,10 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { isContractAddress } from '../../../shared/TezosService';
-import { Net } from '../../../shared/TezosTypes';
+import { isContractAddress } from '../../../shared/TezosUtil';
+import { Net, WalletTypes } from '../../../shared/TezosTypes';
 import { EnumDictionary } from '../../../shared/AbstractTypes';
 import { TezosToolkit } from '@taquito/taquito';
-import { InMemorySigner } from '@taquito/signer';
-import { TezBridgeSigner } from '@taquito/tezbridge-signer';
 import { validateAddress, ValidationResult } from '@taquito/utils';
 import NewWalletModal from './NewWalletModal/NewWalletModal';
 import ImportWalletModal from './ImportWalletModal/ImportWalletModal';
@@ -17,10 +15,10 @@ import ImportWalletModal from './ImportWalletModal/ImportWalletModal';
 interface IWalletManagementProps {
   network: Net;
   net2client: EnumDictionary<Net, TezosToolkit>;
-  accounts: EnumDictionary<Net, { address: string; signer?: InMemorySigner | TezBridgeSigner }>;
+  accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
 
   changeAddress: (address: string, network: Net) => void;
-  addSigner: (address: string, network: Net, signer?: InMemorySigner | TezBridgeSigner) => void;
+  addSigner: (address: string, network: Net, signer?: WalletTypes, wallet?: boolean) => void;
 }
 
 export default function WalletManagement(props: IWalletManagementProps) {

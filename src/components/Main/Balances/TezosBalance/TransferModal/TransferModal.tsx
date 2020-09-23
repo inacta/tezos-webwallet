@@ -4,7 +4,8 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { transferTezos, checkAddress, estimateCosts } from '../../../../../shared/TezosService';
+import { transferTezos, estimateCosts } from '../../../../../shared/TezosService';
+import { checkAddress, isWallet } from '../../../../../shared/TezosUtil';
 import BigNumber from 'bignumber.js';
 import Loading from '../../../../shared/Loading/Loading';
 import { addNotification } from '../../../../../shared/NotificationService';
@@ -96,6 +97,9 @@ export default function TransferModal(props: ITransferModal) {
   };
 
   const estimateFee = async (recipient: string, amount: string) => {
+    if (isWallet()) {
+      return;
+    }
     if (checkAddress(recipient) === '' && amount !== '') {
       let _amountError = '';
       updateAmountError(_amountError);
@@ -108,6 +112,8 @@ export default function TransferModal(props: ITransferModal) {
           _amountError = 'Insufficient balance';
         } else if (e.id === 'proto.006-PsCARTHA.contract.empty_transaction') {
           _amountError = 'You cannot send an empty transaction';
+        } else {
+          console.error(e);
         }
       } finally {
         updateAmountError(_amountError);

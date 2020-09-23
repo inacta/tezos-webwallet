@@ -1,13 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Loading from '../../shared/Loading/Loading';
 import FA1_2TransferModal from './FA1_2TransferModal/FA1_2TransferModal';
-import {
-  getContract,
-  getTokenData,
-  checkAddress,
-  modifyWhitelist,
-  modifyWhitelistAdmin
-} from '../../../shared/TezosService';
+import { getContract, getTokenData, modifyWhitelist, modifyWhitelistAdmin } from '../../../shared/TezosService';
+import { checkAddress } from '../../../shared/TezosUtil';
 import { TokenStandard, WhitelistVersion } from '../../../shared/TezosTypes';
 import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';

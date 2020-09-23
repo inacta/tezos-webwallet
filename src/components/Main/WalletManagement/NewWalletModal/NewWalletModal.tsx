@@ -9,8 +9,8 @@ import { importKey, InMemorySigner } from '@taquito/signer';
 import { TezBridgeSigner } from '@taquito/tezbridge-signer';
 import { printPdf } from '../../../../helpers/walletPdf';
 import { addNotification } from '../../../../shared/NotificationService';
-import { generatePrivateKey } from '../../../../shared/TezosService';
-import { Net, WalletTypes } from '../../../../shared/TezosTypes';
+import { generatePrivateKey } from '../../../../shared/TezosUtil';
+import { Net, Wallets, WalletTypes } from '../../../../shared/TezosTypes';
 import { TezosToolkit } from '@taquito/taquito';
 import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import { LedgerSigner } from '@taquito/ledger-signer';
@@ -28,13 +28,13 @@ interface INewWalletModal {
     }>
   >;
   closeDialog: () => void;
-  addSigner: (address: string, network: Net, signer?: InMemorySigner | TezBridgeSigner) => void;
+  addSigner: (address: string, network: Net, signer?: WalletTypes, wallet?: boolean) => void;
 }
 
 export default function NewWalletModal(props: INewWalletModal) {
   const defaultActiveKey = 'tezbridge';
   const [privateKey, updatePrivateKey] = useState('');
-  const [activeKey, updateActiveKey] = useState<WalletTypes>(defaultActiveKey);
+  const [activeKey, updateActiveKey] = useState<Wallets>(defaultActiveKey);
   const [saveGuard, updateSaveGuard] = useState({
     [defaultActiveKey]: false
   });
@@ -46,7 +46,7 @@ export default function NewWalletModal(props: INewWalletModal) {
     });
   };
 
-  const handleSelect = (newKey: WalletTypes) => {
+  const handleSelect = (newKey: Wallets) => {
     if (!saveGuard.hasOwnProperty(newKey)) {
       updateSaveGuard({
         ...saveGuard,
@@ -96,14 +96,19 @@ export default function NewWalletModal(props: INewWalletModal) {
         [props.network]: address
       });
     } else if (activeKey === 'ledger') {
-      const transport = await TransportU2F.create();
-      const signer = new LedgerSigner(transport);
+      let signer;
       let address;
       try {
-        // get address
+        const transport = await TransportU2F.create();
+        signer = new LedgerSigner(transport);
         address = await signer.publicKeyHash();
       } catch (e) {
-        addNotification('danger', 'Error while connecting to the device');
+        console.error(e);
+        addNotification(
+          'danger',
+          'Error while connecting to the device, please make sure that you enabled U2F in your browser.',
+          10000
+        );
         return;
       }
       // add signer and address to redux
@@ -141,7 +146,7 @@ export default function NewWalletModal(props: INewWalletModal) {
   };
 
   return (
-    <Modal centered size="lg" show={props.show} onHide={props.closeDialog} onEntered={reset}>
+    <Modal size="lg" show={props.show} onHide={props.closeDialog} onEntered={reset}>
       <Modal.Header closeButton>
         <Modal.Title>Create a new wallet</Modal.Title>
       </Modal.Header>

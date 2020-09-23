@@ -1,6 +1,4 @@
-import { Net } from '../../shared/TezosTypes';
-import { InMemorySigner } from '@taquito/signer';
-import { TezBridgeSigner } from '@taquito/tezbridge-signer';
+import { Net, WalletTypes } from '../../shared/TezosTypes';
 
 export function setNetwork(network: Net) {
   return {
@@ -17,12 +15,13 @@ export function changeAddress(address: string, network: Net) {
   };
 }
 
-export function addSigner(address: string, network: Net, signer?: InMemorySigner | TezBridgeSigner) {
+export function addSigner(address: string, network: Net, signer?: WalletTypes, wallet?: boolean) {
   return {
     type: 'ADD_SIGNER',
     signer,
     address,
-    network
+    network,
+    wallet
   };
 }
 

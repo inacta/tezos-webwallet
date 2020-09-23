@@ -4,7 +4,8 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { checkAddress, estimateTokenTransferCosts, transferToken } from '../../../../shared/TezosService';
+import { estimateTokenTransferCosts, transferToken } from '../../../../shared/TezosService';
+import { checkAddress, isWallet } from '../../../../shared/TezosUtil';
 import BigNumber from 'bignumber.js';
 import Loading from '../../../shared/Loading/Loading';
 import { TokenStandard } from '../../../../shared/TezosTypes';
@@ -113,6 +114,9 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
   };
 
   const estimateFee = async (recipient: string, amount: string) => {
+    if (isWallet()) {
+      return;
+    }
     if (checkAddress(recipient) === '' && amount !== '') {
       // keep track of fee estimation requests
       nonce += 1;

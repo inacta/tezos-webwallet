@@ -1,5 +1,10 @@
 import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
+import { InMemorySigner } from '@taquito/signer';
+import { TezBridgeSigner } from '@taquito/tezbridge-signer';
+import { ThanosWallet } from '@thanos-wallet/dapp';
+// eslint-disable-next-line sort-imports
 import BigNumber from 'bignumber.js';
+
 export interface IContractOriginationStatus {
   addressOfNewContract: string | undefined;
   clearCallback: () => void;
@@ -62,4 +67,5 @@ export interface IExtraData {
   value: string;
 }
 
-export type WalletTypes = 'privKey' | 'tezbridge' | 'file' | 'ledger';
+export type Wallets = 'privKey' | 'tezbridge' | 'file' | 'ledger' | 'thanos';
+export type WalletTypes = InMemorySigner | TezBridgeSigner | ThanosWallet;

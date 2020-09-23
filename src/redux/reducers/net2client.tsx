@@ -12,6 +12,8 @@ export default function(state = initialState, action) {
     state[action.network].setRpcProvider(action.rpc);
   } else if (action.type === 'SET_SIGNER') {
     state[action.network].setSignerProvider(action.signer);
+  } else if (action.type === 'SET_WALLET') {
+    state[action.network].setWalletProvider(action.wallet);
   }
   return state;
 }

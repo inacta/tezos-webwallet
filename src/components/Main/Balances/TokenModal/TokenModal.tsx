@@ -8,7 +8,9 @@ import Form from 'react-bootstrap/Form';
 import BigNumber from 'bignumber.js';
 import { Net, TokenStandard, WhitelistVersion } from '../../../../shared/TezosTypes';
 import Loading from '../../../shared/Loading/Loading';
-import { convertMap, getContract, getTokenData, getContractInterface } from '../../../../shared/TezosService';
+import { getContract, getTokenData } from '../../../../shared/TezosService';
+import { getContractInterface } from '../../../../shared/TezosUtil';
+import { convertMap } from '../../../../shared/Util';
 import { addNotification } from '../../../../shared/NotificationService';
 
 export interface TokenData {
