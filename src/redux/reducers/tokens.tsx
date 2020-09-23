@@ -32,5 +32,12 @@ export default function(state = initialState, action) {
     };
     delete state[action.network][action.address];
   }
+
+  /* FIX FOR CODE REFACTORING */
+  if (state[Net.Carthage] === undefined) {
+    state[Net.Carthage] = state['Testnet'];
+    delete state['Testnet'];
+  }
+
   return state;
 }
