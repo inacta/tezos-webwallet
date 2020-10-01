@@ -38,6 +38,7 @@
     "@types/react": "^16.9.41",
     "@types/react-bootstrap": "^1.0.1",
     "@types/react-dom": "^16.9.8",
+    "@types/react-icons": "^3.0.0",
     "@types/react-router-dom": "^5.1.5",
     "@typescript-eslint/eslint-plugin": "^1.6.0",
     "@typescript-eslint/parser": "^1.6.0",
@@ -48,8 +49,10 @@
     "eslint-plugin-react": "7.20.1",
     "mocha": "^8.0.1",
     "prettier": "^1.16.4",
+    "progress-bar-webpack-plugin": "^2.1.0",
     "react-scripts": "^3.4.1",
-    "typescript": "^3.9.5"
+    "typescript": "^3.9.5",
+    "webpack-bundle-analyzer": "^3.9.0"
   },
   "dependencies": {
     "@ledgerhq/hw-transport-u2f": "^5.22.0",
