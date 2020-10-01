@@ -69,7 +69,7 @@ export default function Thanos(props: IThanos) {
           <WarningTriangle />
           <span>
             It seems like you do not have the Thanos wallet installed. You can download the browser extension{' '}
-            <a href="https://thanoswallet.com/" target="_blank" rel="noreferrer">
+            <a href="https://thanoswallet.com/" target="_blank" rel="noopener noreferrer">
               here
             </a>
             . Make sure that DApp access is enabled in the settings!
