@@ -12,6 +12,7 @@ import { getContract, getTokenData } from '../../../../shared/TezosService';
 import { getContractInterface } from '../../../../shared/TezosUtil';
 import { convertMap } from '../../../../shared/Util';
 import { addNotification } from '../../../../shared/NotificationService';
+import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
 
 export interface TokenData {
   address: string;
@@ -21,7 +22,7 @@ export interface TokenData {
     symbol: string;
     whitelistVersion: WhitelistVersion;
     decimals?: BigNumber;
-    extras?: Object;
+    extras?: Record<string, string>;
   };
 }
 
@@ -43,12 +44,16 @@ interface ITokenModalProps {
 export default function TokenModal(props: ITokenModalProps) {
   const [tokenData, updateTokenData]: [TokenData, React.Dispatch<TokenData>] = useState(undefined);
 
-  const onOpen = () => {
-    getContractInfo();
+  const hideModal = () => {
+    updateTokenData(undefined);
+    props.handleModal({
+      show: false,
+      address: ''
+    });
   };
 
   const getContractInfo = async () => {
-    const contract = await getContract(props.tokenModal.address);
+    const contract = (await getContract(props.tokenModal.address)) as ContractAbstraction<ContractProvider>;
     const contractInterface = getContractInterface(contract);
     const type = contractInterface[0];
     const methods = contractInterface[1];
@@ -95,6 +100,10 @@ export default function TokenModal(props: ITokenModalProps) {
     }
   };
 
+  const onOpen = () => {
+    getContractInfo();
+  };
+
   const updateName = (event: React.ChangeEvent<HTMLInputElement>) => {
     let formValue = event.currentTarget.value;
     updateTokenData({
@@ -114,14 +123,6 @@ export default function TokenModal(props: ITokenModalProps) {
         ...tokenData.token,
         symbol: formValue
       }
-    });
-  };
-
-  const hideModal = () => {
-    updateTokenData(undefined);
-    props.handleModal({
-      show: false,
-      address: ''
     });
   };
 

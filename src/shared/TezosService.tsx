@@ -11,7 +11,13 @@ import {
 } from './ContractAssembly';
 import { addPermanentNotification, removeNotification, addNotification } from './NotificationService';
 import { IExtraData, Net, TokenStandard, WhitelistVersion } from './TezosTypes';
-import { ContractAbstraction, ContractProvider, TransactionWalletOperation } from '@taquito/taquito';
+import {
+  ContractAbstraction,
+  ContractProvider,
+  TezosToolkit,
+  TransactionWalletOperation,
+  Wallet
+} from '@taquito/taquito';
 import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
 import { convertMap } from './Util';
 import { getTxHash, isContractAddress, isWallet } from './TezosUtil';
@@ -71,7 +77,7 @@ export async function estimateTokenTransferCosts(
   }
 
   const sender = await state.accounts[state.network].address;
-  const contract: ContractAbstraction<ContractProvider> = await client.contract.at(contractAddress);
+  const contract = (await client.contract.at(contractAddress)) as ContractAbstraction<ContractProvider>;
 
   let tx;
   if (tokenType === TokenStandard.FA1_2) {
@@ -138,7 +144,7 @@ export async function transferToken(
 ) {
   const state = store.getState();
   const sender = await state.accounts[state.network].address;
-  const contract: ContractAbstraction<ContractProvider> = await getContract(contractAddress);
+  const contract = (await getContract(contractAddress)) as ContractAbstraction<ContractProvider>;
 
   let tx;
 
@@ -176,7 +182,7 @@ export async function modifyWhitelist(
 ) {
   if (version === WhitelistVersion.V0) {
     // input validation
-    const contract: ContractAbstraction<ContractProvider> = await getContract(contractAddress);
+    const contract = (await getContract(contractAddress)) as ContractAbstraction<ContractProvider>;
 
     let whitelistParam = add
       ? [
@@ -207,7 +213,7 @@ export async function modifyWhitelistAdmin(
 ) {
   if (version === WhitelistVersion.V0) {
     // input validation
-    const contract: ContractAbstraction<ContractProvider> = await getContract(contractAddress);
+    const contract = (await getContract(contractAddress)) as ContractAbstraction<ContractProvider>;
 
     let whitelistAdminParam = add
       ? [
@@ -233,7 +239,7 @@ export async function getContract(contractAddress: string) {
     return;
   }
   const state = store.getState();
-  let client;
+  let client: Wallet | ContractProvider;
 
   const wallet = isWallet();
   if (wallet) {

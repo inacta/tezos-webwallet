@@ -37,7 +37,7 @@ export class App extends React.Component<{}, {}> {
             </Switch>
           </Container>
           {/* Footer */}
-          <Navbar bg="light" sticky="bottom">
+          <Navbar bg="light" sticky="bottom" style={{ minHeight: '40px' }}>
             &copy; {new Date().getFullYear()} inacta AG
           </Navbar>
         </BrowserRouter>

@@ -21,21 +21,24 @@ plugins:
   - prettier
 rules:
   sort-imports:
-  - error
-  - ignoreCase: false
+    - off
+    - ignoreCase: false
   ignoreDeclarationSort: 0
   ignoreMemberSort: 0
   memberSyntaxSortOrder: 0
+  '@typescript-eslint/camelcase': 0
+  '@typescript-eslint/class-name-casing': 0
+  'react/display-name': 0
   prettier/prettier:
-  - error
-  - singleQuote: true
-  "@typescript-eslint/interface-name-prefix":
-  - 0
-  "@typescript-eslint/explicit-function-return-type": off
+    - error
+    - singleQuote: true
+  '@typescript-eslint/interface-name-prefix':
+    - 0
+  '@typescript-eslint/explicit-function-return-type': off
   require-jsdoc: 0
   max-len:
-  - error
-  - code: 120
+    - error
+    - code: 120
 settings:
   react:
     createClass: createReactClass

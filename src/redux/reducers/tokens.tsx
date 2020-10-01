@@ -1,19 +1,18 @@
-import { Net, TokenStandard } from '../../shared/TezosTypes';
-import BigNumber from 'bignumber.js';
+import { Net } from '../../shared/TezosTypes';
 
 const initialState = {
   [Net.Mainnet]: {},
   [Net.Carthage]: {
-    KT1JE97wUP7pmWRy7vKYHbuVoMnF9tcX4cY7: {
-      type: TokenStandard.FA2,
-      name: 'CVL',
-      symbol: 'CVL',
-      decimals: new BigNumber(8),
-      extras: {
-        'made by': 'inacta AG',
-        developers: 'Thorkil Vaerge and Dominik Spicher'
-      }
-    }
+    // KT1JE97wUP7pmWRy7vKYHbuVoMnF9tcX4cY7: {
+    //   type: TokenStandard.FA2,
+    //   name: 'CVL',
+    //   symbol: 'CVL',
+    //   decimals: new BigNumber(8),
+    //   extras: {
+    //     'made by': 'inacta AG',
+    //     developers: 'Thorkil Vaerge and Dominik Spicher'
+    //   }
+    // }
   }
 };
 

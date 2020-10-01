@@ -11,7 +11,7 @@ import IconButton from '../../../shared/IconButton/IconButton';
 
 interface ITokenSelection {
   network: Net;
-  tokens: EnumDictionary<Net, Array<{ symbol: string; address: string }>>;
+  tokens: EnumDictionary<Net, { symbol: string; address: string }[]>;
   removeToken: (network: Net, address: string) => void;
 }
 

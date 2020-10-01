@@ -23,7 +23,7 @@ function getDocDefinition(
       {
         margin: [0, 0, 0, 10],
         layout: {
-          fillColor: function(rowIndex: number) {
+          fillColor: function(rowIndex: number): string {
             return rowIndex % 2 === 0 ? '#ebebeb' : '#f5f5f5';
           }
         },
@@ -90,7 +90,7 @@ export function printPdf(address: string, confirmationToken: string, net: Net, s
   const docDefinition = getDocDefinition(address, confirmationToken, net, secretKey);
   let pdf: pdfMake.TCreatedPdf;
   pdf = pdfMake.createPdf(docDefinition);
-  pdf.download(`TezosSecretKeyFor${address}.pdf`, () => {
+  pdf.download(`TezosSecretKeyFor${address}.pdf`, (): void => {
     //var win = window.open('', '_blank');
     pdf.print({});
   });

@@ -2,8 +2,9 @@ import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
 import { InMemorySigner } from '@taquito/signer';
 import { TezBridgeSigner } from '@taquito/tezbridge-signer';
 import { ThanosWallet } from '@thanos-wallet/dapp';
-// eslint-disable-next-line sort-imports
+import { BeaconWallet } from '@taquito/beacon-wallet';
 import BigNumber from 'bignumber.js';
+import { LedgerSigner } from '@taquito/ledger-signer';
 
 export interface IContractOriginationStatus {
   addressOfNewContract: string | undefined;
@@ -67,5 +68,18 @@ export interface IExtraData {
   value: string;
 }
 
-export type Wallets = 'privKey' | 'tezbridge' | 'file' | 'ledger' | 'thanos';
-export type WalletTypes = InMemorySigner | TezBridgeSigner | ThanosWallet;
+export type WalletTypes = InMemorySigner | TezBridgeSigner | ThanosWallet | LedgerSigner | BeaconWallet;
+
+export enum Wallet {
+  Thanos = 'THANOS',
+  Ledger = 'LEDGER',
+  AirGap = 'AIRGAP',
+  TezBridge = 'TEZBRIDGE',
+  PrivateKey = 'PRIVATE_KEY',
+  Address = 'ADDRESS'
+}
+
+export interface WalletSpec {
+  name: string;
+  icon: JSX.Element;
+}

@@ -7,6 +7,13 @@ export function setNetwork(network: Net) {
   };
 }
 
+export function resetSigner(network: Net) {
+  return {
+    type: 'RESET_SIGNER',
+    network
+  };
+}
+
 export function changeAddress(address: string, network: Net) {
   return {
     type: 'CHANGE_ADDRESS',
@@ -15,7 +22,7 @@ export function changeAddress(address: string, network: Net) {
   };
 }
 
-export function addSigner(address: string, network: Net, signer?: WalletTypes, wallet?: boolean) {
+export function addSigner(address: string, network: Net, signer: WalletTypes, wallet: boolean) {
   return {
     type: 'ADD_SIGNER',
     signer,

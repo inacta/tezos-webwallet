@@ -12,7 +12,7 @@ interface ITokenManagement {
   network: Net;
   accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
   net2client: EnumDictionary<Net, TezosToolkit>;
-  tokens: EnumDictionary<Net, Array<{ symbol: string; address: string }>>;
+  tokens: EnumDictionary<Net, { symbol: string; address: string }[]>;
   match: {
     params: {
       address: string;
@@ -30,8 +30,8 @@ class TokenManagement extends Component<ITokenManagement, {}> {
     this.token = this.props.tokens[this.props.network][this.contractAddress];
   }
 
-  render() {
-    if (this.props.accounts[this.props.network].address === '') {
+  public render() {
+    if (this.props.accounts[this.props.network].address === undefined || this.token === undefined) {
       return <Redirect to="/" />;
     }
     return (

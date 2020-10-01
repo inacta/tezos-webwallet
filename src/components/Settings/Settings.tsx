@@ -21,7 +21,7 @@ interface ISettingsState {
 }
 
 class Settings extends Component<ISettings, ISettingsState> {
-  constructor(props: ISettings) {
+  public constructor(props: ISettings) {
     super(props);
 
     this.state = {
@@ -29,12 +29,12 @@ class Settings extends Component<ISettings, ISettingsState> {
     };
   }
 
-  saveSettings = () => {
+  private saveSettings = () => {
     this.props.setRPCProvider(this.props.network, this.state.rpc);
     addNotification('success', 'Settings saved successfully');
   };
 
-  render() {
+  public render() {
     return (
       <div className="d-flex flex-column h-100">
         <div>

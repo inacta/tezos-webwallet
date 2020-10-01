@@ -4,7 +4,7 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { transferTezos, estimateCosts } from '../../../../../shared/TezosService';
+import { estimateCosts, transferTezos } from '../../../../../shared/TezosService';
 import { checkAddress, isWallet } from '../../../../../shared/TezosUtil';
 import BigNumber from 'bignumber.js';
 import Loading from '../../../../shared/Loading/Loading';
@@ -60,6 +60,34 @@ export default function TransferModal(props: ITransferModal) {
     setValidated(true);
   };
 
+  const estimateFee = async (recipient: string, amount: string) => {
+    if (isWallet()) {
+      return;
+    }
+    if (checkAddress(recipient) === '' && amount !== '') {
+      let _amountError = '';
+      updateAmountError(_amountError);
+      updateCF(true);
+      try {
+        const gasEstimations = await estimateCosts(recipient, parseFloat(amount));
+        updateFee(new BigNumber(gasEstimations.suggestedFeeMutez).dividedBy(new BigNumber(10).pow(6)).toString());
+      } catch (e) {
+        if (e.message === 'Public key cannot be exposed') {
+          _amountError = 'The public key has not been exposed yet';
+        } else if (e.id === 'proto.006-PsCARTHA.contract.balance_too_low') {
+          _amountError = 'Insufficient balance';
+        } else if (e.id === 'proto.006-PsCARTHA.contract.empty_transaction') {
+          _amountError = 'You cannot send an empty transaction';
+        } else {
+          console.error(e);
+        }
+      } finally {
+        updateAmountError(_amountError);
+        updateCF(false);
+      }
+    }
+  };
+
   const checkAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
     let formValue = event.currentTarget.value;
 
@@ -93,32 +121,6 @@ export default function TransferModal(props: ITransferModal) {
 
     if (err === '') {
       estimateFee(formValue, amount);
-    }
-  };
-
-  const estimateFee = async (recipient: string, amount: string) => {
-    if (isWallet()) {
-      return;
-    }
-    if (checkAddress(recipient) === '' && amount !== '') {
-      let _amountError = '';
-      updateAmountError(_amountError);
-      updateCF(true);
-      try {
-        const gasEstimations = await estimateCosts(recipient, parseFloat(amount));
-        updateFee(new BigNumber(gasEstimations.suggestedFeeMutez).dividedBy(new BigNumber(10).pow(6)).toString());
-      } catch (e) {
-        if (e.id === 'proto.006-PsCARTHA.contract.balance_too_low') {
-          _amountError = 'Insufficient balance';
-        } else if (e.id === 'proto.006-PsCARTHA.contract.empty_transaction') {
-          _amountError = 'You cannot send an empty transaction';
-        } else {
-          console.error(e);
-        }
-      } finally {
-        updateAmountError(_amountError);
-        updateCF(false);
-      }
     }
   };
 

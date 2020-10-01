@@ -12,6 +12,7 @@ import MaterialTable from 'material-table';
 import { addNotification } from '../../../shared/NotificationService';
 import IconButton from '../../shared/IconButton/IconButton';
 import { AiOutlineReload } from 'react-icons/ai';
+import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
 
 interface IFA1_2Component {
   address: string;
@@ -21,7 +22,7 @@ interface IFA1_2Component {
 }
 
 export default function FA1_2Component(props: IFA1_2Component) {
-  const materialTableRef = React.createRef() as any;
+  const materialTableRef = React.createRef();
   const [balance, updateBalance] = useState('');
   const [totalSupply, updateTotalSupply] = useState('');
   const [whitelistVersion, updateWhitelistVersion] = useState(WhitelistVersion.NO_WHITELIST);
@@ -34,10 +35,9 @@ export default function FA1_2Component(props: IFA1_2Component) {
   const [numRotations, rotate] = useState(0);
 
   const getTokenInfo = useCallback(async () => {
-    const contract = await getContract(props.contractAddress);
+    const contract = (await getContract(props.contractAddress)) as ContractAbstraction<ContractProvider>;
     const data = await getTokenData(contract, TokenStandard.FA1_2);
     updateTotalSupply(data.total_supply.toFixed());
-    const ledgerEntry = await data.ledger.get(props.address);
     if (props.token.whitelistVersion === WhitelistVersion.V0) {
       // if token has whitelisting capabilities, check if user is whitelisted, whitelister or whitelist admin
       updateWhitelistedList(data.whitelisteds);
@@ -46,7 +46,10 @@ export default function FA1_2Component(props: IFA1_2Component) {
       updateNRWWhitelistAdmin(data.non_revocable_whitelist_admin === props.address);
       updateWhitelistVersion(WhitelistVersion.V0);
     }
-    updateBalance(ledgerEntry ? ledgerEntry.balance.toFixed() : '0');
+    if (props.address) {
+      const ledgerEntry = await data.ledger.get(props.address);
+      updateBalance(ledgerEntry ? ledgerEntry.balance.toFixed() : '0');
+    }
   }, [props]);
 
   const clickUpdateBalance = () => {

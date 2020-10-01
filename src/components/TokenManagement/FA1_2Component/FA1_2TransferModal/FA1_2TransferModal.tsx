@@ -77,6 +77,58 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
     setValidated(true);
   };
 
+  const estimateFee = async (recipient: string, amount: string) => {
+    if (isWallet()) {
+      return;
+    }
+    if (checkAddress(recipient) === '' && amount !== '') {
+      // keep track of fee estimation requests
+      nonce += 1;
+      const nonceTmp = nonce;
+      let _amountError = '';
+      if (new BigNumber(amount).gt(new BigNumber(props.balance))) {
+        updateAmountError('Insufficient token balance');
+        updateCF(false);
+        return;
+      }
+      updateAmountError(_amountError);
+      updateCF(true);
+      try {
+        const gasEstimations = await estimateTokenTransferCosts(
+          TokenStandard.FA1_2,
+          props.contractAddress,
+          recipient,
+          amount
+        );
+        const res = new BigNumber(gasEstimations.suggestedFeeMutez).dividedBy(new BigNumber(10).pow(6)).toString();
+        // only update the fee if this is the latest request
+        if (nonce === nonceTmp) {
+          updateFee(res);
+        } else {
+          return;
+        }
+      } catch (e) {
+        if (e.message === 'Public key cannot be exposed') {
+          _amountError = 'The public key has not been exposed yet';
+        } else if (e.id === 'proto.006-PsCARTHA.contract.balance_too_low') {
+          _amountError = 'Insufficient balance';
+        } else if (e.id === 'proto.006-PsCARTHA.contract.empty_transaction') {
+          _amountError = 'You cannot send an empty transaction';
+        } else if (e.message === 'RECEIVER_NOT_WHITELISTED') {
+          _amountError = 'The recipient is not whitelisted';
+        } else {
+          console.error(e);
+        }
+      } finally {
+        // only update the fee if this is the latest request
+        if (nonce === nonceTmp) {
+          updateAmountError(_amountError);
+          updateCF(false);
+        }
+      }
+    }
+  };
+
   const checkAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
     let formValue = event.currentTarget.value;
 
@@ -110,56 +162,6 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
 
     if (err === '') {
       estimateFee(formValue, amount);
-    }
-  };
-
-  const estimateFee = async (recipient: string, amount: string) => {
-    if (isWallet()) {
-      return;
-    }
-    if (checkAddress(recipient) === '' && amount !== '') {
-      // keep track of fee estimation requests
-      nonce += 1;
-      const nonceTmp = nonce;
-      let _amountError = '';
-      if (new BigNumber(amount).gt(new BigNumber(props.balance))) {
-        updateAmountError('Insufficient token balance');
-        updateCF(false);
-        return;
-      }
-      updateAmountError(_amountError);
-      updateCF(true);
-      try {
-        const gasEstimations = await estimateTokenTransferCosts(
-          TokenStandard.FA1_2,
-          props.contractAddress,
-          recipient,
-          amount
-        );
-        const res = new BigNumber(gasEstimations.suggestedFeeMutez).dividedBy(new BigNumber(10).pow(6)).toString();
-        // only update the fee if this is the latest request
-        if (nonce === nonceTmp) {
-          updateFee(res);
-        } else {
-          return;
-        }
-      } catch (e) {
-        if (e.id === 'proto.006-PsCARTHA.contract.balance_too_low') {
-          _amountError = 'Insufficient balance';
-        } else if (e.id === 'proto.006-PsCARTHA.contract.empty_transaction') {
-          _amountError = 'You cannot send an empty transaction';
-        } else if (e.message === 'RECEIVER_NOT_WHITELISTED') {
-          _amountError = 'The recipient is not whitelisted';
-        } else {
-          console.error(e);
-        }
-      } finally {
-        // only update the fee if this is the latest request
-        if (nonce === nonceTmp) {
-          updateAmountError(_amountError);
-          updateCF(false);
-        }
-      }
     }
   };
 

@@ -84,13 +84,7 @@ export function getContractInterface(contract: ContractAbstraction<ContractProvi
 // Taquito supports Wallets and Signers
 export function isWallet() {
   const state = store.getState();
-  const client = state.net2client[state.network];
-
-  if (client.signer === undefined && client.wallet === undefined) {
-    addNotification('danger', 'Please choose a wallet!');
-    throw new Error('No wallet or signer selected');
-  }
-  return client.wallet !== undefined;
+  return state.accounts[state.network].wallet;
 }
 
 export function getTxHash(op: TransactionOperation | TransactionWalletOperation) {

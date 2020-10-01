@@ -3,7 +3,15 @@ import './Main.scss';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Switch from 'react-switch';
-import { setNetwork, changeAddress, addSigner, setRPCProvider, addToken, removeToken } from '../../redux/actions';
+import {
+  addSigner,
+  addToken,
+  changeAddress,
+  removeToken,
+  setNetwork,
+  setRPCProvider,
+  resetSigner
+} from '../../redux/actions';
 import { connect } from 'react-redux';
 import { Net, WalletTypes } from '../../shared/TezosTypes';
 import { EnumDictionary } from '../../shared/AbstractTypes';
@@ -11,47 +19,28 @@ import { TezosToolkit } from '@taquito/taquito';
 import WalletManagement from './WalletManagement/WalletManagement';
 import Balances from './Balances/Balances';
 import Deployment from './Deployment/Deployment';
-import { isValidAddress } from '../../shared/TezosUtil';
-const qs = require('qs');
+import AddressComponent from './Balances/AddressComponent/AddressComponent';
 
 interface IMainProps {
   network: Net;
   accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
   net2client: EnumDictionary<Net, TezosToolkit>;
-  tokens: EnumDictionary<Net, Array<{ symbol: string; address: string }>>;
+  tokens: EnumDictionary<Net, { symbol: string; address: string }[]>;
   location: {
     search: string;
   };
 
   setNetwork: (network: Net) => void;
   changeAddress: (address: string, network: Net) => void;
-  addSigner: (address: string, network: Net, signer?: WalletTypes, wallet?: boolean) => void;
+  addSigner: (address: string, network: Net, signer: WalletTypes, wallet: boolean) => void;
   setRPCProvider: (network: Net, rpc: string) => void;
   addToken: (network: Net, address: string, token) => void;
   removeToken: (network: Net, address: string) => void;
+  resetSigner: (network: Net) => void;
 }
 
 class Main extends Component<IMainProps, {}> {
-  constructor(props: IMainProps) {
-    super(props);
-    const queryParams = qs.parse(this.props.location.search, { ignoreQueryPrefix: true });
-
-    let network = this.props.network;
-
-    if (queryParams.network === 'mainnet') {
-      network = Net.Mainnet;
-      this.props.setNetwork(Net.Mainnet);
-    } else if (queryParams.network === 'carthage') {
-      network = Net.Carthage;
-      this.props.setNetwork(Net.Carthage);
-    }
-
-    if (isValidAddress(queryParams.address)) {
-      this.props.addSigner(queryParams.address, network);
-    }
-  }
-
-  switchNetwork = () => {
+  private switchNetwork = () => {
     if (this.props.network === Net.Mainnet) {
       this.props.setNetwork(Net.Carthage);
     } else {
@@ -59,7 +48,7 @@ class Main extends Component<IMainProps, {}> {
     }
   };
 
-  getNetworkName = (network: Net) => {
+  private getNetworkName = (network: Net) => {
     switch (network) {
       case Net.Mainnet:
         return 'Tezos Mainnet';
@@ -68,7 +57,11 @@ class Main extends Component<IMainProps, {}> {
     }
   };
 
-  render() {
+  private resetSigner = () => {
+    this.props.resetSigner(this.props.network);
+  };
+
+  public render() {
     return (
       <div>
         {/* TITLE + TOGGLE */}
@@ -94,30 +87,39 @@ class Main extends Component<IMainProps, {}> {
             </div>
           </Col>
         </Row>
-        <WalletManagement
-          changeAddress={this.props.changeAddress}
-          addSigner={this.props.addSigner}
-          net2client={this.props.net2client}
-          network={this.props.network}
-          accounts={this.props.accounts}
-        />
-        <Balances
-          network={this.props.network}
-          net2client={this.props.net2client}
-          accounts={this.props.accounts}
-          tokens={this.props.tokens}
-          addToken={this.props.addToken}
-          removeToken={this.props.removeToken}
-        />
-        {this.props.accounts[this.props.network].signer === undefined ? (
-          <></>
-        ) : (
-          <Deployment
-            network={this.props.network}
+        {this.props.accounts[this.props.network].address === undefined ? (
+          <WalletManagement
+            changeAddress={this.props.changeAddress}
+            addSigner={this.props.addSigner}
             net2client={this.props.net2client}
+            network={this.props.network}
             accounts={this.props.accounts}
-            addToken={this.props.addToken}
           />
+        ) : (
+          <>
+            <AddressComponent
+              address={this.props.accounts[this.props.network].address}
+              resetSigner={this.resetSigner}
+            />
+            <Balances
+              network={this.props.network}
+              net2client={this.props.net2client}
+              accounts={this.props.accounts}
+              tokens={this.props.tokens}
+              addToken={this.props.addToken}
+              removeToken={this.props.removeToken}
+            />
+            {this.props.accounts[this.props.network].signer === undefined ? (
+              <></>
+            ) : (
+              <Deployment
+                network={this.props.network}
+                net2client={this.props.net2client}
+                accounts={this.props.accounts}
+                addToken={this.props.addToken}
+              />
+            )}
+          </>
         )}
       </div>
     );
@@ -139,7 +141,8 @@ let mapDispatchToProps = {
   addSigner: addSigner,
   setRPCProvider: setRPCProvider,
   addToken: addToken,
-  removeToken: removeToken
+  removeToken: removeToken,
+  resetSigner: resetSigner
 };
 
 let MainContainer = connect(mapStateToProps, mapDispatchToProps)(Main);

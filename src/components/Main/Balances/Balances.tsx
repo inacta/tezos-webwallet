@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
 import './Balances.scss';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Net, WalletTypes } from '../../../shared/TezosTypes';
 import { EnumDictionary } from '../../../shared/AbstractTypes';
 import { TezosToolkit } from '@taquito/taquito';
@@ -16,7 +16,7 @@ interface IBalancesProps {
   network: Net;
   net2client: EnumDictionary<Net, TezosToolkit>;
   accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
-  tokens: EnumDictionary<Net, Array<{ symbol: string; address: string }>>;
+  tokens: EnumDictionary<Net, { symbol: string; address: string }[]>;
 
   addToken: (network: Net, address: string, token) => void;
   removeToken: (network: Net, address: string) => void;
@@ -64,7 +64,7 @@ export default function Balances(props: IBalancesProps) {
         <></>
       ) : (
         <>
-          <Row className="mt-5">
+          <Row className="mt-3">
             <Col sm="12" md="4">
               <TezosBalance
                 balance={balance}

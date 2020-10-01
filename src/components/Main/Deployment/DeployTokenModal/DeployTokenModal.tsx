@@ -10,14 +10,14 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import { deployToken } from '../../../../shared/TezosService';
 import { checkAddress } from '../../../../shared/TezosUtil';
 import { EnumDictionary } from '../../../../shared/AbstractTypes';
-import { Net, IExtraData, TokenStandard } from '../../../../shared/TezosTypes';
+import { IExtraData, Net, TokenStandard } from '../../../../shared/TezosTypes';
 import { TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import Loading from '../../../shared/Loading/Loading';
 import DeployTokenModalExtraField from './DeployTokenModalExtraField/DeployTokenModalExtraField';
 import { FaInfoCircle } from 'react-icons/fa';
 
-interface DeployTokenModal {
+interface IDeployTokenModal {
   network: Net;
   net2client: EnumDictionary<Net, TezosToolkit>;
   showModal: boolean;
@@ -26,7 +26,7 @@ interface DeployTokenModal {
   addToken: (network: Net, address: string, token) => void;
 }
 
-export default function DeployTokenModal(props) {
+export default function DeployTokenModal(props: IDeployTokenModal) {
   const decimalsMax = 18;
   const decimalsMin = 0;
 
@@ -98,6 +98,30 @@ export default function DeployTokenModal(props) {
     setValidated(true);
   };
 
+  // we have to pass the values to the function, as when updating the state
+  // the new value only becomes available after rerendering
+  const _checkAmount = (amount: string, _decimals: string, tokenType: TokenStandard) => {
+    // if no decimals are provided, assume the maximum number of decimals
+    if (_decimals === '') {
+      _decimals = decimalsMax.toString();
+    }
+    let regexString: string;
+    if (tokenType === TokenStandard.FA1_2) {
+      regexString = `^(0|[1-9][0-9]*)?`;
+    } else if (tokenType === TokenStandard.FA2) {
+      regexString = `^(0|[1-9][0-9]*)(\\.([0-9]{0,${_decimals}}))?`;
+    } else {
+      return;
+    }
+    const decimalRegex = new RegExp(regexString);
+    const matchedFloat = amount.match(decimalRegex);
+    if (amount === '') {
+      updateAmount('');
+    } else if (matchedFloat !== null) {
+      updateAmount(matchedFloat[0]);
+    }
+  };
+
   const switchTokenType = (newType: TokenStandard) => {
     updateTokenStandard(newType);
     _checkAmount(amount, decimals, newType);
@@ -132,29 +156,6 @@ export default function DeployTokenModal(props) {
     _checkAmount(formValue, decimals, tokenStandard);
   };
 
-  // we have to pass the values to the function, as when updating the state, the new value only becomes available after rerendering
-  const _checkAmount = (amount: string, _decimals: string, tokenType: TokenStandard) => {
-    // if no decimals are provided, assume the maximum number of decimals
-    if (_decimals === '') {
-      _decimals = decimalsMax.toString();
-    }
-    let regexString: string;
-    if (tokenType === TokenStandard.FA1_2) {
-      regexString = `^(0|[1-9][0-9]*)?`;
-    } else if (tokenType === TokenStandard.FA2) {
-      regexString = `^(0|[1-9][0-9]*)(\\.([0-9]{0,${_decimals}}))?`;
-    } else {
-      return;
-    }
-    const decimalRegex = new RegExp(regexString);
-    const matchedFloat = amount.match(decimalRegex);
-    if (amount === '') {
-      updateAmount('');
-    } else if (matchedFloat !== null) {
-      updateAmount(matchedFloat[0]);
-    }
-  };
-
   return (
     <Modal
       centered
@@ -177,7 +178,7 @@ export default function DeployTokenModal(props) {
               name="radio"
               value={TokenStandard.FA1_2}
               checked={tokenStandard === TokenStandard.FA1_2}
-              onChange={(e) => switchTokenType(TokenStandard.FA1_2)}
+              onChange={() => switchTokenType(TokenStandard.FA1_2)}
             >
               FA1.2
             </ToggleButton>
@@ -187,7 +188,7 @@ export default function DeployTokenModal(props) {
               name="radio"
               value={TokenStandard.FA2}
               checked={tokenStandard === TokenStandard.FA2}
-              onChange={(e) => switchTokenType(TokenStandard.FA2)}
+              onChange={() => switchTokenType(TokenStandard.FA2)}
             >
               FA2
             </ToggleButton>

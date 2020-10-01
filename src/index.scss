@@ -16,6 +16,9 @@ body {
 
 #root {
   height: 100%;
+  min-height: 100%;
+  overflow: auto;
+  background-color: rgb(245, 245, 245);
 }
 
 code {
@@ -64,6 +67,13 @@ code {
 
 button:focus {
   outline: 0 !important;
+}
+
+.warning-container {
+  display: flex;
+  width: 100%;
+  background-color: rgb(255, 245, 220);
+  padding: 15px;
 }
 
 @import '~bootstrap/scss/bootstrap';

@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './WalletManagement.scss';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import { isContractAddress } from '../../../shared/TezosUtil';
-import { Net, WalletTypes } from '../../../shared/TezosTypes';
 import { EnumDictionary } from '../../../shared/AbstractTypes';
+import { getWalletSpec } from '../../../shared/WalletUtil';
+import { Net, Wallet, WalletTypes } from '../../../shared/TezosTypes';
 import { TezosToolkit } from '@taquito/taquito';
-import { validateAddress, ValidationResult } from '@taquito/utils';
-import NewWalletModal from './NewWalletModal/NewWalletModal';
-import ImportWalletModal from './ImportWalletModal/ImportWalletModal';
+import Address from './WalletComponents/Address/Address';
+import AirGap from './WalletComponents/AirGap/AirGap';
+import Card from 'react-bootstrap/Card';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
+import Ledger from './WalletComponents/LedgerNano/LedgerNano';
+import PrivateKey from './WalletComponents/PrivateKey/PrivateKey';
+import Row from 'react-bootstrap/Row';
+import TezBridge from './WalletComponents/TezBridge/TezBridge';
+import Thanos from './WalletComponents/Thanos/Thanos';
+import WalletIcons from './WalletIcons/WalletIcons';
 
 interface IWalletManagementProps {
   network: Net;
@@ -18,133 +22,66 @@ interface IWalletManagementProps {
   accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
 
   changeAddress: (address: string, network: Net) => void;
-  addSigner: (address: string, network: Net, signer?: WalletTypes, wallet?: boolean) => void;
+  addSigner: (address: string, network: Net, signer: WalletTypes, wallet: boolean) => void;
 }
 
 export default function WalletManagement(props: IWalletManagementProps) {
-  const [showModal, setShow] = useState({
-    new: false,
-    import: false
-  });
-  const [addressError, updateAddressError] = useState('');
-  const [address, updateAddress] = useState<{ [key: string]: string }>({
-    [Net.Mainnet]: '',
-    [Net.Carthage]: ''
-  });
+  const [hoverWallet, updateHoverWallet] = useState('');
+  const [walletType, updateWallet] = useState<Wallet | undefined>(undefined);
 
-  // set address in redux on page load
-  useEffect(() => {
-    updateAddress({
-      [Net.Mainnet]: props.accounts[Net.Mainnet].address,
-      [Net.Carthage]: props.accounts[Net.Carthage].address
-    });
-    return function cleanup() {};
-  }, [props.accounts]);
-
-  const handleShow = (newWallet: boolean) => {
-    if (newWallet) {
-      setShow({
-        new: true,
-        import: false
-      });
-    } else {
-      setShow({
-        new: false,
-        import: true
-      });
-    }
+  const addSigner = (address: string, signer: WalletTypes, wallet: boolean) => {
+    props.addSigner(address, props.network, signer, wallet);
   };
 
-  const closeDialog = () => {
-    setShow({
-      new: false,
-      import: false
-    });
+  const changeAddress = (address: string) => {
+    props.changeAddress(address, props.network);
   };
 
-  const checkAddress = (event) => {
-    // get form value
-    const formValue = event.currentTarget.value;
-    // update form field
-    updateAddress({
-      ...address,
-      [props.network]: formValue
-    });
-    // if form value is empty, delete the address from redux
-    if (formValue === '') {
-      updateAddressError('');
-      props.changeAddress(formValue, props.network);
-      return;
-    }
-    // initiate address validation check
-    const res = validateAddress(formValue);
-    if (res === ValidationResult.NO_PREFIX_MATCHED) {
-      updateAddressError('Invalid Address: no prefix matched');
-    } else if (res === ValidationResult.INVALID_CHECKSUM) {
-      updateAddressError('Invalid checksum');
-    } else if (res === ValidationResult.INVALID_LENGTH) {
-      updateAddressError('Invalid length');
-    } else if (res === ValidationResult.VALID) {
-      if (isContractAddress(formValue)) {
-        updateAddressError('Contract address is not allowed');
-      } else {
-        // if address is valid, update redux storage
-        updateAddressError('');
-        props.changeAddress(formValue, props.network);
-      }
+  const showWalletComponent = () => {
+    switch (walletType) {
+      case Wallet.Ledger:
+        return <Ledger addSigner={addSigner} />;
+      case Wallet.Thanos:
+        return <Thanos network={props.network} addSigner={props.addSigner} />;
+      case Wallet.AirGap:
+        return <AirGap network={props.network} addSigner={props.addSigner} />;
+      case Wallet.TezBridge:
+        return <TezBridge addSigner={addSigner} />;
+      case Wallet.PrivateKey:
+        return <PrivateKey network={props.network} addSigner={addSigner} />;
+      case Wallet.Address:
+        return <Address changeAddress={changeAddress} />;
+      default:
+        return <></>;
     }
   };
 
   return (
     <div>
-      <Row>
-        <Col>
-          <p>
-            {props.network === Net.Mainnet
-              ? 'You are using the mainnet, be careful when interacting with the blockchain to prevent the loss of funds.'
-              : 'You are using the Carthage testnet.'}
-          </p>
-          <Form>
-            <Form.Group>
-              <Form.Control
-                placeholder="Enter your address or add a wallet"
-                onChange={checkAddress}
-                value={address[props.network]}
-              />
-              <Form.Text className="text-danger">{addressError}</Form.Text>
-            </Form.Group>
-          </Form>
-        </Col>
-      </Row>
-
-      <Row className="mt-3">
-        <Col>
-          <Button onClick={() => handleShow(true)} block>
-            New Wallet
-          </Button>
-        </Col>
-        <Col>
-          <Button onClick={() => handleShow(false)} block>
-            Import Wallet
-          </Button>
-        </Col>
-      </Row>
-      <NewWalletModal
-        show={showModal.new}
-        network={props.network}
-        address={address}
-        closeDialog={closeDialog}
-        addSigner={props.addSigner}
-        updateAddress={updateAddress}
-      ></NewWalletModal>
-      <ImportWalletModal
-        show={showModal.import}
-        network={props.network}
-        address={address}
-        closeDialog={closeDialog}
-        addSigner={props.addSigner}
-        updateAddress={updateAddress}
-      ></ImportWalletModal>
+      <h2>Access your wallet</h2>
+      <Card className="border-primary" body>
+        <Container>
+          <Row className="mb-2">
+            <Col>
+              <h3>
+                {hoverWallet !== ''
+                  ? hoverWallet
+                  : walletType === undefined
+                  ? 'Select a wallet type'
+                  : getWalletSpec(walletType).name}
+              </h3>
+            </Col>
+          </Row>
+          <Row className="d-flex justify-content-between justify-content-md-start">
+            <WalletIcons
+              types={[Wallet.Ledger, Wallet.AirGap, Wallet.Thanos, Wallet.TezBridge, Wallet.PrivateKey, Wallet.Address]}
+              updateString={updateHoverWallet}
+              onClick={updateWallet}
+            />
+          </Row>
+          {walletType !== undefined ? showWalletComponent() : <></>}
+        </Container>
+      </Card>
     </div>
   );
 }

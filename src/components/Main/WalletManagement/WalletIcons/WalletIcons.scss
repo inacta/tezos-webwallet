@@ -1,0 +1,18 @@
+$icon-size: 96px;
+
+.WalletIcon-image-container {
+  height: $icon-size;
+  width: $icon-size;
+  border: 1px solid lightgray;
+  border-radius: calc(#{$icon-size} / 10);
+  overflow: hidden;
+  font-size: 3em;
+}
+
+.WalletIcon-image-container:hover {
+  box-shadow: 0 0 calc(#{$icon-size} / 10) gray;
+}
+
+.WalletIcon-image {
+  width: 100%;
+}
