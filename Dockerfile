@@ -36,5 +36,6 @@ RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 # when creating a new container
 CMD service nginx start
 
-#RUN chown -R nginx:nginx /usr/share/nginx/html
+RUN chmod 755 -R /usr/share/nginx/html/
+RUN chmod 755 -R /var/www/html/
 EXPOSE 8080 443
