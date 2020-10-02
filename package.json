@@ -5,7 +5,7 @@
   "main": "src/public/index.html",
   "scripts": {
     "build": "yarn run clean && yarn eslint src/**/*.{ts,tsx} && react-scripts build",
-    "build:bamboo": "react-scripts build",
+    "build:bamboo": "GENERATE_SOURCEMAP=false NODE_OPTIONS='--max-old-space-size=8192' react-scripts build",
     "clean": "rm -rf dist",
     "eject": "react-scripts eject",
     "lint": "yarn eslint src/*.ts src/*.tsx",
@@ -31,14 +31,11 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^5.11.0",
     "@testing-library/react": "^10.4.3",
-    "@types/bignumber.js": "^5.0.0",
-    "@types/crypto-hash": "1.1.2",
     "@types/mocha": "^7.0.2",
     "@types/pdfmake": "0.1.8",
     "@types/react": "^16.9.41",
     "@types/react-bootstrap": "^1.0.1",
     "@types/react-dom": "^16.9.8",
-    "@types/react-icons": "^3.0.0",
     "@types/react-router-dom": "^5.1.5",
     "@typescript-eslint/eslint-plugin": "^1.6.0",
     "@typescript-eslint/parser": "^1.6.0",
