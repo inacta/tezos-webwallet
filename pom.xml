@@ -40,7 +40,7 @@
               <npmVersion>${npmVersion}</npmVersion>
               <workingDirectory>${project.basedir}/workingDir</workingDirectory>
             </configuration>
-            <executions>
+            <!-- <executions>
               <execution>
                 <id>install node and npm</id>
                 <goals>
@@ -68,7 +68,7 @@
                   <arguments>run-script build:bamboo</arguments>
                 </configuration>
               </execution>
-            </executions>
+            </executions> -->
           </plugin>
         </plugins>
       </build>
