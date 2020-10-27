@@ -27,7 +27,7 @@ export function isValidSecretKey(key: string): boolean {
   }
 }
 
-export function checkAddress(value): string {
+export function checkAddress(value: string): string {
   const res = validateAddress(value);
   if (res === ValidationResult.NO_PREFIX_MATCHED) {
     return 'Invalid Address: no prefix matched';

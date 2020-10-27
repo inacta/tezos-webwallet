@@ -21,7 +21,8 @@ const initalState: IAccountState = {
   }
 };
 
-export default function(state = initalState, action) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default function(state = initalState, action: any) {
   if (action.type === 'RESET_SIGNER') {
     if (action.network === Net.Mainnet) {
       state = {
