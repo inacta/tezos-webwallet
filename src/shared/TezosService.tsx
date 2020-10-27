@@ -597,3 +597,65 @@ function toByteArray(hexString) {
   return result;
 }
 
+export async function registerTandemClaim(
+  contractAddress: string,
+  activityLogContractAddress: string,
+  helpers: string[],
+  minutes: number,
+  activities: number[],
+  afterDeploymentCallback?: Function,
+  afterConfirmationCallback?: Function) {
+  const state = store.getState();
+  const tezos: TezosToolkit = state.net2client[state.network];
+  const contract = await tezos.contract.at(contractAddress);
+  const signer: WalletTypes = state.accounts[state.network].signer;
+
+  // TODO: This will probably only work if "Private Key" method for handling the secret key is used
+  // how do we get it to work for the other secret key storage methods?
+  const inMemorySigner: InMemorySigner = signer as InMemorySigner;
+  const signerAddress: string = await inMemorySigner.publicKeyHash();
+  const signerPublicKey: string = await inMemorySigner.publicKey();
+  const contractStorage: any = await contract.storage();
+
+  let ownNonce: BigNumber;
+  try {
+    ownNonce = await contractStorage.nonces.get(signerAddress);
+
+    // if no nonce was found and it is set to undefined, assume this means
+    // that the field contains no nonces, so just set it to 0.
+    if (typeof ownNonce === 'undefined' || ownNonce === null) {
+      ownNonce = new BigNumber(0);
+    }
+  } catch (error) {
+    ownNonce = new BigNumber(0);
+  }
+
+  const activitiesBN: BigNumber[] = activities.map(x => new BigNumber(x));
+  const msgBytes = packFourTupleAsLeftBalancedPairs(ownNonce, new BigNumber(minutes), activitiesBN, helpers);
+  const signature = await inMemorySigner.sign(toHexString(msgBytes));
+
+  // We need to generate the signature, address and public key from the
+  // wallet/signer object
+
+  const tandemClaim = {
+    helpers,
+    activities,
+    minutes,
+    helpees: [{
+        address: signerAddress,
+        pk: signerPublicKey,
+        signature: signature.sig,
+    }],
+  };
+  let tx;
+  try {
+    tx = await contract.methods.register_tandem_claims([tandemClaim], activityLogContractAddress);
+  } catch (error) {
+    console.log(error.message);
+  }
+
+  const func = () => tx.send();
+
+  // Publish transaction to blockchain
+  handleTx(func, afterDeploymentCallback, afterConfirmationCallback);
+}
