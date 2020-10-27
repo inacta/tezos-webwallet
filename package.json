@@ -12,6 +12,7 @@
     "lint-fix": "yarn eslint --fix src/*.ts src/*.tsx",
     "reinstall": "rm -rf node_modules && yarn install",
     "start": "yarn eslint src/**/*.{ts,tsx} && react-scripts start",
+    "start-force": "yarn eslint src/**/*.{ts,tsx}; react-scripts start",
     "test": "react-scripts test"
   },
   "repository": {
