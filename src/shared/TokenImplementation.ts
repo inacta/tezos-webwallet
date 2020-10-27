@@ -2,19 +2,9 @@ import { ContractAbstraction, ContractProvider, TezosToolkit } from '@taquito/ta
 import { IContractInformation, ITokenMetadata, TokenStandard } from './TezosTypes';
 import { ValidationResult, validateAddress } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
+import { getContractInterface } from './TezosUtil';
 
 // This file is to define helper functions for FA1.2 and FA2 token implementations
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getObjectMethodNames(obj: any): string[] {
-  if (!obj) {
-    return [];
-  }
-
-  return Object.getOwnPropertyNames(obj)
-    .filter((p) => typeof obj[p] === 'function')
-    .map((name) => name.toLowerCase());
-}
 
 export const CONTRACT_ADDRESS_PREFIX = 'KT1';
 
@@ -25,26 +15,6 @@ export function isContractAddress(address: string) {
   }
 
   return address.substring(0, 3) === CONTRACT_ADDRESS_PREFIX && validateAddress(address) === ValidationResult.VALID;
-}
-
-export function getContractInterface(contract: ContractAbstraction<ContractProvider>): [TokenStandard, string[]] {
-  const methodNames: string[] = getObjectMethodNames(contract.methods);
-  let standard;
-  if (
-    // These function names are specified in FA2/TZIP-12
-    ['transfer', 'balance_of', 'update_operators', 'token_metadata_registry'].every((mn) => methodNames.includes(mn))
-  ) {
-    standard = TokenStandard.FA2;
-  } else if (
-    // These function names are specified in FA1.2/TZIP-7
-    ['transfer', 'approve', 'getallowance', 'getbalance', 'gettotalsupply'].every((mn) => methodNames.includes(mn))
-  ) {
-    standard = TokenStandard.FA1_2;
-  } else {
-    throw new Error('Unknown token standard');
-  }
-
-  return [standard, methodNames];
 }
 
 // Given a contract, fetch information about it from the blockchain and return
