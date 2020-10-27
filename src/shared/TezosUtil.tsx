@@ -2,8 +2,7 @@
 import { b58cencode, Prefix, prefix, validateAddress, ValidationResult } from '@taquito/utils';
 import { InMemorySigner } from '@taquito/signer';
 import configureStore from '../redux/store';
-import { addNotification } from './NotificationService';
-import { TokenStandard } from './TezosTypes';
+import { OtherContractStandard, TokenStandard } from './TezosTypes';
 import { ContractAbstraction, ContractProvider, TransactionWalletOperation } from '@taquito/taquito';
 import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
 
@@ -64,21 +63,29 @@ function getObjectMethodNames(obj: any): string[] {
     .map((name) => name.toLowerCase());
 }
 
-export function getContractInterface(contract: ContractAbstraction<ContractProvider>): [TokenStandard, string[]] {
+export function getContractInterface(contract: ContractAbstraction<ContractProvider>): [TokenStandard, OtherContractStandard[], string[]] {
   const methodNames: string[] = getObjectMethodNames(contract.methods);
-  let standard;
+  let tokenStandard: TokenStandard;
   if (
     // These function names are specified in FA2/TZIP-12
     ['transfer', 'balance_of', 'update_operators', 'token_metadata_registry'].every((mn) => methodNames.includes(mn))
   ) {
-    standard = TokenStandard.FA2;
+    tokenStandard = TokenStandard.FA2;
   } else if (
     // These function names are specified in FA1.2/TZIP-7
     ['transfer', 'approve', 'get_allowance', 'get_balance', 'get_total_supply'].every((mn) => methodNames.includes(mn))
   ) {
-    standard = TokenStandard.FA1_2;
+    tokenStandard = TokenStandard.FA1_2;
+  } else {
+    tokenStandard = TokenStandard.Unknown;
   }
-  return [standard, methodNames];
+
+  let otherStandards: OtherContractStandard[] = [];
+  if (['register_tandem_claims'].every((mn: string) => methodNames.includes(mn))) {
+    otherStandards.push(OtherContractStandard.KISS);
+  }
+
+  return [tokenStandard, otherStandards, methodNames];
 }
 
 // Taquito supports Wallets and Signers

@@ -6,7 +6,7 @@ import Modal from 'react-bootstrap/Modal';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import BigNumber from 'bignumber.js';
-import { Net, TokenStandard, WhitelistVersion } from '../../../../shared/TezosTypes';
+import { Net, OtherContractStandard, TokenStandard, WhitelistVersion } from '../../../../shared/TezosTypes';
 import Loading from '../../../shared/Loading/Loading';
 import { getContract, getTokenData } from '../../../../shared/TezosService';
 import { getContractInterface } from '../../../../shared/TezosUtil';
@@ -17,6 +17,7 @@ import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
 export interface TokenData {
   address: string;
   token: {
+    isKiss: boolean;
     type: TokenStandard;
     name: string;
     symbol: string;
@@ -55,8 +56,8 @@ export default function TokenModal(props: ITokenModalProps) {
   const getContractInfo = async () => {
     const contract = (await getContract(props.tokenModal.address)) as ContractAbstraction<ContractProvider>;
     const contractInterface = getContractInterface(contract);
-    const type = contractInterface[0];
-    const methods = contractInterface[1];
+    const type: TokenStandard = contractInterface[0];
+    const methods: string[] = contractInterface[2];
 
     let whitelistVersion = WhitelistVersion.NO_WHITELIST;
     if (
@@ -71,11 +72,13 @@ export default function TokenModal(props: ITokenModalProps) {
       whitelistVersion = WhitelistVersion.V0;
     }
 
+    const isKiss: boolean = contractInterface[1].includes(OtherContractStandard.KISS);
     if (type === TokenStandard.FA2) {
       const fetchedTokenData = await getTokenData(contract, TokenStandard.FA2);
       updateTokenData({
         address: props.tokenModal.address,
         token: {
+          isKiss,
           type: TokenStandard.FA2,
           name: fetchedTokenData.name,
           symbol: fetchedTokenData.symbol,
@@ -88,6 +91,7 @@ export default function TokenModal(props: ITokenModalProps) {
       updateTokenData({
         address: props.tokenModal.address,
         token: {
+          isKiss,
           type: TokenStandard.FA1_2,
           name: '',
           symbol: '',

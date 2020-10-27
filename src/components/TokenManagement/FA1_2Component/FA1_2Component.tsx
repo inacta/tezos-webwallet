@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Loading from '../../shared/Loading/Loading';
+import { KissModal } from '../KissModal';
 import FA1_2TransferModal from './FA1_2TransferModal/FA1_2TransferModal';
 import { getContract, getTokenData, modifyWhitelist, modifyWhitelistAdmin } from '../../../shared/TezosService';
 import { checkAddress } from '../../../shared/TezosUtil';
@@ -17,7 +18,7 @@ import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
 interface IFA1_2Component {
   address: string;
   contractAddress: string;
-  token: { symbol: string; whitelistVersion?: WhitelistVersion };
+  token: { isKiss: boolean; symbol: string; whitelistVersion?: WhitelistVersion };
   showTransfer: boolean;
 }
 

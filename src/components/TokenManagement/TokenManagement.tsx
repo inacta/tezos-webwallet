@@ -12,7 +12,7 @@ interface ITokenManagement {
   network: Net;
   accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
   net2client: EnumDictionary<Net, TezosToolkit>;
-  tokens: EnumDictionary<Net, { symbol: string; address: string }[]>;
+  tokens: EnumDictionary<Net, { isKiss: boolean; symbol: string; address: string }[]>;
   match: {
     params: {
       address: string;

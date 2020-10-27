@@ -28,9 +28,10 @@ export interface IContractInformation {
   contract: ContractAbstraction<ContractProvider>;
   conversionFactor: BigNumber | undefined;
   decimals: number | undefined;
+  methods: string[];
+  otherStandards: OtherContractStandard[];
   symbol: string;
   tokenStandard: TokenStandard;
-  methods: string[];
 }
 
 export interface ITokenMetadata {
@@ -55,7 +56,12 @@ export enum TransactionState {
 
 export enum TokenStandard {
   FA1_2 = 'FA1_2',
-  FA2 = 'FA2'
+  FA2 = 'FA2',
+  Unknown = 'Unknown'
+}
+
+export enum OtherContractStandard {
+  KISS = 'KISS'
 }
 
 export enum WhitelistVersion {
