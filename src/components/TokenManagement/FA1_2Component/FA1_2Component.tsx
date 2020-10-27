@@ -27,7 +27,8 @@ export default function FA1_2Component(props: IFA1_2Component) {
   const [balance, updateBalance] = useState('');
   const [totalSupply, updateTotalSupply] = useState('');
   const [whitelistVersion, updateWhitelistVersion] = useState(WhitelistVersion.NO_WHITELIST);
-  const [showModal, updateModal] = useState(false);
+  const [showTransferModal, updateTransferModal] = useState(false);
+  const [showTandemModal, updateTandemModal] = useState(false);
   const [whitelistAdmin, updateWhitelistAdmin] = useState(false);
   const [NRWwhitelistAdmin, updateNRWWhitelistAdmin] = useState(false);
   const [whitelisterList, updateWhitelisterList] = useState([]);
@@ -71,6 +72,13 @@ export default function FA1_2Component(props: IFA1_2Component) {
     });
   };
 
+  // Only show tandem registration button if this token supports tandems (it is a KISS token)
+  const tandemButton: JSX.Element = props.token.isKiss ? (
+    <Button onClick={() => updateTandemModal(true)}>Register tandem</Button>
+  ) : (
+    undefined
+  );
+
   return (
     <div>
       {balance !== '' ? (
@@ -91,15 +99,26 @@ export default function FA1_2Component(props: IFA1_2Component) {
                   {props.showTransfer &&
                   (whitelistVersion === WhitelistVersion.NO_WHITELIST || whitelistedList.includes(props.address)) ? (
                     <>
-                      <Button onClick={() => updateModal(true)}>Transfer</Button>
+                      <Button onClick={() => updateTransferModal(true)}>Transfer</Button>
+                      <br />
+                      <br />
                       <FA1_2TransferModal
-                        show={showModal}
-                        hideModal={() => updateModal(false)}
+                        show={showTransferModal}
+                        hideModal={() => updateTransferModal(false)}
                         symbol={props.token.symbol}
                         balance={balance}
                         balanceCallback={getTokenInfo}
                         contractAddress={props.contractAddress}
                       ></FA1_2TransferModal>
+                      {tandemButton}
+                      <KissModal
+                        balance={balance !== '' ? Number(balance) : 0}
+                        balanceCallback={getTokenInfo}
+                        contractAddress={props.contractAddress}
+                        hideModal={() => updateTandemModal(false)}
+                        show={showTandemModal}
+                        symbol={props.token.symbol}
+                      ></KissModal>
                     </>
                   ) : (
                     <></>
