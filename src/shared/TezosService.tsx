@@ -629,7 +629,6 @@ export async function arbitraryFunctionCall(
 
 export async function registerTandemClaim(
   contractAddress: string,
-  activityLogContractAddress: string,
   helpers: string[],
   minutes: number,
   activities: number[],
@@ -679,7 +678,7 @@ export async function registerTandemClaim(
   };
   let tx;
   try {
-    tx = await contract.methods.register_tandem_claims([tandemClaim], activityLogContractAddress);
+    tx = await contract.methods.register_tandem_claims([tandemClaim]);
   } catch (error) {
     console.log(error.message);
   }
@@ -687,5 +686,5 @@ export async function registerTandemClaim(
   const func = () => tx.send();
 
   // Publish transaction to blockchain
-  handleTx(func, afterDeploymentCallback, afterConfirmationCallback);
+  await handleTx(func, afterDeploymentCallback, afterConfirmationCallback);
 }

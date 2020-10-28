@@ -26,7 +26,6 @@ interface IKissModalProps {
 
 interface IKissModalState {
   activities: number[];
-  activityLogContractAddress: string;
   calculatingFee: boolean;
   fee: number; // tez to be paid in fees to publish this tx
   helpers: string[];
@@ -39,7 +38,6 @@ export class KissModal extends React.Component<IKissModalProps, IKissModalState>
     super(props);
     this.state = {
       activities: [0],
-      activityLogContractAddress: '',
       calculatingFee: false,
       fee: 0,
       helpers: [''],
@@ -51,7 +49,6 @@ export class KissModal extends React.Component<IKissModalProps, IKissModalState>
   private async handleSubmitHelper() {
     registerTandemClaim(
       this.props.contractAddress,
-      this.state.activityLogContractAddress,
       this.state.helpers,
       this.state.minutes,
       this.state.activities,
@@ -88,10 +85,6 @@ export class KissModal extends React.Component<IKissModalProps, IKissModalState>
 
   private updateActivities(activity: string) {
     this.setState({ activities: [parseInt(activity)] });
-  }
-
-  private updateActivityLogContractAddress(address: string) {
-    this.setState({ activityLogContractAddress: address });
   }
 
   private updateHelpers(helper: string): void {
@@ -157,23 +150,6 @@ export class KissModal extends React.Component<IKissModalProps, IKissModalState>
       </Form.Group>
     );
 
-    const activityLogInput: JSX.Element = (
-      <Form.Group as={Col} md="8" controlId="activity-log">
-        <Form.Label>Activity log address</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Tezos address"
-          value={this.state.activityLogContractAddress}
-          onChange={(e) => this.updateActivityLogContractAddress(e.target.value)}
-          className={checkAddress(this.state.activityLogContractAddress) !== '' ? 'is-invalid' : ''}
-          required
-        ></Form.Control>
-        <Form.Control.Feedback type="invalid">
-          {checkAddress(this.state.activityLogContractAddress)}
-        </Form.Control.Feedback>
-      </Form.Group>
-    );
-
     const minuteInput: JSX.Element = (
       <Form.Group as={Col} md="4" controlId="minutes">
         <Form.Label>Minutes</Form.Label>
@@ -217,7 +193,6 @@ export class KissModal extends React.Component<IKissModalProps, IKissModalState>
           <Form noValidate validated={this.valid()} id="register-tandem-form">
             <Form.Row>
               {helpers}
-              {activityLogInput}
               {minuteInput}
             </Form.Row>
             <Form.Row>{activityinput}</Form.Row>
