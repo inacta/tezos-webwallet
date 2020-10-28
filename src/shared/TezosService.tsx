@@ -597,6 +597,36 @@ function toByteArray(hexString) {
   return result;
 }
 
+export async function arbitraryFunctionCall(
+  contract: ContractAbstraction<ContractProvider>,
+  functionName: string,
+  argumentJsons: string[],
+  afterDeploymentCallback?: Function,
+  afterConfirmationCallback?: Function
+) {
+  // Parse the arguments which must all be valid JSON
+  let args: any[];
+  try {
+    args = argumentJsons.map(x => JSON.parse(x));
+  } catch (error) {
+    console.log(error.message);
+    return;
+  }
+
+  // define the function call made on the smart contract
+  let tx;
+  try {
+    tx = await contract.methods[functionName](...args);
+  } catch (error) {
+    console.log(error.message);
+    return;
+  }
+
+  // Publish transaction to blockchain
+  const func = () => tx.send();
+  await handleTx(func, afterDeploymentCallback, afterConfirmationCallback);
+}
+
 export async function registerTandemClaim(
   contractAddress: string,
   activityLogContractAddress: string,
