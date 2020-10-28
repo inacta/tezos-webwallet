@@ -18,7 +18,7 @@ import { EnumDictionary } from '../../shared/AbstractTypes';
 import { TezosToolkit } from '@taquito/taquito';
 import WalletManagement from './WalletManagement/WalletManagement';
 import Balances from './Balances/Balances';
-import Deployment from './Deployment/Deployment';
+import OtherActions from './OtherActions';
 import AddressComponent from './Balances/AddressComponent/AddressComponent';
 
 interface IMainProps {
@@ -112,7 +112,7 @@ class Main extends Component<IMainProps, {}> {
             {this.props.accounts[this.props.network].signer === undefined ? (
               <></>
             ) : (
-              <Deployment
+              <OtherActions
                 network={this.props.network}
                 net2client={this.props.net2client}
                 accounts={this.props.accounts}
