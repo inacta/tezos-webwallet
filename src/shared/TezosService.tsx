@@ -639,6 +639,7 @@ export async function registerTandemClaim(
   const contract = await tezos.contract.at(contractAddress);
   const signer: WalletTypes = state.accounts[state.network].signer;
 
+  // Daniel Gretzke: Do you know what we can do here?
   // TODO: This will probably only work if "Private Key" method for handling the secret key is used
   // how do we get it to work for the other secret key storage methods?
   const inMemorySigner: InMemorySigner = signer as InMemorySigner;

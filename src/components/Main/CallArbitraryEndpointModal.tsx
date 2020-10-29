@@ -1,14 +1,15 @@
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
-import { Net } from '../../shared/TezosTypes';
+import { IContractInformation, Net } from '../../shared/TezosTypes';
 import { arbitraryFunctionCall, getContract } from '../../shared/TezosService';
-import { checkAddress, getContractInterface } from '../../shared/TezosUtil';
+import { checkAddress, isValidAddress, isContractAddress } from '../../shared/TezosUtil';
 import { EnumDictionary } from '../../shared/AbstractTypes';
 import { TezosToolkit, ContractAbstraction, ContractProvider, WalletContract } from '@taquito/taquito';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Loading from '../shared/Loading/Loading';
 import { addNotification } from '../../shared/NotificationService';
+import { getContractInformation } from '../../shared/TokenImplementation';
 
 interface ICallArbitraryEndpointModalProps {
   balanceCallback: () => void;
@@ -20,11 +21,10 @@ interface ICallArbitraryEndpointModalProps {
 
 interface ICallArbitraryEndpointModalState {
   args: string[];
-  contract: ContractAbstraction<ContractProvider> | undefined;
+  contractInformation: IContractInformation | undefined;
   contractAddress: string;
   endpointName: string;
   numberOfArgs: number | undefined;
-  numberOfArgsString: string;
   processingFunctionCall: boolean;
 }
 
@@ -37,10 +37,9 @@ export class CallArbitraryEndpointModal extends React.Component<
     this.state = {
       args: [] as string[],
       contractAddress: '',
-      contract: undefined,
+      contractInformation: undefined,
       endpointName: '',
       numberOfArgs: undefined,
-      numberOfArgsString: '',
       processingFunctionCall: false
     };
   }
@@ -61,7 +60,7 @@ export class CallArbitraryEndpointModal extends React.Component<
 
   private handleSubmitH() {
     arbitraryFunctionCall(
-      this.state.contract,
+      this.state.contractInformation.contract,
       this.state.endpointName,
       this.state.args,
       this.props.hideModal,
@@ -78,7 +77,11 @@ export class CallArbitraryEndpointModal extends React.Component<
   private isValidEndpoint(): boolean {
     // The endpoint is valid if a contract has been loaded and the
     // endpoint name matches a function in the loaded contract
-    return this.state.contract && getContractInterface(this.state.contract)[2].includes(this.state.endpointName);
+    if (!this.state.contractInformation) {
+      return false;
+    }
+
+    return this.state.contractInformation.methods.includes(this.state.endpointName);
   }
 
   private isValidNumArgs(): boolean {
@@ -94,6 +97,22 @@ export class CallArbitraryEndpointModal extends React.Component<
     return true;
   }
 
+  private isValidType(input: string, type: string): boolean {
+    if (!input || !type) {
+      return false;
+    }
+
+    switch (type) {
+      case 'nat':
+        return /^\d+$/.test(input) && this.isJsonString(input);
+      case 'address':
+        return isValidAddress(input.slice(1, -1)) && this.isJsonString(input);
+      default:
+        return this.isJsonString(input);
+    }
+  }
+
+  // Return the array [0 .. length - 1 ]
   private range(length: number): number[] {
     let res = [];
     for (let i = 0; i < length; i++) {
@@ -113,39 +132,56 @@ export class CallArbitraryEndpointModal extends React.Component<
 
   private async updateContractAddressH(input: string): Promise<void> {
     const contract: ContractAbstraction<ContractProvider> | WalletContract | undefined = await getContract(input);
-    this.setState({ contract: contract as ContractAbstraction<ContractProvider> | undefined });
+    let contractInformation: IContractInformation | undefined = undefined;
+    if (contract) {
+      contractInformation = await getContractInformation(contract as ContractAbstraction<ContractProvider>);
+    }
+
+    // Set contract information and numberOfArgs param to match number of methods found in deployed smart contract
+    const firstMethod: string | undefined =
+      (contractInformation?.methods.length ?? 0) > 0 ? contractInformation.methods[0] : undefined;
+    this.setState({
+      contractInformation,
+      endpointName: firstMethod,
+      numberOfArgs: contractInformation?.functionSignatures[firstMethod]?.length
+    });
   }
 
   private updateContractAddress(input: string): void {
     this.setState({ contractAddress: input }, () => this.updateContractAddressH(input));
   }
 
-  private updateNumberOfArgs(numberString: string): void {
-    this.setState({ numberOfArgsString: numberString });
-    try {
-      const newVal: number = parseInt(numberString);
-      if (!isNaN(newVal)) {
-        this.setState({ numberOfArgs: newVal });
-      } else {
-        this.setState({ numberOfArgs: undefined });
-      }
-    } catch (error) {
-      console.log(error.message);
-      this.setState({ numberOfArgs: undefined });
-    }
+  private updateEndpointName(name: string): void {
+    const numberOfArgs: number = this.state.contractInformation?.functionSignatures[name]?.length;
+    this.setState({ endpointName: name, numberOfArgs });
   }
 
   private valid(): boolean {
-    return this.isValidEndpoint() && this.state.args.every((x) => this.isJsonString(x)) && this.isValidNumArgs();
+    return (
+      this.isValidEndpoint() &&
+      this.state.args.every((x, i) =>
+        this.isValidType(x, this.state.contractInformation?.functionSignatures[this.state.endpointName][i])
+      ) &&
+      this.isValidNumArgs()
+    );
   }
 
   public render() {
     const argsInputs: JSX.Element[] = this.range(this.state.numberOfArgs || 0).map((i) => (
       <Form.Group controlId={`arg-${i.toString()}`} key={i}>
-        <Form.Label>{`Argument ${(i + 1).toString()} as JSON`}</Form.Label>
+        <Form.Label>{`Argument ${(i + 1).toString()} as JSON (${
+          this.state.contractInformation?.functionSignatures[this.state.endpointName][i]
+        })`}</Form.Label>
         <Form.Control
           as="textarea"
-          className={this.isJsonString(this.state.args[i]) ? '' : 'is-invalid'}
+          className={
+            this.isValidType(
+              this.state.args[i],
+              this.state.contractInformation?.functionSignatures[this.state.endpointName][i]
+            )
+              ? ''
+              : 'is-invalid'
+          }
           onChange={(e) => this.updateArgs(e.target.value, i)}
           rows={1}
           value={this.state.args[i]}
@@ -153,12 +189,20 @@ export class CallArbitraryEndpointModal extends React.Component<
       </Form.Group>
     ));
 
+    // Show but disable endpoints for contract-to-contract interaction. These functions take 'contract' as input.
     const endpointNameInput: JSX.Element = (
       <Form.Group controlId="endpoint-name">
         <Form.Label>Endpoint name</Form.Label>
-        <Form.Control as="select" onChange={(e) => this.setState({ endpointName: e.target.value })}>
-          {this.state.contract &&
-            getContractInterface(this.state.contract)[2].map((name, i) => <option key={i}>{name}</option>)}
+        <Form.Control as="select" onChange={(e) => this.updateEndpointName(e.target.value)}>
+          {this.state.contractInformation &&
+            this.state.contractInformation.methods.map((name, i) => {
+              const c2c: boolean = this.state.contractInformation.functionSignatures[name].includes('contract');
+              return (
+                <option key={i} disabled={c2c}>
+                  {`${name} ${c2c ? ' (contract-to-contract function)' : ''}`}
+                </option>
+              );
+            })}
         </Form.Control>
       </Form.Group>
     );
@@ -179,7 +223,7 @@ export class CallArbitraryEndpointModal extends React.Component<
             <Form.Group controlId="contract-address">
               <Form.Label>Contract address</Form.Label>
               <Form.Control
-                className={checkAddress(this.state.contractAddress) === '' ? '' : 'is-invalid'}
+                className={isContractAddress(this.state.contractAddress) ? '' : 'is-invalid'}
                 onChange={(e) => this.updateContractAddress(e.target.value)}
                 type="text"
                 value={this.state.contractAddress}
@@ -190,8 +234,9 @@ export class CallArbitraryEndpointModal extends React.Component<
               <Form.Label>Number of arguments</Form.Label>
               <Form.Control
                 className={this.isValidNumArgs() ? '' : 'is-invalid'}
+                readOnly={true}
+                value={this.state.numberOfArgs}
                 type="text"
-                onChange={(e) => this.updateNumberOfArgs(e.target.value)}
               />
             </Form.Group>
             {argsInputs}

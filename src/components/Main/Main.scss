@@ -2,6 +2,10 @@
 @import '~bootstrap/scss/variables';
 @import '~bootstrap/scss/mixins';
 
+select option:disabled {
+  color: #FF0000;
+}
+
 @include media-breakpoint-down(xs) {
   .Main-buttongroup {
     justify-content: start !important;
