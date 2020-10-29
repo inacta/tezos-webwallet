@@ -3,7 +3,7 @@ import Loading from '../../shared/Loading/Loading';
 import { KissModal } from '../KissModal';
 import FA1_2TransferModal from './FA1_2TransferModal/FA1_2TransferModal';
 import { getContract, getTokenData, modifyWhitelist, modifyWhitelistAdmin } from '../../../shared/TezosService';
-import { checkAddress } from '../../../shared/TezosUtil';
+import { checkAddress, isWallet } from '../../../shared/TezosUtil';
 import { TokenStandard, WhitelistVersion } from '../../../shared/TezosTypes';
 import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
@@ -73,11 +73,13 @@ export default function FA1_2Component(props: IFA1_2Component) {
   };
 
   // Only show tandem registration button if this token supports tandems (it is a KISS token)
-  const tandemButton: JSX.Element = props.token.isKiss ? (
-    <Button onClick={() => updateTandemModal(true)}>Register tandem</Button>
-  ) : (
-    undefined
-  );
+  // *and* iff the secret key solution (Ledger, in-memory etc.) supports this functionality.
+  const tandemButton: JSX.Element =
+    props.token.isKiss && !isWallet() ? (
+      <Button onClick={() => updateTandemModal(true)}>Register tandem</Button>
+    ) : (
+      undefined
+    );
 
   return (
     <div>

@@ -23,6 +23,8 @@ import { TransactionOperation } from '@taquito/taquito/dist/types/operations/tra
 import { convertMap } from './Util';
 import { getTxHash, isContractAddress, isWallet } from './TezosUtil';
 import { InMemorySigner } from '@taquito/signer';
+import { TezBridgeSigner } from '@taquito/tezbridge-signer';
+import { LedgerSigner } from '@taquito/ledger-signer';
 
 const store = configureStore().store;
 
@@ -639,12 +641,15 @@ export async function registerTandemClaim(
   const contract = await tezos.contract.at(contractAddress);
   const signer: WalletTypes = state.accounts[state.network].signer;
 
-  // Daniel Gretzke: Do you know what we can do here?
-  // TODO: This will probably only work if "Private Key" method for handling the secret key is used
-  // how do we get it to work for the other secret key storage methods?
-  const inMemorySigner: InMemorySigner = signer as InMemorySigner;
-  const signerAddress: string = await inMemorySigner.publicKeyHash();
-  const signerPublicKey: string = await inMemorySigner.publicKey();
+  // For now, this function only works for the secret key solutions
+  // `InMemorySigner | TezBridgeSigner | LedgerSigner` since these are the
+  // only ones we know how to use for off-chain signature generation.
+
+  // Generate the signature, address and public key from the
+  // wallet/signer object
+  const signatureGenerator: InMemorySigner | TezBridgeSigner | LedgerSigner = signer as InMemorySigner | TezBridgeSigner | LedgerSigner;
+  const signerAddress: string = await signatureGenerator.publicKeyHash();
+  const signerPublicKey: string = await signatureGenerator.publicKey();
   const contractStorage: any = await contract.storage();
 
   let ownNonce: BigNumber;
@@ -662,11 +667,9 @@ export async function registerTandemClaim(
 
   const activitiesBN: BigNumber[] = activities.map(x => new BigNumber(x));
   const msgBytes = packFourTupleAsLeftBalancedPairs(ownNonce, new BigNumber(minutes), activitiesBN, helpers);
-  const signature = await inMemorySigner.sign(toHexString(msgBytes));
+  const signature = await signatureGenerator.sign(toHexString(msgBytes));
 
-  // We need to generate the signature, address and public key from the
-  // wallet/signer object
-
+  // Create the tandem object that the smart contract takes as argument
   const tandemClaim = {
     helpers,
     activities,
