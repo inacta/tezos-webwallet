@@ -5,6 +5,7 @@ import configureStore from '../redux/store';
 import { OtherContractStandard, TokenStandard } from './TezosTypes';
 import { ContractAbstraction, ContractProvider, TransactionWalletOperation } from '@taquito/taquito';
 import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
+import { StringDictionary } from './AbstractTypes';
 
 const store = configureStore().store;
 
@@ -53,18 +54,21 @@ export function isContractAddress(address: string) {
   return address.substring(0, 3) === CONTRACT_ADDRESS_PREFIX && validateAddress(address) === ValidationResult.VALID;
 }
 
-function getObjectMethodNames(obj: any): string[] {
-  if (!obj) {
-    return [];
+export function getContractInterface(contract: ContractAbstraction<ContractProvider>): [TokenStandard, OtherContractStandard[], string[], StringDictionary<string[]>] {
+  const signatures: string[][] = contract.parameterSchema.ExtractSignatures();
+
+  // Sort the functions alphabetically according to function name
+  signatures.sort((a, b) => a[0] === b[0] ? 0 : (a[0] < b[0] ? -1 : 1));
+  let signatureDict: StringDictionary<string[]> = {};
+  for (let i = 0; i < signatures.length; i++) {
+
+    // 0th element is key, the rest are values of the dict
+    signatureDict[signatures[i][0]] = signatures[i];
+    signatureDict[signatures[i][0]].shift();
+
   }
 
-  return Object.getOwnPropertyNames(obj)
-    .filter((p) => typeof obj[p] === 'function')
-    .map((name) => name.toLowerCase());
-}
-
-export function getContractInterface(contract: ContractAbstraction<ContractProvider>): [TokenStandard, OtherContractStandard[], string[]] {
-  const methodNames: string[] = getObjectMethodNames(contract.methods);
+  const methodNames: string[] = Object.keys(signatureDict);
   let tokenStandard: TokenStandard;
   if (
     // These function names are specified in FA2/TZIP-12
@@ -85,7 +89,7 @@ export function getContractInterface(contract: ContractAbstraction<ContractProvi
     otherStandards.push(OtherContractStandard.KISS);
   }
 
-  return [tokenStandard, otherStandards, methodNames];
+  return [tokenStandard, otherStandards, methodNames, signatureDict];
 }
 
 // Taquito supports Wallets and Signers
