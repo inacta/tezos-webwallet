@@ -2,10 +2,11 @@
 import { b58cencode, Prefix, prefix, validateAddress, ValidationResult } from '@taquito/utils';
 import { InMemorySigner } from '@taquito/signer';
 import configureStore from '../redux/store';
-import { OtherContractStandard, TokenStandard } from './TezosTypes';
+import { OtherContractStandard, TokenStandard, IContractInformation, ITokenMetadata } from './TezosTypes';
 import { ContractAbstraction, ContractProvider, TransactionWalletOperation } from '@taquito/taquito';
 import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
 import { StringDictionary } from './AbstractTypes';
+import BigNumber from 'bignumber.js';
 
 const store = configureStore().store;
 
@@ -100,4 +101,55 @@ export function isWallet() {
 
 export function getTxHash(op: TransactionOperation | TransactionWalletOperation) {
   return isWallet() ? (op as TransactionWalletOperation).opHash : (op as TransactionOperation).hash;
+}
+
+// Given a contract, fetch information about it from the blockchain and return
+// an object describing the deployed token contract
+export function getContractInformation(contract: ContractAbstraction<ContractProvider>): Promise<IContractInformation> {
+  const info = getContractInterface(contract);
+  if (info && info[0] === TokenStandard.FA2) {
+    return (
+      contract
+        .storage()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .then((s: any) => s.token_metadata.get('0'))
+        .then((md: ITokenMetadata) => {
+          return {
+            address: contract.address,
+            contract,
+            conversionFactor: new BigNumber(10).pow(md?.decimals ?? new BigNumber(0)),
+            decimals: md.decimals,
+            functionSignatures: info[3],
+            methods: info[2],
+            symbol: md.symbol,
+            otherStandards: info[1],
+            tokenStandard: info[0]
+          };
+        })
+    );
+  } else if (info && info[0] === TokenStandard.FA1_2) {
+    return Promise.resolve({
+      address: contract.address,
+      contract,
+      conversionFactor: new BigNumber(1),
+      decimals: 0,
+      functionSignatures: info[3],
+      methods: info[2],
+      otherStandards: info[1],
+      symbol: 'Unknown',
+      tokenStandard: info[0]
+    });
+  }
+
+  return Promise.resolve({
+    address: contract.address,
+    contract,
+    conversionFactor: undefined,
+    decimals: undefined,
+    functionSignatures: info[3],
+    methods: info[2],
+    otherStandards: info[1],
+    symbol: 'Unknown',
+    tokenStandard: info[0]
+  });
 }
