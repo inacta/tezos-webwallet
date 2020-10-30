@@ -64,6 +64,7 @@ export function getContractInterface(contract: ContractAbstraction<ContractProvi
   for (let i = 0; i < signatures.length; i++) {
 
     // 0th element is key, the rest are values of the dict
+    // `signatures` is AFAIK guaranteed to have one element, so it's OK to call `shift` here.
     signatureDict[signatures[i][0]] = signatures[i];
     signatureDict[signatures[i][0]].shift();
 
