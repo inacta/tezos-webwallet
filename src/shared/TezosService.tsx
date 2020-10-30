@@ -266,31 +266,6 @@ export async function getTokenData(contract: ContractAbstraction<ContractProvide
   }
 }
 
-export async function getTokenBalance(
-  contractAddress: string,
-  holderAddress: string,
-  tokenType: TokenStandard
-): Promise<string> {
-  if (!isContractAddress(contractAddress)) {
-    return;
-  }
-  const state = store.getState();
-  const contract = await state.net2client[state.network].contract.at(contractAddress);
-  const storage: any = await contract.storage();
-  if (tokenType === TokenStandard.FA2) {
-    const token_metadata = await storage.token_metadata.get('0');
-    const balance: BigNumber = (await storage.ledger.get(holderAddress))?.balance ?? new BigNumber(0);
-    const adjustedBalance = balance.dividedBy(new BigNumber(10).pow(token_metadata.decimals));
-
-    return adjustedBalance.toFixed();
-  } else if (tokenType === TokenStandard.FA1_2) {
-    const ledgerEntry = await storage.ledger.get(holderAddress);
-    return ledgerEntry.balance.toFixed();
-  } else {
-    throw new Error('not implemented');
-  }
-}
-
 export async function deployToken(
   tokenStandard: TokenStandard,
   whitelist: boolean,
