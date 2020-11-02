@@ -47,7 +47,7 @@ export default function Address(props: IAddress) {
     <div>
       <hr />
       <h3>Address (view only)</h3>
-      <p>Enter your Tezos address to view your tez or Token balances and more!</p>
+      <p>Enter your Tezos address to view your tez or token balances and more!</p>
       <Form>
         <Form.Group>
           <Form.Control placeholder="Enter your address" onChange={checkAddress} value={address} />
