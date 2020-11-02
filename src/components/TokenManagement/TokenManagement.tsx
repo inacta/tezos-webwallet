@@ -47,6 +47,7 @@ class TokenManagement extends Component<ITokenManagement, {}> {
         </h3>
         <hr />
         {this.token.type === TokenStandard.FA1_2 ? (
+          /* eslint-disable-next-line react/jsx-pascal-case */
           <FA1_2Component
             address={this.props.accounts[this.props.network].address}
             contractAddress={this.contractAddress}

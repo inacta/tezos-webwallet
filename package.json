@@ -65,7 +65,7 @@
     "bignumber.js": "9.0.0",
     "bootstrap": "^4.5.1",
     "crypto-hash": "^1.2.2",
-    "material-table": "^1.69.0",
+    "material-table": "^1.69.1",
     "node-sass": "^4.14.1",
     "pdfmake": "0.1.66",
     "qs": "^6.9.4",

@@ -46,7 +46,7 @@ function packInteger(input: BigNumber) {
 
   var res = new Uint8Array(septets.length + 1);
   for (let i = 0; i < septets.length; i++) {
-    var prefix = i == septets.length - 1 ? '0' : '1';
+    var prefix = i === septets.length - 1 ? '0' : '1';
     res[i + 1] = parseInt(prefix + septets[i], 2);
   }
 

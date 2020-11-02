@@ -104,6 +104,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
                       <Button onClick={() => updateTransferModal(true)}>Transfer</Button>
                       <br />
                       <br />
+                      {/*eslint-disable-next-line react/jsx-pascal-case*/}
                       <FA1_2TransferModal
                         show={showTransferModal}
                         hideModal={() => updateTransferModal(false)}
