@@ -1,5 +1,4 @@
 /* eslint-disable */
-import { b58decode, Prefix, prefix, validateAddress, ValidationResult } from '@taquito/utils';
 import configureStore from '../redux/store';
 import BigNumber from 'bignumber.js';
 import {
@@ -320,7 +319,7 @@ export async function deployToken(
   if (isWallet()) {
     op = await state.net2client[state.network].wallet.originate(originationParams).send();
   } else {
-    op = state.net2client[state.network].contract.originate(originationParams);
+    op = await state.net2client[state.network].contract.originate(originationParams);
   }
   const contractId = addPermanentNotification('The smart contract is deploying...');
   if (afterDeploymentCallback) {
@@ -376,7 +375,7 @@ export async function handleContractDeployment(
   if (isWallet()) {
     op = await state.net2client[state.network].wallet.originate(originationParams).send();
   } else {
-    op = state.net2client[state.network].contract.originate(originationParams);
+    op = await state.net2client[state.network].contract.originate(originationParams);
   }
   const notificationId = addPermanentNotification('The smart contract is deploying...');
   if (afterDeploymentCallback) {
@@ -390,7 +389,7 @@ export async function handleContractDeployment(
         const url =
           'https://better-call.dev/' +
           (state.network === Net.Mainnet ? 'mainnet/' : 'carthagenet/') +
-          op.contractAddress;
+          contract.address;
         window.open(url);
       })
       .catch((e) => {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TezosToolkit } from '@taquito/taquito';
 import { InMemorySigner, importKey } from '@taquito/signer';
 import Button from 'react-bootstrap/Button';
-import { printPdf } from '../../../../../../helpers/walletPdf';
+import { printPdf } from '../../../../../../shared/walletPdf';
 import { addNotification } from '../../../../../../shared/NotificationService';
 import { Net, WalletTypes } from '../../../../../../shared/TezosTypes';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
