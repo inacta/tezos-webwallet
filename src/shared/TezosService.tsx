@@ -1,4 +1,5 @@
 /* eslint-disable */
+import { b58decode, Prefix, prefix, validateAddress, ValidationResult } from '@taquito/utils';
 import configureStore from '../redux/store';
 import BigNumber from 'bignumber.js';
 import {
@@ -10,7 +11,7 @@ import {
   FA1_2_BASIC_STORAGE
 } from './ContractAssembly';
 import { addPermanentNotification, removeNotification, addNotification } from './NotificationService';
-import { IExtraData, Net, TokenStandard, WhitelistVersion } from './TezosTypes';
+import { IExtraData, Net, TokenStandard, WhitelistVersion, WalletTypes } from './TezosTypes';
 import {
   ContractAbstraction,
   ContractProvider,
@@ -21,6 +22,10 @@ import {
 import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
 import { convertMap } from './Util';
 import { getTxHash, isContractAddress, isWallet } from './TezosUtil';
+import { InMemorySigner } from '@taquito/signer';
+import { TezBridgeSigner } from '@taquito/tezbridge-signer';
+import { LedgerSigner } from '@taquito/ledger-signer';
+import { packFourTupleAsLeftBalancedPairs, toHexString } from './TezosPack';
 
 const store = configureStore().store;
 
@@ -262,31 +267,6 @@ export async function getTokenData(contract: ContractAbstraction<ContractProvide
   }
 }
 
-export async function getTokenBalance(
-  contractAddress: string,
-  holderAddress: string,
-  tokenType: TokenStandard
-): Promise<string> {
-  if (!isContractAddress(contractAddress)) {
-    return;
-  }
-  const state = store.getState();
-  const contract = await state.net2client[state.network].contract.at(contractAddress);
-  const storage: any = await contract.storage();
-  if (tokenType === TokenStandard.FA2) {
-    const token_metadata = await storage.token_metadata.get('0');
-    const balance: BigNumber = (await storage.ledger.get(holderAddress))?.balance ?? new BigNumber(0);
-    const adjustedBalance = balance.dividedBy(new BigNumber(10).pow(token_metadata.decimals));
-
-    return adjustedBalance.toFixed();
-  } else if (tokenType === TokenStandard.FA1_2) {
-    const ledgerEntry = await storage.ledger.get(holderAddress);
-    return ledgerEntry.balance.toFixed();
-  } else {
-    throw new Error('not implemented');
-  }
-}
-
 export async function deployToken(
   tokenStandard: TokenStandard,
   whitelist: boolean,
@@ -423,4 +403,98 @@ export async function handleContractDeployment(
         }
       });
   });
+}
+
+export async function arbitraryFunctionCall(
+  contract: ContractAbstraction<ContractProvider>,
+  functionName: string,
+  argumentJsons: string[],
+  afterDeploymentCallback?: Function,
+  afterConfirmationCallback?: Function
+) {
+  // Parse the arguments which must all be valid JSON
+  let args: any[];
+  try {
+    args = argumentJsons.map(x => JSON.parse(x));
+  } catch (error) {
+    console.log(error.message);
+    return;
+  }
+
+  // define the function call made on the smart contract
+  let tx;
+  try {
+    tx = await contract.methods[functionName](...args);
+  } catch (error) {
+    console.log(error.message);
+    return;
+  }
+
+  // Publish transaction to blockchain
+  const func = () => tx.send();
+  await handleTx(func, afterDeploymentCallback, afterConfirmationCallback);
+}
+
+export async function registerTandemClaim(
+  contractAddress: string,
+  helpers: string[],
+  minutes: number,
+  activities: number[],
+  afterDeploymentCallback?: Function,
+  afterConfirmationCallback?: Function) {
+  const state = store.getState();
+  const tezos: TezosToolkit = state.net2client[state.network];
+  const contract = await tezos.contract.at(contractAddress);
+  const signer: WalletTypes = state.accounts[state.network].signer;
+
+  // For now, this function only works for the secret key solutions
+  // `InMemorySigner | TezBridgeSigner | LedgerSigner` since these are the
+  // only ones we know how to use for off-chain signature generation.
+
+  // Generate the signature, address and public key from the
+  // wallet/signer object
+  const signatureGenerator: InMemorySigner | TezBridgeSigner | LedgerSigner = signer as InMemorySigner | TezBridgeSigner | LedgerSigner;
+  const signerAddress: string = await signatureGenerator.publicKeyHash();
+  const signerPublicKey: string = await signatureGenerator.publicKey();
+  const contractStorage: any = await contract.storage();
+
+  let ownNonce: BigNumber;
+  try {
+    ownNonce = await contractStorage.nonces.get(signerAddress);
+
+    // if no nonce was found and it is set to undefined, assume this means
+    // that the field contains no nonces, so just set it to 0.
+    if (typeof ownNonce === 'undefined' || ownNonce === null) {
+      ownNonce = new BigNumber(0);
+    }
+  } catch (error) {
+    ownNonce = new BigNumber(0);
+  }
+
+  const activitiesBN: BigNumber[] = activities.map(x => new BigNumber(x));
+  const msgBytes = packFourTupleAsLeftBalancedPairs(ownNonce, new BigNumber(minutes), activitiesBN, helpers);
+  const signature = await signatureGenerator.sign(toHexString(msgBytes));
+
+  // Create the tandem object that the smart contract takes as argument
+  const tandemClaim = {
+    helpers,
+    activities,
+    minutes,
+    helpees: [{
+        address: signerAddress,
+        pk: signerPublicKey,
+        signature: signature.sig,
+    }],
+  };
+  let tx;
+  try {
+    tx = await contract.methods.register_tandem_claims([tandemClaim]);
+  } catch (error) {
+    console.log(error.message);
+  }
+
+  const func = () => tx.send();
+
+  // Publish transaction to blockchain
+  await handleTx(func, afterDeploymentCallback, afterConfirmationCallback);
 }

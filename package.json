@@ -12,6 +12,7 @@
     "lint-fix": "yarn eslint --fix src/*.ts src/*.tsx",
     "reinstall": "rm -rf node_modules && yarn install",
     "start": "yarn eslint src/**/*.{ts,tsx} && react-scripts start",
+    "start-force": "yarn eslint src/**/*.{ts,tsx}; react-scripts start",
     "test": "react-scripts test"
   },
   "repository": {
@@ -36,6 +37,7 @@
     "@types/react": "^16.9.41",
     "@types/react-bootstrap": "^1.0.1",
     "@types/react-dom": "^16.9.8",
+    "@types/react-notifications-component": "^2.4.0",
     "@types/react-router-dom": "^5.1.5",
     "@typescript-eslint/eslint-plugin": "^1.6.0",
     "@typescript-eslint/parser": "^1.6.0",

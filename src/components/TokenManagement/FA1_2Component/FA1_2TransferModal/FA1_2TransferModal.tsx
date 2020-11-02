@@ -178,7 +178,7 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
   return (
     <Modal show={props.show} centered size="lg" onHide={props.hideModal} onSubmit={handleSubmit} onEntered={reset}>
       <Modal.Header closeButton>
-        <Modal.Title>Transfer Tezos</Modal.Title>
+        <Modal.Title>Transfer Tokens</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form noValidate validated={validated} id="transfer-form">

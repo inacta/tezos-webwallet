@@ -5,6 +5,7 @@ import { ThanosWallet } from '@thanos-wallet/dapp';
 import { BeaconWallet } from '@taquito/beacon-wallet';
 import BigNumber from 'bignumber.js';
 import { LedgerSigner } from '@taquito/ledger-signer';
+import { StringDictionary } from './AbstractTypes';
 
 export interface IContractOriginationStatus {
   addressOfNewContract: string | undefined;
@@ -28,9 +29,11 @@ export interface IContractInformation {
   contract: ContractAbstraction<ContractProvider>;
   conversionFactor: BigNumber | undefined;
   decimals: number | undefined;
+  functionSignatures: StringDictionary<string[]>;
+  methods: string[];
+  otherStandards: OtherContractStandard[];
   symbol: string;
   tokenStandard: TokenStandard;
-  methods: string[];
 }
 
 export interface ITokenMetadata {
@@ -55,7 +58,12 @@ export enum TransactionState {
 
 export enum TokenStandard {
   FA1_2 = 'FA1_2',
-  FA2 = 'FA2'
+  FA2 = 'FA2',
+  Unknown = 'Unknown'
+}
+
+export enum OtherContractStandard {
+  KISS = 'KISS'
 }
 
 export enum WhitelistVersion {

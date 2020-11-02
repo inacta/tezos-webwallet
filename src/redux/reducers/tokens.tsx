@@ -1,3 +1,4 @@
+import { IAction } from '../../shared/OtherTypes';
 import { Net } from '../../shared/TezosTypes';
 
 const initialState = {
@@ -16,7 +17,7 @@ const initialState = {
   }
 };
 
-export default function(state = initialState, action) {
+export default function(state = initialState, action: IAction) {
   if (action.type === 'ADD_TOKEN') {
     state = {
       ...state,
@@ -29,12 +30,15 @@ export default function(state = initialState, action) {
     state = {
       ...state
     };
+    // @ts-ignore
     delete state[action.network][action.address];
   }
 
   /* FIX FOR CODE REFACTORING */
   if (state[Net.Carthage] === undefined) {
+    // @ts-ignore
     state[Net.Carthage] = state['Testnet'];
+    // @ts-ignore
     delete state['Testnet'];
   }
 

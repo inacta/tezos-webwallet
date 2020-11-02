@@ -1,9 +1,12 @@
-/* eslint-disable sort-imports */
 import React from 'react';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import { store } from 'react-notifications-component';
 
-export function addNotification(type: string, message: string, duration?: number): number {
+export function addNotification(
+  type: 'success' | 'danger' | 'info' | 'default' | 'warning',
+  message: string,
+  duration?: number
+): string {
   return store.addNotification({
     message,
     type,
@@ -19,14 +22,14 @@ export function addNotification(type: string, message: string, duration?: number
   });
 }
 
-export function removeNotification(id: number) {
+export function removeNotification(id: string): void {
   store.removeNotification(id);
 }
 
-export function addPermanentNotification(message: string): number {
+export function addPermanentNotification(message: string): string {
   return store.addNotification({
     message: <NotificationProgressBar>{message}</NotificationProgressBar>,
-    type: 'permanent',
+    type: 'info',
     container: 'bottom-center',
     insert: 'top',
     animationIn: ['animated', 'fadeIn'],

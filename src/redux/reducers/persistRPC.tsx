@@ -1,3 +1,4 @@
+import { IAction } from '../../shared/OtherTypes';
 import { Net } from '../../shared/TezosTypes';
 
 const initialState = {
@@ -5,7 +6,7 @@ const initialState = {
   [Net.Carthage]: 'https://tezos-carthagenet.inacta.services/'
 };
 
-export default function(state = initialState, action) {
+export default function(state = initialState, action: IAction) {
   if (action.type === 'PERSIST_PROVIDER') {
     if (action.network === Net.Mainnet) {
       state = {
