@@ -29,7 +29,7 @@ export function removeNotification(id: string): void {
 export function addPermanentNotification(message: string): string {
   return store.addNotification({
     message: <NotificationProgressBar>{message}</NotificationProgressBar>,
-    type: 'info',
+    type: 'permanent',
     container: 'bottom-center',
     insert: 'top',
     animationIn: ['animated', 'fadeIn'],
