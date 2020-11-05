@@ -1,12 +1,12 @@
 import './AirGap.scss';
+import { Net, WalletTypes } from '../../../../../shared/TezosTypes';
 import React, { useEffect, useState } from 'react';
 import { BeaconWallet } from '@taquito/beacon-wallet';
 import Button from 'react-bootstrap/Button';
-import { Net, WalletTypes } from '../../../../../shared/TezosTypes';
-import { addNotification } from '../../../../../shared/NotificationService';
-import WalletInfo from '../WalletInfo/WalletInfo';
 import { ThanosWallet } from '@thanos-wallet/dapp';
+import WalletInfo from '../WalletInfo/WalletInfo';
 import WarningTriangle from '../../../../shared/WarningTriangle/WarningTriangle';
+import { addNotification } from '../../../../../shared/NotificationService';
 
 interface IAirGap {
   network: Net;

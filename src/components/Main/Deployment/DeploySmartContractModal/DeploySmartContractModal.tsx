@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import Modal from 'react-bootstrap/Modal';
-import { Net } from '../../../../shared/TezosTypes';
-import { EnumDictionary } from '../../../../shared/AbstractTypes';
-import { TezosToolkit } from '@taquito/taquito';
 import Button from 'react-bootstrap/Button';
+import { EnumDictionary } from '../../../../shared/AbstractTypes';
 import Form from 'react-bootstrap/Form';
 import Loading from '../../../shared/Loading/Loading';
-import { handleContractDeployment } from '../../../../shared/TezosService';
+import Modal from 'react-bootstrap/Modal';
+import { Net } from '../../../../shared/TezosTypes';
+import { TezosToolkit } from '@taquito/taquito';
 import { addNotification } from '../../../../shared/NotificationService';
+import { handleContractDeployment } from '../../../../shared/TezosService';
 
 interface IDeploySmartContractModal {
   network: Net;

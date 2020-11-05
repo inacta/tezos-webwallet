@@ -1,12 +1,12 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { Link, Redirect } from 'react-router-dom';
 import { Net, TokenStandard, WalletTypes } from '../../shared/TezosTypes';
+import React, { Component } from 'react';
 import { EnumDictionary } from '../../shared/AbstractTypes';
-import { TezosToolkit } from '@taquito/taquito';
 import FA1_2Component from './FA1_2Component/FA1_2Component';
 import FA2Component from './FA2Component/FA2Component';
 import { FiArrowLeftCircle } from 'react-icons/fi';
-import { Link, Redirect } from 'react-router-dom';
+import { TezosToolkit } from '@taquito/taquito';
+import { connect } from 'react-redux';
 
 interface ITokenManagement {
   network: Net;

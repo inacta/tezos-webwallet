@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { isValidSecretKey } from '../../../../../../shared/TezosUtil';
-import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import { WalletTypes } from '../../../../../../shared/TezosTypes';
+import Form from 'react-bootstrap/Form';
 import { InMemorySigner } from '@taquito/signer';
+import { WalletTypes } from '../../../../../../shared/TezosTypes';
+import { isValidSecretKey } from '../../../../../../shared/TezosUtil';
 
 interface IImportPK {
   addSigner: (address: string, signer: WalletTypes, wallet: boolean) => void;

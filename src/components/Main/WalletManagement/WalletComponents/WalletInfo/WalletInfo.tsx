@@ -1,9 +1,9 @@
 import './WalletInfo.scss';
-import React from 'react';
+import { FaMinusCircle, FaPlusCircle } from 'react-icons/fa';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/esm/Container';
+import React from 'react';
 import Row from 'react-bootstrap/Row';
-import { FaMinusCircle, FaPlusCircle } from 'react-icons/fa';
 
 interface IWalletInfo {
   text: string;

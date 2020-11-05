@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
-import Col from 'react-bootstrap/Col';
-import InputGroup from 'react-bootstrap/InputGroup';
-import { estimateTokenTransferCosts, transferToken } from '../../../../shared/TezosService';
 import { checkAddress, isWallet } from '../../../../shared/TezosUtil';
+import { estimateTokenTransferCosts, transferToken } from '../../../../shared/TezosService';
 import BigNumber from 'bignumber.js';
+import Button from 'react-bootstrap/Button';
+import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
 import Loading from '../../../shared/Loading/Loading';
+import Modal from 'react-bootstrap/Modal';
 import { TokenStandard } from '../../../../shared/TezosTypes';
 import { addNotification } from '../../../../shared/NotificationService';
 

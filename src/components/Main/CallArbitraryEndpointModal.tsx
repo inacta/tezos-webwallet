@@ -1,13 +1,13 @@
-import React from 'react';
-import Modal from 'react-bootstrap/Modal';
+import { ContractAbstraction, ContractProvider, TezosToolkit, WalletContract } from '@taquito/taquito';
 import { IContractInformation, Net } from '../../shared/TezosTypes';
 import { arbitraryFunctionCall, getContract } from '../../shared/TezosService';
-import { isValidAddress, isContractAddress, getContractInformation } from '../../shared/TezosUtil';
-import { EnumDictionary } from '../../shared/AbstractTypes';
-import { TezosToolkit, ContractAbstraction, ContractProvider, WalletContract } from '@taquito/taquito';
+import { getContractInformation, isContractAddress, isValidAddress } from '../../shared/TezosUtil';
 import Button from 'react-bootstrap/Button';
+import { EnumDictionary } from '../../shared/AbstractTypes';
 import Form from 'react-bootstrap/Form';
 import Loading from '../shared/Loading/Loading';
+import Modal from 'react-bootstrap/Modal';
+import React from 'react';
 import { addNotification } from '../../shared/NotificationService';
 
 interface ICallArbitraryEndpointModalProps {

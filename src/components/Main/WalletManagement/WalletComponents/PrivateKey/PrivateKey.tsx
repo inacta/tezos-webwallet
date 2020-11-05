@@ -1,8 +1,8 @@
+import { Net, WalletTypes } from '../../../../../shared/TezosTypes';
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import NewPK from './NewPK/NewPK';
 import ImportPK from './ImportPK/ImportPK';
-import { Net, WalletTypes } from '../../../../../shared/TezosTypes';
+import NewPK from './NewPK/NewPK';
 import WalletInfo from '../WalletInfo/WalletInfo';
 
 interface IPrivateKey {

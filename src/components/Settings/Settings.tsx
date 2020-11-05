@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
+import Button from 'react-bootstrap/Button';
+import { EnumDictionary } from '../../shared/AbstractTypes';
+import { FiArrowLeftCircle } from 'react-icons/fi';
+import FormControl from 'react-bootstrap/FormControl';
+import InputGroup from 'react-bootstrap/InputGroup';
+import { Link } from 'react-router-dom';
+import { Net } from '../../shared/TezosTypes';
+import { addNotification } from '../../shared/NotificationService';
 import { connect } from 'react-redux';
 import { setRPCProvider } from '../../redux/actions';
-import { Net } from '../../shared/TezosTypes';
-import { Link } from 'react-router-dom';
-import { FiArrowLeftCircle } from 'react-icons/fi';
-import Button from 'react-bootstrap/Button';
-import InputGroup from 'react-bootstrap/InputGroup';
-import FormControl from 'react-bootstrap/FormControl';
-import { EnumDictionary } from '../../shared/AbstractTypes';
-import { addNotification } from '../../shared/NotificationService';
 
 interface ISettings {
   network: Net;

@@ -1,8 +1,8 @@
-import { TezBridgeSigner } from '@taquito/tezbridge-signer';
-import React from 'react';
 import Button from 'react-bootstrap/Button';
-import { WalletTypes } from '../../../../../shared/TezosTypes';
+import React from 'react';
+import { TezBridgeSigner } from '@taquito/tezbridge-signer';
 import WalletInfo from '../WalletInfo/WalletInfo';
+import { WalletTypes } from '../../../../../shared/TezosTypes';
 
 interface ITezBridge {
   addSigner: (address: string, signer: WalletTypes, wallet: boolean) => void;

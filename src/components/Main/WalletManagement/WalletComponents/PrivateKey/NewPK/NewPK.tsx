@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { TezosToolkit } from '@taquito/taquito';
-import { InMemorySigner, importKey } from '@taquito/signer';
-import Button from 'react-bootstrap/Button';
-import { printPdf } from '../../../../../../shared/walletPdf';
-import { addNotification } from '../../../../../../shared/NotificationService';
-import { Net, WalletTypes } from '../../../../../../shared/TezosTypes';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { generatePrivateKey } from '../../../../../../shared/TezosUtil';
-import IconButton from '../../../../../shared/IconButton/IconButton';
 import { FaCopy, FaDownload, FaPrint } from 'react-icons/fa';
+import { InMemorySigner, importKey } from '@taquito/signer';
+import { Net, WalletTypes } from '../../../../../../shared/TezosTypes';
+import React, { useState } from 'react';
+import Button from 'react-bootstrap/Button';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import IconButton from '../../../../../shared/IconButton/IconButton';
+import { TezosToolkit } from '@taquito/taquito';
+import { addNotification } from '../../../../../../shared/NotificationService';
+import { generatePrivateKey } from '../../../../../../shared/TezosUtil';
+import { printPdf } from '../../../../../../shared/walletPdf';
 
 interface INewPK {
   network: Net;

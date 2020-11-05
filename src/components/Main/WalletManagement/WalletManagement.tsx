@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
 import './WalletManagement.scss';
-import { EnumDictionary } from '../../../shared/AbstractTypes';
-import { getWalletSpec } from '../../../shared/WalletUtil';
 import { Net, Wallet, WalletTypes } from '../../../shared/TezosTypes';
-import { TezosToolkit } from '@taquito/taquito';
+import React, { useState } from 'react';
 import Address from './WalletComponents/Address/Address';
 import AirGap from './WalletComponents/AirGap/AirGap';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
+import { EnumDictionary } from '../../../shared/AbstractTypes';
 import Ledger from './WalletComponents/LedgerNano/LedgerNano';
 import PrivateKey from './WalletComponents/PrivateKey/PrivateKey';
 import Row from 'react-bootstrap/Row';
 import TezBridge from './WalletComponents/TezBridge/TezBridge';
+import { TezosToolkit } from '@taquito/taquito';
 import Thanos from './WalletComponents/Thanos/Thanos';
 import WalletIcons from './WalletIcons/WalletIcons';
+import { getWalletSpec } from '../../../shared/WalletUtil';
 
 interface IWalletManagementProps {
   network: Net;

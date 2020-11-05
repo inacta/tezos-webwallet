@@ -1,13 +1,13 @@
-import React from 'react';
 import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
+import Loading from '../shared/Loading/Loading';
+import Modal from 'react-bootstrap/Modal';
+import React from 'react';
+import { addNotification } from '../../shared/NotificationService';
 import { checkAddress } from '../../shared/TezosUtil';
 import { registerTandemClaim } from '../../shared/TezosService';
-import { addNotification } from '../../shared/NotificationService';
-import Loading from '../shared/Loading/Loading';
 
 // We simply just want to be able to call the endpoint
 // "register_tandem_claims". For this, we already have

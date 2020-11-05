@@ -1,10 +1,10 @@
-import { ThanosWallet } from '@thanos-wallet/dapp';
+import { Net, WalletTypes } from '../../../../../shared/TezosTypes';
 import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import { addNotification } from '../../../../../shared/NotificationService';
-import { Net, WalletTypes } from '../../../../../shared/TezosTypes';
-import WarningTriangle from '../../../../shared/WarningTriangle/WarningTriangle';
+import { ThanosWallet } from '@thanos-wallet/dapp';
 import WalletInfo from '../WalletInfo/WalletInfo';
+import WarningTriangle from '../../../../shared/WarningTriangle/WarningTriangle';
+import { addNotification } from '../../../../../shared/NotificationService';
 
 interface IThanos {
   network: Net;

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import { AiOutlineReload } from 'react-icons/ai';
+import Button from 'react-bootstrap/Button';
+import IconButton from '../../../shared/IconButton/IconButton';
 import Loading from '../../../shared/Loading/Loading';
 import TransferModal from './TransferModal/TransferModal';
-import Button from 'react-bootstrap/Button';
-import { AiOutlineReload } from 'react-icons/ai';
-import IconButton from '../../../shared/IconButton/IconButton';
 
 interface ITezosBalance {
   balance: string;
