@@ -1,13 +1,13 @@
-import React from 'react';
 import './TokenSelection.scss';
 import Badge from 'react-bootstrap/Badge';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
-import { FaMinusCircle } from 'react-icons/fa';
-import { Net } from '../../../../shared/TezosTypes';
 import { EnumDictionary } from '../../../../shared/AbstractTypes';
-import { Link } from 'react-router-dom';
+import { FaMinusCircle } from 'react-icons/fa';
 import IconButton from '../../../shared/IconButton/IconButton';
+import { Link } from 'react-router-dom';
+import { Net } from '../../../../shared/TezosTypes';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import React from 'react';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 interface ITokenSelection {
   network: Net;

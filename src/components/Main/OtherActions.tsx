@@ -1,13 +1,13 @@
+import { Net, WalletTypes } from '../../shared/TezosTypes';
 import React, { useState } from 'react';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
+import { CallArbitraryEndpointModal } from './CallArbitraryEndpointModal';
+import Col from 'react-bootstrap/Col';
+import DeploySmartContractModal from './Deployment/DeploySmartContractModal/DeploySmartContractModal';
 import DeployTokenModal from './Deployment/DeployTokenModal/DeployTokenModal';
 import { EnumDictionary } from '../../shared/AbstractTypes';
-import { Net, WalletTypes } from '../../shared/TezosTypes';
+import Row from 'react-bootstrap/Row';
 import { TezosToolkit } from '@taquito/taquito';
-import DeploySmartContractModal from './Deployment/DeploySmartContractModal/DeploySmartContractModal';
-import { CallArbitraryEndpointModal } from './CallArbitraryEndpointModal';
 
 interface IOtherActions {
   network: Net;

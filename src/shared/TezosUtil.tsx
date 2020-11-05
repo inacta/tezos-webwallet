@@ -1,12 +1,11 @@
-/* eslint-disable */
-import { b58cencode, Prefix, prefix, validateAddress, ValidationResult } from '@taquito/utils';
-import { InMemorySigner } from '@taquito/signer';
-import configureStore from '../redux/store';
-import { OtherContractStandard, TokenStandard, IContractInformation, ITokenMetadata } from './TezosTypes';
 import { ContractAbstraction, ContractProvider, TransactionWalletOperation } from '@taquito/taquito';
-import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
-import { StringDictionary } from './AbstractTypes';
+import { IContractInformation, ITokenMetadata, OtherContractStandard, TokenStandard } from './TezosTypes';
+import { Prefix, ValidationResult, b58cencode, prefix, validateAddress } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
+import { InMemorySigner } from '@taquito/signer';
+import { StringDictionary } from './AbstractTypes';
+import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
+import configureStore from '../redux/store';
 
 const store = configureStore().store;
 
@@ -55,19 +54,19 @@ export function isContractAddress(address: string) {
   return address.substring(0, 3) === CONTRACT_ADDRESS_PREFIX && validateAddress(address) === ValidationResult.VALID;
 }
 
-export function getContractInterface(contract: ContractAbstraction<ContractProvider>): [TokenStandard, OtherContractStandard[], string[], StringDictionary<string[]>] {
+export function getContractInterface(
+  contract: ContractAbstraction<ContractProvider>
+): [TokenStandard, OtherContractStandard[], string[], StringDictionary<string[]>] {
   const signatures: string[][] = contract.parameterSchema.ExtractSignatures();
 
   // Sort the functions alphabetically according to function name
-  signatures.sort((a, b) => a[0] === b[0] ? 0 : (a[0] < b[0] ? -1 : 1));
+  signatures.sort((a, b) => (a[0] === b[0] ? 0 : a[0] < b[0] ? -1 : 1));
   let signatureDict: StringDictionary<string[]> = {};
   for (let i = 0; i < signatures.length; i++) {
-
     // 0th element is key, the rest are values of the dict
     // `signatures` is AFAIK guaranteed to have one element, so it's OK to call `shift` here.
     signatureDict[signatures[i][0]] = signatures[i];
     signatureDict[signatures[i][0]].shift();
-
   }
 
   const methodNames: string[] = Object.keys(signatureDict);

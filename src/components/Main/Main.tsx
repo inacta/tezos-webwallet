@@ -1,25 +1,25 @@
-import React, { Component } from 'react';
 import './Main.scss';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Switch from 'react-switch';
+import { Net, WalletTypes } from '../../shared/TezosTypes';
+import React, { Component } from 'react';
 import {
   addSigner,
   addToken,
   changeAddress,
   removeToken,
+  resetSigner,
   setNetwork,
-  setRPCProvider,
-  resetSigner
+  setRPCProvider
 } from '../../redux/actions';
-import { connect } from 'react-redux';
-import { Net, WalletTypes } from '../../shared/TezosTypes';
+import AddressComponent from './Balances/AddressComponent/AddressComponent';
+import Balances from './Balances/Balances';
+import Col from 'react-bootstrap/Col';
 import { EnumDictionary } from '../../shared/AbstractTypes';
+import OtherActions from './OtherActions';
+import Row from 'react-bootstrap/Row';
+import Switch from 'react-switch';
 import { TezosToolkit } from '@taquito/taquito';
 import WalletManagement from './WalletManagement/WalletManagement';
-import Balances from './Balances/Balances';
-import OtherActions from './OtherActions';
-import AddressComponent from './Balances/AddressComponent/AddressComponent';
+import { connect } from 'react-redux';
 
 interface IMainProps {
   network: Net;

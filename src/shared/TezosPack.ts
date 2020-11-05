@@ -1,5 +1,5 @@
+import { ValidationResult, b58decode, validateAddress } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
-import { validateAddress, ValidationResult, b58decode } from '@taquito/utils';
 
 export function toHexString(byteArray: Uint8Array) {
   return Array.prototype.map

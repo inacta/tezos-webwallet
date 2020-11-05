@@ -1,8 +1,8 @@
-import React from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { FaCopy } from 'react-icons/fa';
 import IconButton from '../../../shared/IconButton/IconButton';
 import { IoMdSwap } from 'react-icons/io';
-import { FaCopy } from 'react-icons/fa';
+import React from 'react';
 import { addNotification } from '../../../../shared/NotificationService';
 
 interface IAddressComponent {

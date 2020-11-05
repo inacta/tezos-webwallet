@@ -1,16 +1,3 @@
-/* eslint-disable */
-import configureStore from '../redux/store';
-import BigNumber from 'bignumber.js';
-import {
-  FA2_BASIC,
-  FA2_BASIC_STORAGE,
-  FA1_2_WHITELIST,
-  FA1_2_WHITELIST_STORAGE,
-  FA1_2_BASIC,
-  FA1_2_BASIC_STORAGE
-} from './ContractAssembly';
-import { addPermanentNotification, removeNotification, addNotification } from './NotificationService';
-import { IExtraData, Net, TokenStandard, WhitelistVersion, WalletTypes } from './TezosTypes';
 import {
   ContractAbstraction,
   ContractProvider,
@@ -18,13 +5,25 @@ import {
   TransactionWalletOperation,
   Wallet
 } from '@taquito/taquito';
-import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
-import { convertMap } from './Util';
+import {
+  FA1_2_BASIC,
+  FA1_2_BASIC_STORAGE,
+  FA1_2_WHITELIST,
+  FA1_2_WHITELIST_STORAGE,
+  FA2_BASIC,
+  FA2_BASIC_STORAGE
+} from './ContractAssembly';
+import { IExtraData, Net, TokenStandard, WalletTypes, WhitelistVersion } from './TezosTypes';
+import { addNotification, addPermanentNotification, removeNotification } from './NotificationService';
 import { getTxHash, isContractAddress, isWallet } from './TezosUtil';
-import { InMemorySigner } from '@taquito/signer';
-import { TezBridgeSigner } from '@taquito/tezbridge-signer';
-import { LedgerSigner } from '@taquito/ledger-signer';
 import { packFourTupleAsLeftBalancedPairs, toHexString } from './TezosPack';
+import BigNumber from 'bignumber.js';
+import { InMemorySigner } from '@taquito/signer';
+import { LedgerSigner } from '@taquito/ledger-signer';
+import { TezBridgeSigner } from '@taquito/tezbridge-signer';
+import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
+import configureStore from '../redux/store';
+import { convertMap } from './Util';
 
 const store = configureStore().store;
 
@@ -47,6 +46,7 @@ async function handleTx(func: Function, afterDeploymentCallback?: Function, afte
       addNotification('success', 'Transaction completed successfully');
     })
     .catch((e) => {
+      console.log(e.message);
       addNotification('danger', 'Transaction failed');
     })
     .finally(() => {
@@ -105,6 +105,23 @@ export async function estimateTokenTransferCosts(
   }
 
   return await client.estimate.transfer(tx);
+}
+
+export async function getContract(contractAddress: string) {
+  if (!isContractAddress(contractAddress)) {
+    return;
+  }
+  const state = store.getState();
+  let client: Wallet | ContractProvider;
+
+  const wallet = isWallet();
+  if (wallet) {
+    client = state.net2client[state.network].wallet;
+  } else {
+    client = state.net2client[state.network].contract;
+  }
+
+  return await client.at(contractAddress);
 }
 
 export async function transferTezos(
@@ -238,24 +255,8 @@ export async function modifyWhitelistAdmin(
   }
 }
 
-export async function getContract(contractAddress: string) {
-  if (!isContractAddress(contractAddress)) {
-    return;
-  }
-  const state = store.getState();
-  let client: Wallet | ContractProvider;
-
-  const wallet = isWallet();
-  if (wallet) {
-    client = state.net2client[state.network].wallet;
-  } else {
-    client = state.net2client[state.network].contract;
-  }
-
-  return await client.at(contractAddress);
-}
-
 export async function getTokenData(contract: ContractAbstraction<ContractProvider>, tokenType: TokenStandard) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const storage: any = await contract.storage();
   if (tokenType === TokenStandard.FA2) {
     return await storage.token_metadata.get('0');
@@ -387,12 +388,11 @@ export async function handleContractDeployment(
       .then(() => {
         addNotification('success', 'Transaction completed successfully');
         const url =
-          'https://better-call.dev/' +
-          (state.network === Net.Mainnet ? 'mainnet/' : 'carthagenet/') +
-          contract.address;
+          'https://better-call.dev/' + (state.network === Net.Mainnet ? 'mainnet/' : 'carthagenet/') + contract.address;
         window.open(url);
       })
       .catch((e) => {
+        console.log(e.message);
         addNotification('danger', 'Transaction failed');
       })
       .finally(() => {
@@ -412,9 +412,10 @@ export async function arbitraryFunctionCall(
   afterConfirmationCallback?: Function
 ) {
   // Parse the arguments which must all be valid JSON
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let args: any[];
   try {
-    args = argumentJsons.map(x => JSON.parse(x));
+    args = argumentJsons.map((x) => JSON.parse(x));
   } catch (error) {
     console.log(error.message);
     return;
@@ -440,7 +441,8 @@ export async function registerTandemClaim(
   minutes: number,
   activities: number[],
   afterDeploymentCallback?: Function,
-  afterConfirmationCallback?: Function) {
+  afterConfirmationCallback?: Function
+) {
   const state = store.getState();
   const tezos: TezosToolkit = state.net2client[state.network];
   const contract = await tezos.contract.at(contractAddress);
@@ -452,9 +454,13 @@ export async function registerTandemClaim(
 
   // Generate the signature, address and public key from the
   // wallet/signer object
-  const signatureGenerator: InMemorySigner | TezBridgeSigner | LedgerSigner = signer as InMemorySigner | TezBridgeSigner | LedgerSigner;
+  const signatureGenerator: InMemorySigner | TezBridgeSigner | LedgerSigner = signer as
+    | InMemorySigner
+    | TezBridgeSigner
+    | LedgerSigner;
   const signerAddress: string = await signatureGenerator.publicKeyHash();
   const signerPublicKey: string = await signatureGenerator.publicKey();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const contractStorage: any = await contract.storage();
 
   let ownNonce: BigNumber;
@@ -470,7 +476,7 @@ export async function registerTandemClaim(
     ownNonce = new BigNumber(0);
   }
 
-  const activitiesBN: BigNumber[] = activities.map(x => new BigNumber(x));
+  const activitiesBN: BigNumber[] = activities.map((x) => new BigNumber(x));
   const msgBytes = packFourTupleAsLeftBalancedPairs(ownNonce, new BigNumber(minutes), activitiesBN, helpers);
   const signature = await signatureGenerator.sign(toHexString(msgBytes));
 
@@ -479,11 +485,13 @@ export async function registerTandemClaim(
     helpers,
     activities,
     minutes,
-    helpees: [{
+    helpees: [
+      {
         address: signerAddress,
         pk: signerPublicKey,
-        signature: signature.sig,
-    }],
+        signature: signature.sig
+      }
+    ]
   };
   let tx;
   try {

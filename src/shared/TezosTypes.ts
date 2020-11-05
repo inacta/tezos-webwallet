@@ -1,11 +1,11 @@
 import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
-import { InMemorySigner } from '@taquito/signer';
-import { TezBridgeSigner } from '@taquito/tezbridge-signer';
-import { ThanosWallet } from '@thanos-wallet/dapp';
 import { BeaconWallet } from '@taquito/beacon-wallet';
 import BigNumber from 'bignumber.js';
+import { InMemorySigner } from '@taquito/signer';
 import { LedgerSigner } from '@taquito/ledger-signer';
 import { StringDictionary } from './AbstractTypes';
+import { TezBridgeSigner } from '@taquito/tezbridge-signer';
+import { ThanosWallet } from '@thanos-wallet/dapp';
 
 export interface IContractOriginationStatus {
   addressOfNewContract: string | undefined;

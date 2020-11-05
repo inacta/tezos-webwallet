@@ -12,7 +12,7 @@ extends:
 parser: '@typescript-eslint/parser'
 parserOptions:
   ecmaFeatures:
-    jsx: true
+    jsx: false
   ecmaVersion: 11
   sourceType: module
 plugins:
@@ -21,7 +21,7 @@ plugins:
   - prettier
 rules:
   sort-imports:
-    - off
+    - 2
     - ignoreCase: false
   ignoreDeclarationSort: 0
   ignoreMemberSort: 0

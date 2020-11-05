@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import TransportU2F from '@ledgerhq/hw-transport-u2f';
-import { LedgerSigner } from '@taquito/ledger-signer';
-import { addNotification } from '../../../../../shared/NotificationService';
 import Button from 'react-bootstrap/Button';
-import { WalletTypes } from '../../../../../shared/TezosTypes';
+import { LedgerSigner } from '@taquito/ledger-signer';
+import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import WalletInfo from '../WalletInfo/WalletInfo';
+import { WalletTypes } from '../../../../../shared/TezosTypes';
 import WarningTriangle from '../../../../shared/WarningTriangle/WarningTriangle';
+import { addNotification } from '../../../../../shared/NotificationService';
 
 interface ILedgerNano {
   addSigner: (address: string, signer: WalletTypes, wallet: boolean) => void;

@@ -1,18 +1,18 @@
+import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
+import { Net, OtherContractStandard, TokenStandard, WhitelistVersion } from '../../../../shared/TezosTypes';
 import React, { useState } from 'react';
+import { getContract, getTokenData } from '../../../../shared/TezosService';
 import Accordion from 'react-bootstrap/Accordion';
+import BigNumber from 'bignumber.js';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
-import Modal from 'react-bootstrap/Modal';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
-import BigNumber from 'bignumber.js';
-import { Net, OtherContractStandard, TokenStandard, WhitelistVersion } from '../../../../shared/TezosTypes';
 import Loading from '../../../shared/Loading/Loading';
-import { getContract, getTokenData } from '../../../../shared/TezosService';
-import { getContractInterface } from '../../../../shared/TezosUtil';
-import { convertMap } from '../../../../shared/Util';
+import Modal from 'react-bootstrap/Modal';
 import { addNotification } from '../../../../shared/NotificationService';
-import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
+import { convertMap } from '../../../../shared/Util';
+import { getContractInterface } from '../../../../shared/TezosUtil';
 
 export interface TokenData {
   address: string;

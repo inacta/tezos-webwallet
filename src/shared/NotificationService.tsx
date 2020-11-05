@@ -1,5 +1,5 @@
-import React from 'react';
 import ProgressBar from 'react-bootstrap/ProgressBar';
+import React from 'react';
 import { store } from 'react-notifications-component';
 
 export function addNotification(

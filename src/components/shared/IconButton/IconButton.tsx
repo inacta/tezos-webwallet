@@ -1,5 +1,5 @@
-import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import React from 'react';
 import Tooltip from 'react-bootstrap/Tooltip';
 
 interface IIconButton {

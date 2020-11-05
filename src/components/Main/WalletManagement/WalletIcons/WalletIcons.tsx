@@ -1,6 +1,6 @@
-import React from 'react';
 import './WalletIcons.scss';
 import Col from 'react-bootstrap/Col';
+import React from 'react';
 import { Wallet } from '../../../../shared/TezosTypes';
 import { getWalletSpec } from '../../../../shared/WalletUtil';
 

@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import Modal from 'react-bootstrap/Modal';
-import Col from 'react-bootstrap/Col';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import ToggleButton from 'react-bootstrap/ToggleButton';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
-import { deployToken } from '../../../../shared/TezosService';
-import { checkAddress } from '../../../../shared/TezosUtil';
-import { EnumDictionary } from '../../../../shared/AbstractTypes';
 import { IExtraData, Net, TokenStandard } from '../../../../shared/TezosTypes';
-import { TezosToolkit } from '@taquito/taquito';
+import React, { useState } from 'react';
 import BigNumber from 'bignumber.js';
-import Loading from '../../../shared/Loading/Loading';
+import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Col from 'react-bootstrap/Col';
 import DeployTokenModalExtraField from './DeployTokenModalExtraField/DeployTokenModalExtraField';
+import { EnumDictionary } from '../../../../shared/AbstractTypes';
 import { FaInfoCircle } from 'react-icons/fa';
+import Form from 'react-bootstrap/Form';
+import Loading from '../../../shared/Loading/Loading';
+import Modal from 'react-bootstrap/Modal';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import { TezosToolkit } from '@taquito/taquito';
+import ToggleButton from 'react-bootstrap/ToggleButton';
+import Tooltip from 'react-bootstrap/Tooltip';
+import { checkAddress } from '../../../../shared/TezosUtil';
+import { deployToken } from '../../../../shared/TezosService';
 
 interface IDeployTokenModal {
   network: Net;

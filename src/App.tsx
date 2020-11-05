@@ -1,18 +1,14 @@
-/* eslint-disable sort-imports */
 import './App.scss';
-import React from 'react';
-import { Route, Redirect, Switch } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import { BrowserRouter } from 'react-router-dom';
-
+import Container from 'react-bootstrap/Container';
 import Header from './components/Header/Header';
 import Main from './components/Main/Main';
-import TokenManagement from './components/TokenManagement/TokenManagement';
-import Settings from './components/Settings/Settings';
-
-import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
-
+import React from 'react';
 import ReactNotification from 'react-notifications-component';
+import Settings from './components/Settings/Settings';
+import TokenManagement from './components/TokenManagement/TokenManagement';
 
 export class App extends React.Component<{}, {}> {
   public render() {

@@ -1,11 +1,11 @@
-import React from 'react';
+import { FaMinusCircle, FaPlusCircle } from 'react-icons/fa';
 import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
-import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
-import { FaMinusCircle, FaPlusCircle } from 'react-icons/fa';
+import Form from 'react-bootstrap/Form';
 import { IExtraData } from '../../../../../shared/TezosTypes';
 import IconButton from '../../../../shared/IconButton/IconButton';
+import React from 'react';
 
 interface IDeployTokenModalExtraField {
   extraData: IExtraData[];

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { isContractAddress } from '../../../../../shared/TezosUtil';
 import { ValidationResult, validateAddress } from '@taquito/utils';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import { isContractAddress } from '../../../../../shared/TezosUtil';
 
 interface IAddress {
   changeAddress: (address: string) => void;

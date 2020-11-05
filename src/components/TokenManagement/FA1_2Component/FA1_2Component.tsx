@@ -1,19 +1,19 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import Loading from '../../shared/Loading/Loading';
-import { KissModal } from '../KissModal';
-import FA1_2TransferModal from './FA1_2TransferModal/FA1_2TransferModal';
-import { getContract, getTokenData, modifyWhitelist, modifyWhitelistAdmin } from '../../../shared/TezosService';
-import { checkAddress, isWallet } from '../../../shared/TezosUtil';
-import { TokenStandard, WhitelistVersion } from '../../../shared/TezosTypes';
-import Button from 'react-bootstrap/Button';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import { FaCheckCircle, FaMinusCircle, FaTimesCircle } from 'react-icons/fa';
-import MaterialTable from 'material-table';
-import { addNotification } from '../../../shared/NotificationService';
-import IconButton from '../../shared/IconButton/IconButton';
-import { AiOutlineReload } from 'react-icons/ai';
 import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
+import { FaCheckCircle, FaMinusCircle, FaTimesCircle } from 'react-icons/fa';
+import React, { useCallback, useEffect, useState } from 'react';
+import { TokenStandard, WhitelistVersion } from '../../../shared/TezosTypes';
+import { checkAddress, isWallet } from '../../../shared/TezosUtil';
+import { getContract, getTokenData, modifyWhitelist, modifyWhitelistAdmin } from '../../../shared/TezosService';
+import { AiOutlineReload } from 'react-icons/ai';
+import Button from 'react-bootstrap/Button';
+import Col from 'react-bootstrap/Col';
+import FA1_2TransferModal from './FA1_2TransferModal/FA1_2TransferModal';
+import IconButton from '../../shared/IconButton/IconButton';
+import { KissModal } from '../KissModal';
+import Loading from '../../shared/Loading/Loading';
+import MaterialTable from 'material-table';
+import Row from 'react-bootstrap/Row';
+import { addNotification } from '../../../shared/NotificationService';
 
 interface IFA1_2Component {
   address: string;
