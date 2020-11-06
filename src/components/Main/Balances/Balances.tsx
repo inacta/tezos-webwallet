@@ -1,7 +1,6 @@
 import './Balances.scss';
 import { ITokenDetails, Net, WalletTypes } from '../../../shared/TezosTypes';
 import React, { useCallback, useEffect, useState } from 'react';
-import TokenModal from './TokenModal/TokenModal';
 import BigNumber from 'bignumber.js';
 import Col from 'react-bootstrap/Col';
 import { EnumDictionary } from '../../../shared/AbstractTypes';
@@ -9,6 +8,7 @@ import Row from 'react-bootstrap/Row';
 import TezosBalance from './TezosBalance/TezosBalance';
 import { TezosToolkit } from '@taquito/taquito';
 import TokenContractInput from './TokenContractInput/TokenContractInput';
+import TokenModal from './TokenModal/TokenModal';
 import TokenSelection from './TokenSelection/TokenSelection';
 import { addNotification } from '../../../shared/NotificationService';
 
