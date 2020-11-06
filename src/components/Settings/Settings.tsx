@@ -3,6 +3,7 @@ import Button from 'react-bootstrap/Button';
 import { EnumDictionary } from '../../shared/AbstractTypes';
 import { FiArrowLeftCircle } from 'react-icons/fi';
 import FormControl from 'react-bootstrap/FormControl';
+import { IReduxState } from '../../redux/reducers/index';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { Link } from 'react-router-dom';
 import { Net } from '../../shared/TezosTypes';
@@ -69,7 +70,7 @@ class Settings extends Component<ISettings, ISettingsState> {
   }
 }
 
-let mapStateToProps = function(state) {
+let mapStateToProps = function(state: IReduxState) {
   return {
     network: state.network,
     rpc: state.persistRPC

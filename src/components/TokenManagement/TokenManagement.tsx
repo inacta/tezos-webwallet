@@ -5,6 +5,7 @@ import { EnumDictionary } from '../../shared/AbstractTypes';
 import FA1_2Component from './FA1_2Component/FA1_2Component';
 import FA2Component from './FA2Component/FA2Component';
 import { FiArrowLeftCircle } from 'react-icons/fi';
+import { IReduxState } from '../../redux/reducers/index';
 import { TezosToolkit } from '@taquito/taquito';
 import { connect } from 'react-redux';
 
@@ -62,7 +63,7 @@ class TokenManagement extends Component<ITokenManagement, {}> {
   }
 }
 
-let mapStateToProps = function(state) {
+let mapStateToProps = function(state: IReduxState) {
   return {
     network: state.network,
     accounts: state.accounts,

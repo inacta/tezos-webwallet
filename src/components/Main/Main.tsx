@@ -14,6 +14,7 @@ import AddressComponent from './Balances/AddressComponent/AddressComponent';
 import Balances from './Balances/Balances';
 import Col from 'react-bootstrap/Col';
 import { EnumDictionary } from '../../shared/AbstractTypes';
+import { IReduxState } from '../../redux/reducers/index';
 import OtherActions from './OtherActions';
 import Row from 'react-bootstrap/Row';
 import Switch from 'react-switch';
@@ -126,7 +127,7 @@ class Main extends Component<IMainProps, {}> {
   }
 }
 
-let mapStateToProps = function(state) {
+let mapStateToProps = function(state: IReduxState) {
   return {
     network: state.network,
     accounts: state.accounts,
