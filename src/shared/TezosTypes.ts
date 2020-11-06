@@ -23,6 +23,16 @@ export interface IPaymentStatus {
   state: TransactionState;
 }
 
+export interface ITokenDetails {
+  isKiss: boolean;
+  type: TokenStandard;
+  name: string;
+  symbol: string;
+  whitelistVersion: WhitelistVersion;
+  decimals?: BigNumber;
+  extras?: Record<string, string>;
+}
+
 // Description of a Tezos smart contract
 export interface IContractInformation {
   address: string;

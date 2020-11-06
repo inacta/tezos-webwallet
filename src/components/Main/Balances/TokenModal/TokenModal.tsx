@@ -1,9 +1,14 @@
 import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
-import { Net, OtherContractStandard, TokenStandard, WhitelistVersion } from '../../../../shared/TezosTypes';
+import {
+  ITokenDetails,
+  Net,
+  OtherContractStandard,
+  TokenStandard,
+  WhitelistVersion
+} from '../../../../shared/TezosTypes';
 import React, { useState } from 'react';
 import { getContract, getTokenData } from '../../../../shared/TezosService';
 import Accordion from 'react-bootstrap/Accordion';
-import BigNumber from 'bignumber.js';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
@@ -16,15 +21,7 @@ import { getContractInterface } from '../../../../shared/TezosUtil';
 
 export interface TokenData {
   address: string;
-  token: {
-    isKiss: boolean;
-    type: TokenStandard;
-    name: string;
-    symbol: string;
-    whitelistVersion: WhitelistVersion;
-    decimals?: BigNumber;
-    extras?: Record<string, string>;
-  };
+  token: ITokenDetails;
 }
 
 interface ITokenModalProps {
@@ -33,7 +30,7 @@ interface ITokenModalProps {
     show: boolean;
     address: string;
   };
-  addToken: (network: Net, address: string, token) => void;
+  addToken: (network: Net, address: string, token: ITokenDetails) => void;
   handleModal: React.Dispatch<
     React.SetStateAction<{
       show: boolean;
@@ -43,7 +40,10 @@ interface ITokenModalProps {
 }
 
 export default function TokenModal(props: ITokenModalProps) {
-  const [tokenData, updateTokenData]: [TokenData, React.Dispatch<TokenData>] = useState(undefined);
+  const [tokenData, updateTokenData]: [
+    TokenData | undefined,
+    React.Dispatch<React.SetStateAction<TokenData | undefined>>
+  ] = useState(undefined as TokenData | undefined);
 
   const hideModal = () => {
     updateTokenData(undefined);
@@ -131,6 +131,8 @@ export default function TokenModal(props: ITokenModalProps) {
   };
 
   const saveToken = () => {
+    if (!tokenData) return;
+
     props.addToken(props.network, tokenData.address, tokenData.token);
     addNotification('success', 'Successfully added new token!');
     hideModal();
@@ -198,9 +200,9 @@ export default function TokenModal(props: ITokenModalProps) {
                   <b>Symbol: </b> {tokenData.token.symbol}
                 </p>
                 <p>
-                  <b>Decimals: </b> {tokenData.token.decimals.toString()}
+                  <b>Decimals: </b> {tokenData.token?.decimals?.toString() ?? '0'}
                 </p>
-                {Object.keys(tokenData.token.extras).length !== 0 ? (
+                {Object.keys(tokenData.token?.extras ?? {}).length !== 0 ? (
                   <Accordion>
                     <Card>
                       <Accordion.Toggle as={Card.Header} eventKey="0" style={{ cursor: 'pointer' }}>
@@ -208,11 +210,11 @@ export default function TokenModal(props: ITokenModalProps) {
                       </Accordion.Toggle>
                       <Accordion.Collapse eventKey="0">
                         <Card.Body>
-                          {Object.keys(tokenData.token.extras).map((key, i) => {
+                          {Object.keys(tokenData.token?.extras ?? {}).map((key, i) => {
                             return (
                               <p key={i}>
                                 <b>{key}: </b>
-                                {tokenData.token.extras[key]}
+                                {tokenData.token?.extras?.[key]}
                               </p>
                             );
                           })}

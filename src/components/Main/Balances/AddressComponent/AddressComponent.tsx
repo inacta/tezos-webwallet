@@ -1,4 +1,4 @@
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import { FaCopy } from 'react-icons/fa';
 import IconButton from '../../../shared/IconButton/IconButton';
 import { IoMdSwap } from 'react-icons/io';

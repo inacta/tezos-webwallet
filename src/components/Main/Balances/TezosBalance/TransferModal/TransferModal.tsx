@@ -4,6 +4,7 @@ import { estimateCosts, transferTezos } from '../../../../../shared/TezosService
 import BigNumber from 'bignumber.js';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
+import { Estimate } from '@taquito/taquito/dist/types/contract/estimate';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Loading from '../../../../shared/Loading/Loading';
@@ -69,7 +70,11 @@ export default function TransferModal(props: ITransferModal) {
       updateAmountError(_amountError);
       updateCF(true);
       try {
-        const gasEstimations = await estimateCosts(recipient, parseFloat(amount));
+        const gasEstimations: Estimate | undefined = await estimateCosts(recipient, parseFloat(amount));
+        if (!gasEstimations) {
+          throw 'Failed to get gas estimate';
+        }
+
         updateFee(new BigNumber(gasEstimations.suggestedFeeMutez).dividedBy(new BigNumber(10).pow(6)).toString());
       } catch (e) {
         if (e.message === 'Public key cannot be exposed') {

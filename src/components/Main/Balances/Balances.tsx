@@ -1,6 +1,7 @@
 import './Balances.scss';
-import { Net, WalletTypes } from '../../../shared/TezosTypes';
+import { ITokenDetails, Net, WalletTypes } from '../../../shared/TezosTypes';
 import React, { useCallback, useEffect, useState } from 'react';
+import TokenModal from './TokenModal/TokenModal';
 import BigNumber from 'bignumber.js';
 import Col from 'react-bootstrap/Col';
 import { EnumDictionary } from '../../../shared/AbstractTypes';
@@ -8,7 +9,6 @@ import Row from 'react-bootstrap/Row';
 import TezosBalance from './TezosBalance/TezosBalance';
 import { TezosToolkit } from '@taquito/taquito';
 import TokenContractInput from './TokenContractInput/TokenContractInput';
-import TokenModal from './TokenModal/TokenModal';
 import TokenSelection from './TokenSelection/TokenSelection';
 import { addNotification } from '../../../shared/NotificationService';
 
@@ -18,7 +18,7 @@ interface IBalancesProps {
   accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
   tokens: EnumDictionary<Net, { symbol: string; address: string }[]>;
 
-  addToken: (network: Net, address: string, token) => void;
+  addToken: (network: Net, address: string, token: ITokenDetails) => void;
   removeToken: (network: Net, address: string) => void;
 }
 
