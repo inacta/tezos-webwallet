@@ -3,7 +3,7 @@ import { Net } from '../../shared/TezosTypes';
 
 const initialState = Net.Mainnet;
 
-export default function(state = initialState, action: IAction) {
+export default function(state = initialState, action: IAction): Net {
   if (action.type === 'SET_NETWORK') {
     state = action.network;
   }
