@@ -141,7 +141,7 @@ export default function TokenModal(props: ITokenModalProps) {
   };
 
   const saveToken = () => {
-    if (!tokenData) return;
+    if (tokenData.token.name === '') return;
 
     props.addToken(props.network, tokenData.address, tokenData.token);
     addNotification('success', 'Successfully added new token!');
@@ -150,7 +150,8 @@ export default function TokenModal(props: ITokenModalProps) {
 
   return (
     <Modal centered show={props.tokenModal.show} onHide={hideModal} onEntered={onOpen}>
-      {tokenData === undefined ? (
+      {/* If tokenData.address is different from the empty string, the token *should* be loaded. */}
+      {tokenData.address === emptyTokenData.address ? (
         <div>
           <Modal.Header closeButton>
             <Modal.Title>Loading Token Information...</Modal.Title>
@@ -244,7 +245,7 @@ export default function TokenModal(props: ITokenModalProps) {
         <Button variant="secondary" onClick={hideModal}>
           Close
         </Button>
-        {tokenData !== undefined ? (
+        {tokenData.token.name !== '' ? (
           <Button variant="primary" onClick={saveToken}>
             Add Token
           </Button>
