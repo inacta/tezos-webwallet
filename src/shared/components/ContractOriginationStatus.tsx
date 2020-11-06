@@ -8,7 +8,7 @@ export class ContractOriginationStatus extends React.Component<IContractOriginat
       return undefined;
     }
 
-    let alertClass: string = undefined;
+    let alertClass: string;
     switch (this.props.state) {
       case TransactionState.waiting:
         alertClass = 'alert-info';
