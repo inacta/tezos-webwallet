@@ -40,13 +40,23 @@ interface ITokenModalProps {
 }
 
 export default function TokenModal(props: ITokenModalProps) {
-  const [tokenData, updateTokenData]: [
-    TokenData | undefined,
-    React.Dispatch<React.SetStateAction<TokenData | undefined>>
-  ] = useState(undefined as TokenData | undefined);
+  const emptyTokenData: TokenData = {
+    address: '',
+    token: {
+      isKiss: false,
+      name: '',
+      symbol: '',
+      type: TokenStandard.Unknown,
+      whitelistVersion: WhitelistVersion.NO_WHITELIST
+    }
+  };
+
+  const [tokenData, updateTokenData]: [TokenData, React.Dispatch<React.SetStateAction<TokenData>>] = useState(
+    emptyTokenData
+  );
 
   const hideModal = () => {
-    updateTokenData(undefined);
+    updateTokenData(emptyTokenData);
     props.handleModal({
       show: false,
       address: ''
