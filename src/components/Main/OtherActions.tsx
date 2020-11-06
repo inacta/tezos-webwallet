@@ -1,4 +1,4 @@
-import { Net, WalletTypes } from '../../shared/TezosTypes';
+import { ITokenDetails, Net, WalletTypes } from '../../shared/TezosTypes';
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { CallArbitraryEndpointModal } from './CallArbitraryEndpointModal';
@@ -13,7 +13,7 @@ interface IOtherActions {
   network: Net;
   accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
   net2client: EnumDictionary<Net, TezosToolkit>;
-  addToken: (network: Net, address: string, token) => void;
+  addToken: (network: Net, address: string, token: ITokenDetails) => void;
 }
 
 export default function OtherActions(props: IOtherActions) {
