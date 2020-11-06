@@ -1,9 +1,9 @@
-import * as React from 'react';
-
 declare module 'react-notifications-component' {
+  import * as React from 'react';
+
   export default class extends React.Component<ReactNotificationProps> {}
 
-  export interface ReactNotificationProps {
+  interface ReactNotificationProps {
     isMobile?: boolean;
     breakpoint?: number;
     types?: {
@@ -14,12 +14,12 @@ declare module 'react-notifications-component' {
     id?: string;
   }
 
-  export const store: {
+  const store: {
     addNotification: (options: ReactNotificationOptions) => string;
     removeNotification: (id: string) => void;
   };
 
-  export interface ReactNotificationOptions {
+  interface ReactNotificationOptions {
     id?: string;
     onRemoval?: (id: string, removedBy: any) => void;
     title?: string | React.ReactNode | React.FunctionComponent;
@@ -38,13 +38,13 @@ declare module 'react-notifications-component' {
     width?: number;
   }
 
-  export interface TransitionOptions {
+  interface TransitionOptions {
     duration?: number;
     timingFunction?: 'ease' | 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'step-start' | 'step-end';
     delay?: number;
   }
 
-  export interface DismissOptions {
+  interface DismissOptions {
     duration?: number;
     onScreen?: boolean;
     pauseOnHover?: boolean;
