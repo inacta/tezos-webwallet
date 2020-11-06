@@ -31,8 +31,8 @@ export default function FA1_2Component(props: IFA1_2Component) {
   const [showTandemModal, updateTandemModal] = useState(false);
   const [whitelistAdmin, updateWhitelistAdmin] = useState(false);
   const [NRWwhitelistAdmin, updateNRWWhitelistAdmin] = useState(false);
-  const [whitelisterList, updateWhitelisterList] = useState([]);
-  const [whitelistedList, updateWhitelistedList] = useState([]);
+  const [whitelisterList, updateWhitelisterList] = useState([] as string[]);
+  const [whitelistedList, updateWhitelistedList] = useState([] as string[]);
   const [disabled, updateDisabled] = useState(false);
   const [numRotations, rotate] = useState(0);
 
@@ -74,7 +74,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
 
   // Only show tandem registration button if this token supports tandems (it is a KISS token)
   // *and* iff the secret key solution (Ledger, in-memory etc.) supports this functionality.
-  const tandemButton: JSX.Element =
+  const tandemButton: JSX.Element | undefined =
     props.token.isKiss && !isWallet() ? (
       <Button onClick={() => updateTandemModal(true)}>Register tandem</Button>
     ) : (
@@ -178,15 +178,15 @@ export default function FA1_2Component(props: IFA1_2Component) {
                               icon: () => <FaMinusCircle className={disabled ? 'text-muted' : 'text-primary'} />,
                               disabled: disabled,
                               tooltip: 'Remove from whitelist',
-                              onClick: async (event, rowData: { address: string }) => {
+                              onClick: async (event, rowData) => {
                                 updateDisabled(true);
                                 try {
                                   await modifyWhitelist(
                                     whitelistVersion,
                                     props.contractAddress,
-                                    rowData.address,
+                                    Array.isArray(rowData) ? rowData[0].address : rowData.address,
                                     false,
-                                    null,
+                                    undefined,
                                     getTokenInfo
                                   );
                                 } catch (e) {
@@ -223,7 +223,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
                                   props.contractAddress,
                                   newData.address,
                                   true,
-                                  null,
+                                  undefined,
                                   getTokenInfo
                                 );
                               } catch (e) {
@@ -266,15 +266,15 @@ export default function FA1_2Component(props: IFA1_2Component) {
                               icon: () => <FaMinusCircle className={disabled ? 'text-muted' : 'text-primary'} />,
                               disabled: disabled,
                               tooltip: 'Remove admin',
-                              onClick: async (event, rowData: { address: string }) => {
+                              onClick: async (event, rowData) => {
                                 updateDisabled(true);
                                 try {
                                   await modifyWhitelistAdmin(
                                     whitelistVersion,
                                     props.contractAddress,
-                                    rowData.address,
+                                    Array.isArray(rowData) ? rowData[0].address : rowData.address,
                                     false,
-                                    null,
+                                    undefined,
                                     getTokenInfo
                                   );
                                 } catch (e) {
@@ -311,7 +311,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
                                   props.contractAddress,
                                   newData.address,
                                   true,
-                                  null,
+                                  undefined,
                                   getTokenInfo
                                 );
                               } catch (e) {
