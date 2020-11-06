@@ -2,7 +2,7 @@ import { FaEye, FaKey } from 'react-icons/fa';
 import { Wallet, WalletSpec } from './TezosTypes';
 import React from 'react';
 
-function getImg(src) {
+function getImg(src: string) {
   return <img src={'/assets/img/' + src} alt={'logo-' + src} className="WalletIcon-image" />;
 }
 

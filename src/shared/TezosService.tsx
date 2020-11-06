@@ -18,10 +18,12 @@ import { addNotification, addPermanentNotification, removeNotification } from '.
 import { getTxHash, isContractAddress, isWallet } from './TezosUtil';
 import { packFourTupleAsLeftBalancedPairs, toHexString } from './TezosPack';
 import BigNumber from 'bignumber.js';
+import { ContractMethod } from '@taquito/taquito/dist/types/contract';
 import { InMemorySigner } from '@taquito/signer';
 import { LedgerSigner } from '@taquito/ledger-signer';
 import { TezBridgeSigner } from '@taquito/tezbridge-signer';
 import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
+import { TransferParams } from '@taquito/taquito/dist/types/operations/types';
 import configureStore from '../redux/store';
 import { convertMap } from './Util';
 
@@ -29,7 +31,7 @@ const store = configureStore().store;
 
 async function handleTx(func: Function, afterDeploymentCallback?: Function, afterConfirmationCallback?: Function) {
   let op: TransactionOperation | TransactionWalletOperation;
-  let notificationId;
+  let notificationId: string;
   try {
     op = await func();
     if (afterDeploymentCallback) {
@@ -83,25 +85,31 @@ export async function estimateTokenTransferCosts(
   const sender = await state.accounts[state.network].address;
   const contract = (await client.contract.at(contractAddress)) as ContractAbstraction<ContractProvider>;
 
-  let tx;
-  if (tokenType === TokenStandard.FA1_2) {
-    tx = await contract.methods.transfer(sender, recipient, amount).toTransferParams({});
-  } else if (tokenType === TokenStandard.FA2) {
-    if (decimals === undefined) throw new Error('decimals is undefined');
-    if (tokenId === undefined) throw new Error('tokenId is undefined');
-    const transferParam = [
-      {
-        from_: sender,
-        txs: [
-          {
-            amount: new BigNumber(amount).multipliedBy(new BigNumber(10).pow(new BigNumber(decimals))),
-            to_: recipient,
-            token_id: tokenId
-          }
-        ]
-      }
-    ];
-    tx = await contract.methods.transfer(transferParam).toTransferParams({});
+  let tx: TransferParams;
+  switch (tokenType) {
+    case TokenStandard.FA1_2:
+      tx = await contract.methods.transfer(sender, recipient, amount).toTransferParams({});
+      break;
+    case TokenStandard.FA2: {
+      if (decimals === undefined) throw new Error('decimals is undefined');
+      if (tokenId === undefined) throw new Error('tokenId is undefined');
+      const transferParam = [
+        {
+          from_: sender,
+          txs: [
+            {
+              amount: new BigNumber(amount).multipliedBy(new BigNumber(10).pow(new BigNumber(decimals))),
+              to_: recipient,
+              token_id: tokenId
+            }
+          ]
+        }
+      ];
+      tx = await contract.methods.transfer(transferParam).toTransferParams({});
+      break;
+    }
+    default:
+      throw new Error('cannot estimate fee of unknown token type. Got: ' + tokenType.toString());
   }
 
   return await client.estimate.transfer(tx);
@@ -167,26 +175,31 @@ export async function transferToken(
   const sender = await state.accounts[state.network].address;
   const contract = (await getContract(contractAddress)) as ContractAbstraction<ContractProvider>;
 
-  let tx;
-
-  if (tokenType === TokenStandard.FA1_2) {
-    tx = await contract.methods.transfer(sender, recipient, amount);
-  } else if (tokenType === TokenStandard.FA2) {
-    if (decimals === undefined) throw new Error('decimals is undefined');
-    if (tokenId === undefined) throw new Error('tokenId is undefined');
-    const transferParam = [
-      {
-        from_: sender,
-        txs: [
-          {
-            amount: new BigNumber(amount).multipliedBy(new BigNumber(10).pow(new BigNumber(decimals))),
-            to_: recipient,
-            token_id: tokenId
-          }
-        ]
-      }
-    ];
-    tx = await contract.methods.transfer(transferParam);
+  let tx: ContractMethod<ContractProvider>;
+  switch (tokenType) {
+    case TokenStandard.FA1_2:
+      tx = await contract.methods.transfer(sender, recipient, amount);
+      break;
+    case TokenStandard.FA2: {
+      if (decimals === undefined) throw new Error('decimals is undefined');
+      if (tokenId === undefined) throw new Error('tokenId is undefined');
+      const transferParam = [
+        {
+          from_: sender,
+          txs: [
+            {
+              amount: new BigNumber(amount).multipliedBy(new BigNumber(10).pow(new BigNumber(decimals))),
+              to_: recipient,
+              token_id: tokenId
+            }
+          ]
+        }
+      ];
+      tx = await contract.methods.transfer(transferParam);
+      break;
+    }
+    default:
+      throw new Error('cannot estimate fee of unknown token type. Got: ' + tokenType.toString());
   }
 
   const func = () => tx.send();
@@ -316,7 +329,10 @@ export async function deployToken(
   };
   // deploy contract
   const state = store.getState();
-  let op;
+
+  // I was unable to figure out the type of this `op` variable to allow later calls, so we allow the use of `any` here.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let op: any;
   if (isWallet()) {
     op = await state.net2client[state.network].wallet.originate(originationParams).send();
   } else {
@@ -326,8 +342,8 @@ export async function deployToken(
   if (afterDeploymentCallback) {
     afterDeploymentCallback();
   }
-  // get contract
-  op.contract().then((contract) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  op.contract().then((contract: any) => {
     op.confirmation(1).then(() => {
       if (afterConfirmationCallback) {
         afterConfirmationCallback();
@@ -372,7 +388,10 @@ export async function handleContractDeployment(
     code: JSON.parse(byteCode),
     init: JSON.parse(storage)
   };
-  let op;
+
+  // I was unable to figure out the type of this `op` variable to allow later calls, so we allow the use of `any` here.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let op: any;
   if (isWallet()) {
     op = await state.net2client[state.network].wallet.originate(originationParams).send();
   } else {
@@ -383,7 +402,9 @@ export async function handleContractDeployment(
     afterDeploymentCallback();
   }
   // get contract
-  op.contract().then((contract) => {
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  op.contract().then((contract: any) => {
     op.confirmation(1)
       .then(() => {
         addNotification('success', 'Transaction completed successfully');
@@ -422,7 +443,7 @@ export async function arbitraryFunctionCall(
   }
 
   // define the function call made on the smart contract
-  let tx;
+  let tx: ContractMethod<ContractProvider>;
   try {
     tx = await contract.methods[functionName](...args);
   } catch (error) {
@@ -446,7 +467,7 @@ export async function registerTandemClaim(
   const state = store.getState();
   const tezos: TezosToolkit = state.net2client[state.network];
   const contract = await tezos.contract.at(contractAddress);
-  const signer: WalletTypes = state.accounts[state.network].signer;
+  const signer: WalletTypes | undefined = state.accounts[state.network].signer;
 
   // For now, this function only works for the secret key solutions
   // `InMemorySigner | TezBridgeSigner | LedgerSigner` since these are the
@@ -493,7 +514,7 @@ export async function registerTandemClaim(
       }
     ]
   };
-  let tx;
+  let tx: ContractMethod<ContractProvider>;
   try {
     tx = await contract.methods.register_tandem_claims([tandemClaim]);
   } catch (error) {
