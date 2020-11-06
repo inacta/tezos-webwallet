@@ -15,13 +15,12 @@ export class App extends React.Component<{}, {}> {
     return (
       <div className="d-flex flex-column h-100">
         <ReactNotification
-          types={['permanent-notification']}
-          // types={[
-          //   {
-          //     htmlClasses: ['permanent-notification'],
-          //     name: 'permanent'
-          //   }
-          // ]}
+          types={[
+            {
+              htmlClasses: ['permanent-notification'],
+              name: 'permanent'
+            }
+          ]}
         />
         <BrowserRouter>
           <Header />

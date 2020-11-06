@@ -2319,13 +2319,6 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-notifications-component@^2.4.0":
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/@types/react-notifications-component/-/react-notifications-component-2.4.0.tgz#b70516a7f17d83ee86843a8940866153735412a0"
-  integrity sha512-MT+QOXgoskK76oRFTj8cO5ImWhE7KuSvmHj96dOgSSmJfiACZnaOOPoYPFuXr5rGBXVwYNE9o5iWMv115uGlkw==
-  dependencies:
-    "@types/react" "*"
-
 "@types/react-router-dom@^5.1.5":
   version "5.1.5"
   resolved "https://registry.yarnpkg.com/@types/react-router-dom/-/react-router-dom-5.1.5.tgz#7c334a2ea785dbad2b2dcdd83d2cf3d9973da090"
@@ -11233,7 +11226,6 @@ react-scripts@^3.4.1:
     eslint-plugin-react-hooks "^1.6.1"
     file-loader "4.3.0"
     fs-extra "^8.1.0"
-    fsevents "2.1.2"
     html-webpack-plugin "4.0.0-beta.11"
     identity-obj-proxy "3.0.0"
     jest "24.9.0"
