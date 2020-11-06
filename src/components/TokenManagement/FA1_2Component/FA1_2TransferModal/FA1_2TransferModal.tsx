@@ -4,6 +4,7 @@ import { estimateTokenTransferCosts, transferToken } from '../../../../shared/Te
 import BigNumber from 'bignumber.js';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
+import { Estimate } from '@taquito/taquito/dist/types/contract/estimate';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Loading from '../../../shared/Loading/Loading';
@@ -93,13 +94,19 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
       }
       updateAmountError(_amountError);
       updateCF(true);
+
+      const gasFetchError = 'Failed to get gas estimat';
       try {
-        const gasEstimations = await estimateTokenTransferCosts(
+        const gasEstimations: Estimate | undefined = await estimateTokenTransferCosts(
           TokenStandard.FA1_2,
           props.contractAddress,
           recipient,
           amount
         );
+        if (!gasEstimations) {
+          throw new Error(gasFetchError);
+        }
+
         const res = new BigNumber(gasEstimations.suggestedFeeMutez).dividedBy(new BigNumber(10).pow(6)).toString();
         // only update the fee if this is the latest request
         if (nonce === nonceTmp) {
@@ -116,6 +123,8 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
           _amountError = 'You cannot send an empty transaction';
         } else if (e.message === 'RECEIVER_NOT_WHITELISTED') {
           _amountError = 'The recipient is not whitelisted';
+        } else if (e.message === gasFetchError) {
+          _amountError = gasFetchError;
         } else {
           console.error(e);
         }
