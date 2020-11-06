@@ -1,9 +1,10 @@
+import { ITokenDetails, Net } from '../../shared/TezosTypes';
 import { IAction } from '../../shared/OtherTypes';
-import { Net } from '../../shared/TezosTypes';
+import { StringDictionary } from '../../shared/AbstractTypes';
 
 export interface ITokenState {
-  [Net.Mainnet]: object;
-  [Net.Carthage]: object;
+  [Net.Mainnet]: StringDictionary<ITokenDetails>;
+  [Net.Carthage]: StringDictionary<ITokenDetails>;
 }
 
 const initialState: ITokenState = {
