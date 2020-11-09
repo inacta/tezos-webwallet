@@ -1,4 +1,4 @@
-import { IExtraData, Net, TokenStandard } from '../../../../shared/TezosTypes';
+import { IExtraData, ITokenDetails, Net, TokenStandard } from '../../../../shared/TezosTypes';
 import React, { useState } from 'react';
 import BigNumber from 'bignumber.js';
 import Button from 'react-bootstrap/Button';
@@ -21,9 +21,9 @@ interface IDeployTokenModal {
   network: Net;
   net2client: EnumDictionary<Net, TezosToolkit>;
   showModal: boolean;
-  address: string;
+  ownAddress: string;
   updateModal: React.Dispatch<React.SetStateAction<boolean>>;
-  addToken: (network: Net, address: string, token) => void;
+  addToken: (network: Net, address: string, token: ITokenDetails) => void;
 }
 
 export default function DeployTokenModal(props: IDeployTokenModal) {
@@ -36,7 +36,7 @@ export default function DeployTokenModal(props: IDeployTokenModal) {
   const [amount, updateAmount] = useState('');
   const [decimals, updateDecimals] = useState('6');
   const [deployingContract, updateDeploymentState] = useState(false);
-  const [extraData, updateExtraData]: [IExtraData[], React.Dispatch<React.SetStateAction<IExtraData[]>>] = useState([]);
+  const [extraData, updateExtraData] = useState([] as IExtraData[]);
 
   const handleSubmit = (event: React.FormEvent) => {
     // get form from event
@@ -229,7 +229,7 @@ export default function DeployTokenModal(props: IDeployTokenModal) {
           <Form.Row>
             <Form.Group as={Col} md="6" controlId="address">
               <Form.Label>Tezos address</Form.Label>
-              <Form.Control type="text" placeholder="Tezos address" defaultValue={props.address} required />
+              <Form.Control type="text" placeholder="Tezos address" defaultValue={props.ownAddress} required />
               <Form.Control.Feedback type="invalid">{addressError}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group as={Col} md="6" controlId="amount">
