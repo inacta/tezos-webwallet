@@ -72,7 +72,7 @@ export default function TransferModal(props: ITransferModal) {
       try {
         const gasEstimations: Estimate | undefined = await estimateCosts(recipient, parseFloat(amount));
         if (!gasEstimations) {
-          throw 'Failed to get gas estimate';
+          throw new Error('Failed to get gas estimate');
         }
 
         updateFee(new BigNumber(gasEstimations.suggestedFeeMutez).dividedBy(new BigNumber(10).pow(6)).toString());
