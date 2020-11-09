@@ -7,7 +7,7 @@ import { getWalletSpec } from '../../../../shared/WalletUtil';
 interface IWalletIcons {
   types: Wallet[];
   updateString: React.Dispatch<React.SetStateAction<string>>;
-  onClick: React.Dispatch<React.SetStateAction<Wallet>>;
+  onClick: React.Dispatch<React.SetStateAction<Wallet | undefined>>;
 }
 
 export default function WalletIcons(props: IWalletIcons) {

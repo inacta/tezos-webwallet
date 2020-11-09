@@ -14,7 +14,7 @@ export default function ImportPK(props: IImportPK) {
   const [keyError, updateKeyError] = useState('');
   const [saveGuard, updateSaveGuard] = useState(false);
 
-  const validateKey = (event) => {
+  const validateKey = (event: React.ChangeEvent<HTMLInputElement>) => {
     const formValue = event.currentTarget.value;
     updatePrivateKey(formValue);
     if (isValidSecretKey(formValue)) {

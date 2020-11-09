@@ -3,7 +3,7 @@ import { InMemorySigner, importKey } from '@taquito/signer';
 import { Net, WalletTypes } from '../../../../../../shared/TezosTypes';
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import IconButton from '../../../../../shared/IconButton/IconButton';
 import { TezosToolkit } from '@taquito/taquito';
 import { addNotification } from '../../../../../../shared/NotificationService';

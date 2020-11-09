@@ -1,5 +1,5 @@
 import './Main.scss';
-import { Net, WalletTypes } from '../../shared/TezosTypes';
+import { ITokenDetails, Net, WalletTypes } from '../../shared/TezosTypes';
 import React, { Component } from 'react';
 import {
   addSigner,
@@ -14,7 +14,9 @@ import AddressComponent from './Balances/AddressComponent/AddressComponent';
 import Balances from './Balances/Balances';
 import Col from 'react-bootstrap/Col';
 import { EnumDictionary } from '../../shared/AbstractTypes';
+import { IAccountState } from '../../redux/reducers/accounts';
 import { IReduxState } from '../../redux/reducers/index';
+import { ITokenState } from '../../redux/reducers/tokens';
 import OtherActions from './OtherActions';
 import Row from 'react-bootstrap/Row';
 import Switch from 'react-switch';
@@ -24,9 +26,9 @@ import { connect } from 'react-redux';
 
 interface IMainProps {
   network: Net;
-  accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
+  accounts: IAccountState;
   net2client: EnumDictionary<Net, TezosToolkit>;
-  tokens: EnumDictionary<Net, { symbol: string; address: string }[]>;
+  tokens: ITokenState;
   location: {
     search: string;
   };
@@ -35,7 +37,7 @@ interface IMainProps {
   changeAddress: (address: string, network: Net) => void;
   addSigner: (address: string, network: Net, signer: WalletTypes, wallet: boolean) => void;
   setRPCProvider: (network: Net, rpc: string) => void;
-  addToken: (network: Net, address: string, token) => void;
+  addToken: (network: Net, address: string, token: ITokenDetails) => void;
   removeToken: (network: Net, address: string) => void;
   resetSigner: (network: Net) => void;
 }
@@ -99,10 +101,13 @@ class Main extends Component<IMainProps, {}> {
         ) : (
           <>
             <AddressComponent
-              address={this.props.accounts[this.props.network].address}
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              address={this.props.accounts[this.props.network].address!}
               resetSigner={this.resetSigner}
             />
             <Balances
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              address={this.props.accounts[this.props.network].address!}
               network={this.props.network}
               net2client={this.props.net2client}
               accounts={this.props.accounts}

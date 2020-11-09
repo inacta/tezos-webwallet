@@ -1,4 +1,4 @@
-import { ITokenDetails, Net, WalletTypes } from '../../shared/TezosTypes';
+import { ITokenDetails, Net } from '../../shared/TezosTypes';
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { CallArbitraryEndpointModal } from './CallArbitraryEndpointModal';
@@ -6,12 +6,13 @@ import Col from 'react-bootstrap/Col';
 import DeploySmartContractModal from './Deployment/DeploySmartContractModal/DeploySmartContractModal';
 import DeployTokenModal from './Deployment/DeployTokenModal/DeployTokenModal';
 import { EnumDictionary } from '../../shared/AbstractTypes';
+import { IAccountState } from '../../redux/reducers/accounts';
 import Row from 'react-bootstrap/Row';
 import { TezosToolkit } from '@taquito/taquito';
 
 interface IOtherActions {
   network: Net;
-  accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
+  accounts: IAccountState;
   net2client: EnumDictionary<Net, TezosToolkit>;
   addToken: (network: Net, address: string, token: ITokenDetails) => void;
 }

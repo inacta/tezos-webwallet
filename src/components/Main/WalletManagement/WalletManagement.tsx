@@ -7,6 +7,7 @@ import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import { EnumDictionary } from '../../../shared/AbstractTypes';
+import { IAccountState } from '../../../redux/reducers/accounts';
 import Ledger from './WalletComponents/LedgerNano/LedgerNano';
 import PrivateKey from './WalletComponents/PrivateKey/PrivateKey';
 import Row from 'react-bootstrap/Row';
@@ -19,7 +20,7 @@ import { getWalletSpec } from '../../../shared/WalletUtil';
 interface IWalletManagementProps {
   network: Net;
   net2client: EnumDictionary<Net, TezosToolkit>;
-  accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
+  accounts: IAccountState;
 
   changeAddress: (address: string, network: Net) => void;
   addSigner: (address: string, network: Net, signer: WalletTypes, wallet: boolean) => void;

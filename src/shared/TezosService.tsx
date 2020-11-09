@@ -412,7 +412,7 @@ export async function handleContractDeployment(
           'https://better-call.dev/' + (state.network === Net.Mainnet ? 'mainnet/' : 'carthagenet/') + contract.address;
         window.open(url);
       })
-      .catch((e) => {
+      .catch((e: Error) => {
         console.log(e.message);
         addNotification('danger', 'Transaction failed');
       })

@@ -223,7 +223,7 @@ export class CallArbitraryEndpointModal extends React.Component<
         centered
         show={this.props.showModal}
         size="lg"
-        onSubmit={(e) => this.handleSubmit(e)}
+        onSubmit={(e: React.FormEvent) => this.handleSubmit(e)}
         onHide={() => this.props.hideModal()}
       >
         <Modal.Header closeButton>

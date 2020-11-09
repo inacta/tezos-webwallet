@@ -1,9 +1,11 @@
 import './Balances.scss';
-import { ITokenDetails, Net, WalletTypes } from '../../../shared/TezosTypes';
+import { ITokenDetails, Net } from '../../../shared/TezosTypes';
 import React, { useCallback, useEffect, useState } from 'react';
 import BigNumber from 'bignumber.js';
 import Col from 'react-bootstrap/Col';
 import { EnumDictionary } from '../../../shared/AbstractTypes';
+import { IAccountState } from '../../../redux/reducers/accounts';
+import { ITokenState } from '../../../redux/reducers/tokens';
 import Row from 'react-bootstrap/Row';
 import TezosBalance from './TezosBalance/TezosBalance';
 import { TezosToolkit } from '@taquito/taquito';
@@ -13,10 +15,11 @@ import TokenSelection from './TokenSelection/TokenSelection';
 import { addNotification } from '../../../shared/NotificationService';
 
 interface IBalancesProps {
+  address: string;
   network: Net;
   net2client: EnumDictionary<Net, TezosToolkit>;
-  accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
-  tokens: EnumDictionary<Net, { symbol: string; address: string }[]>;
+  accounts: IAccountState;
+  tokens: ITokenState;
 
   addToken: (network: Net, address: string, token: ITokenDetails) => void;
   removeToken: (network: Net, address: string) => void;
@@ -32,9 +35,8 @@ export default function Balances(props: IBalancesProps) {
 
   const getBalance = useCallback(async () => {
     const client = props.net2client[props.network];
-    const address = props.accounts[props.network].address;
     client.rpc
-      .getBalance(address)
+      .getBalance(props.address)
       .then((fetchedBalance) => {
         updateBalance(fetchedBalance.dividedBy(new BigNumber(10).pow(6)).toString());
       })

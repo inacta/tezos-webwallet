@@ -183,7 +183,7 @@ export class KissModal extends React.Component<IKissModalProps, IKissModalState>
         centered
         size="lg"
         onHide={() => this.props.hideModal()}
-        onSubmit={(e) => this.handleSubmit(e)}
+        onSubmit={(e: React.FormEvent) => this.handleSubmit(e)}
         onEntered={() => this.reset()}
       >
         <Modal.Header closeButton>
