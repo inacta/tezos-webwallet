@@ -22,7 +22,9 @@ export default function OtherActions(props: IOtherActions) {
   const [showSCModal, updateSCModal] = useState(false);
   const [showArbFunCallModal, updateArbFunCallModal] = useState(false);
 
-  return props.accounts[props.network].address === undefined ? (
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const ownAddress: string = props.accounts[props.network].address!;
+  return ownAddress === undefined ? (
     <></>
   ) : (
     <>
@@ -49,13 +51,12 @@ export default function OtherActions(props: IOtherActions) {
         </Col>
       </Row>
       <DeployTokenModal
+        ownAddress={ownAddress}
         network={props.network}
         net2client={props.net2client}
         showModal={showTModal}
         updateModal={updateTModal}
         addToken={props.addToken}
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        ownAddress={props.accounts[props.network].address!}
       />
       <DeploySmartContractModal
         network={props.network}
