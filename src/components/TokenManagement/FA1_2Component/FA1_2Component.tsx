@@ -24,7 +24,7 @@ interface IFA1_2Component {
 
 export default function FA1_2Component(props: IFA1_2Component) {
   const materialTableRef = React.createRef();
-  const [balance, updateBalance] = useState('');
+  const [tokenBalance, updateTokenBalance] = useState('');
   const [totalSupply, updateTotalSupply] = useState('');
   const [whitelistVersion, updateWhitelistVersion] = useState(WhitelistVersion.NO_WHITELIST);
   const [showTransferModal, updateTransferModal] = useState(false);
@@ -50,7 +50,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
     }
     if (props.address) {
       const ledgerEntry = await data.ledger.get(props.address);
-      updateBalance(ledgerEntry ? ledgerEntry.balance.toFixed() : '0');
+      updateTokenBalance(ledgerEntry ? ledgerEntry.balance.toFixed() : '0');
     }
   }, [props]);
 
@@ -83,7 +83,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
 
   return (
     <div>
-      {balance !== '' ? (
+      {tokenBalance !== '' ? (
         <div>
           <Row>
             <Col>
@@ -91,7 +91,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
                 <div>
                   <h4>Balance</h4>
                   <h5>
-                    {balance} <b>{props.token.symbol}</b>
+                    {tokenBalance} <b>{props.token.symbol}</b>
                     <IconButton onClick={clickUpdateBalance} overlay="Reload balance" placement="right">
                       <AiOutlineReload
                         style={{ transform: `rotate(${numRotations * 360}deg)`, transition: 'all 0.75s ease-in-out' }}
@@ -109,14 +109,14 @@ export default function FA1_2Component(props: IFA1_2Component) {
                         show={showTransferModal}
                         hideModal={() => updateTransferModal(false)}
                         symbol={props.token.symbol}
-                        balance={balance}
-                        balanceCallback={getTokenInfo}
+                        tokenBalance={tokenBalance}
+                        tokenBalanceCallback={getTokenInfo}
                         contractAddress={props.contractAddress}
                       ></FA1_2TransferModal>
                       {tandemButton}
                       <KissModal
-                        balance={balance !== '' ? Number(balance) : 0}
-                        balanceCallback={getTokenInfo}
+                        balance={tokenBalance !== '' ? Number(tokenBalance) : 0}
+                        tokenBalanceCallback={getTokenInfo}
                         contractAddress={props.contractAddress}
                         hideModal={() => updateTandemModal(false)}
                         show={showTandemModal}
