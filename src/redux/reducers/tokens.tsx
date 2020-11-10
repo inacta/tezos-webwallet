@@ -1,7 +1,13 @@
+import { ITokenDetails, Net } from '../../shared/TezosTypes';
 import { IAction } from '../../shared/OtherTypes';
-import { Net } from '../../shared/TezosTypes';
+import { StringDictionary } from '../../shared/AbstractTypes';
 
-const initialState = {
+export interface ITokenState {
+  [Net.Mainnet]: StringDictionary<ITokenDetails>;
+  [Net.Carthage]: StringDictionary<ITokenDetails>;
+}
+
+const initialState: ITokenState = {
   [Net.Mainnet]: {},
   [Net.Carthage]: {
     // KT1JE97wUP7pmWRy7vKYHbuVoMnF9tcX4cY7: {
@@ -17,7 +23,7 @@ const initialState = {
   }
 };
 
-export default function(state = initialState, action: IAction) {
+export default function(state = initialState, action: IAction): ITokenState {
   if (action.type === 'ADD_TOKEN') {
     state = {
       ...state,

@@ -22,7 +22,7 @@ export default function TokenContractInput(props: ITokenContractInput) {
     error: ''
   });
 
-  const checkContractAddress = async (event) => {
+  const checkContractAddress = async (event: React.ChangeEvent<HTMLInputElement>) => {
     // get form value
     const formValue = event.currentTarget.value;
 

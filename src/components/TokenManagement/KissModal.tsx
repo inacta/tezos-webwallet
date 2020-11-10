@@ -17,7 +17,7 @@ import { registerTandemClaim } from '../../shared/TezosService';
 // some nice graphic about the handling of the transaction
 interface IKissModalProps {
   balance: number;
-  balanceCallback: () => void;
+  tokenBalanceCallback: () => void;
   contractAddress: string;
   hideModal: () => void;
   show: boolean;
@@ -53,7 +53,7 @@ export class KissModal extends React.Component<IKissModalProps, IKissModalState>
       this.state.minutes,
       this.state.activities,
       this.props.hideModal,
-      this.props.balanceCallback
+      this.props.tokenBalanceCallback
     )
       .catch((e) => {
         if (e.message === 'rejected') {
@@ -183,7 +183,7 @@ export class KissModal extends React.Component<IKissModalProps, IKissModalState>
         centered
         size="lg"
         onHide={() => this.props.hideModal()}
-        onSubmit={(e) => this.handleSubmit(e)}
+        onSubmit={(e: React.FormEvent) => this.handleSubmit(e)}
         onEntered={() => this.reset()}
       >
         <Modal.Header closeButton>

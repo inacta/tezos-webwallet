@@ -1,6 +1,11 @@
 import { IAction } from '../../shared/OtherTypes';
 import { Net } from '../../shared/TezosTypes';
 
+export interface IPersistRPC {
+  [Net.Mainnet]: string;
+  [Net.Carthage]: string;
+}
+
 const initialState = {
   [Net.Mainnet]: 'https://mainnet-tezos.giganode.io',
   [Net.Carthage]: 'https://tezos-carthagenet.inacta.services/'

@@ -4,6 +4,7 @@ import { estimateTokenTransferCosts, transferToken } from '../../../../shared/Te
 import BigNumber from 'bignumber.js';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
+import { Estimate } from '@taquito/taquito/dist/types/contract/estimate';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Loading from '../../../shared/Loading/Loading';
@@ -13,11 +14,11 @@ import { addNotification } from '../../../../shared/NotificationService';
 
 interface IFA1_2TransferModal {
   show: boolean;
-  balance: string;
+  tokenBalance: string;
   symbol: string;
   contractAddress: string;
   hideModal: () => void;
-  balanceCallback: () => void;
+  tokenBalanceCallback: () => void;
 }
 
 let nonce = 0;
@@ -58,7 +59,7 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
         addressInput.value,
         amount,
         props.hideModal,
-        props.balanceCallback
+        props.tokenBalanceCallback
       ).catch((e) => {
         updateLoading(false);
         if (e.message === 'rejected') {
@@ -86,20 +87,26 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
       nonce += 1;
       const nonceTmp = nonce;
       let _amountError = '';
-      if (new BigNumber(amount).gt(new BigNumber(props.balance))) {
+      if (new BigNumber(amount).gt(new BigNumber(props.tokenBalance))) {
         updateAmountError('Insufficient token balance');
         updateCF(false);
         return;
       }
       updateAmountError(_amountError);
       updateCF(true);
+
+      const gasFetchError = 'Failed to get gas estimat';
       try {
-        const gasEstimations = await estimateTokenTransferCosts(
+        const gasEstimations: Estimate | undefined = await estimateTokenTransferCosts(
           TokenStandard.FA1_2,
           props.contractAddress,
           recipient,
           amount
         );
+        if (!gasEstimations) {
+          throw new Error(gasFetchError);
+        }
+
         const res = new BigNumber(gasEstimations.suggestedFeeMutez).dividedBy(new BigNumber(10).pow(6)).toString();
         // only update the fee if this is the latest request
         if (nonce === nonceTmp) {
@@ -116,6 +123,8 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
           _amountError = 'You cannot send an empty transaction';
         } else if (e.message === 'RECEIVER_NOT_WHITELISTED') {
           _amountError = 'The recipient is not whitelisted';
+        } else if (e.message === gasFetchError) {
+          _amountError = gasFetchError;
         } else {
           console.error(e);
         }

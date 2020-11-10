@@ -1,5 +1,7 @@
+import { IAction } from '../../shared/OtherTypes';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default (store: any) => (next: any) => (action: any) => {
+export default (store: any) => (next: any) => (action: IAction) => {
   let syncActivityFinished = false;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let actionQueue: any[] = [];

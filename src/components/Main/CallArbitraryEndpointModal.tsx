@@ -11,7 +11,7 @@ import React from 'react';
 import { addNotification } from '../../shared/NotificationService';
 
 interface ICallArbitraryEndpointModalProps {
-  balanceCallback: () => void;
+  balanceCallback?: () => void;
   hideModal: () => void;
   network: Net;
   net2client: EnumDictionary<Net, TezosToolkit>;
@@ -20,7 +20,7 @@ interface ICallArbitraryEndpointModalProps {
 
 interface ICallArbitraryEndpointModalState {
   args: string[];
-  contractInformation: IContractInformation | undefined;
+  contractInformation?: IContractInformation;
   contractAddress: string;
   endpointName: string;
   numberOfArgs: number | undefined;
@@ -53,11 +53,19 @@ export class CallArbitraryEndpointModal extends React.Component<
   }
 
   private handleSubmit(event: React.FormEvent) {
+    if (!this.state.contractInformation) {
+      return;
+    }
+
     event.preventDefault();
     this.setState({ processingFunctionCall: true }, () => this.handleSubmitH());
   }
 
   private handleSubmitH() {
+    if (!this.state.contractInformation) {
+      return;
+    }
+
     arbitraryFunctionCall(
       this.state.contractInformation.contract,
       this.state.endpointName,
@@ -96,7 +104,7 @@ export class CallArbitraryEndpointModal extends React.Component<
     return true;
   }
 
-  private isValidType(input: string, type: string): boolean {
+  private isValidType(input: string, type: string | undefined): boolean {
     if (!input || !type) {
       return false;
     }
@@ -137,8 +145,11 @@ export class CallArbitraryEndpointModal extends React.Component<
     }
 
     // Set contract information and numberOfArgs param to match number of methods found in deployed smart contract
-    const firstMethod: string | undefined =
-      (contractInformation?.methods.length ?? 0) > 0 ? contractInformation.methods[0] : undefined;
+    let firstMethod = '';
+    if (contractInformation && contractInformation.methods.length > 0) {
+      firstMethod = contractInformation.methods[0];
+    }
+
     this.setState({
       contractInformation,
       endpointName: firstMethod,
@@ -151,7 +162,7 @@ export class CallArbitraryEndpointModal extends React.Component<
   }
 
   private updateEndpointName(name: string): void {
-    const numberOfArgs: number = this.state.contractInformation?.functionSignatures[name]?.length;
+    const numberOfArgs: number = this.state.contractInformation?.functionSignatures[name]?.length ?? 0;
     this.setState({ endpointName: name, numberOfArgs });
   }
 
@@ -195,7 +206,8 @@ export class CallArbitraryEndpointModal extends React.Component<
         <Form.Control as="select" onChange={(e) => this.updateEndpointName(e.target.value)}>
           {this.state.contractInformation &&
             this.state.contractInformation.methods.map((name, i) => {
-              const c2c: boolean = this.state.contractInformation.functionSignatures[name].includes('contract');
+              const c2c: boolean =
+                this.state.contractInformation?.functionSignatures[name].includes('contract') ?? false;
               return (
                 <option key={i} disabled={c2c}>
                   {`${name} ${c2c ? ' (contract-to-contract function)' : ''}`}
@@ -211,7 +223,7 @@ export class CallArbitraryEndpointModal extends React.Component<
         centered
         show={this.props.showModal}
         size="lg"
-        onSubmit={(e) => this.handleSubmit(e)}
+        onSubmit={(e: React.FormEvent) => this.handleSubmit(e)}
         onHide={() => this.props.hideModal()}
       >
         <Modal.Header closeButton>

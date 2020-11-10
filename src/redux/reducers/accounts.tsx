@@ -1,6 +1,6 @@
 import { Net, WalletTypes } from '../../shared/TezosTypes';
 
-interface IAccountState {
+export interface IAccountState {
   [key: string]: {
     signer?: WalletTypes;
     address?: string;

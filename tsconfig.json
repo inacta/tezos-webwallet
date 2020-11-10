@@ -2,6 +2,8 @@
   "compilerOptions": {
     "moduleResolution": "node",
     "module": "ESNext",
+    "sourceMap": true,
+    "strictNullChecks": true,
     "noImplicitAny": true,
     "noEmitOnError": true,
     "noUnusedLocals": true,
@@ -24,9 +26,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react"
+    "jsx": "react",
+    "typeRoots": ["src/typings", "node_modules/@types"]
   },
-  "include": [
-    "src/**/*.ts"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "typings"]
 }

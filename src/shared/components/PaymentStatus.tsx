@@ -5,7 +5,6 @@ import React from 'react';
 // Can be rewritten as a functional component
 export class PaymentStatus extends React.Component<IPaymentStatus, {}> {
   public render() {
-    let statusElement: JSX.Element = undefined;
     if (this.props === undefined) {
       return null;
     }
@@ -25,7 +24,7 @@ export class PaymentStatus extends React.Component<IPaymentStatus, {}> {
         throw new Error('Unknown payment state');
     }
 
-    let blockExplorerElem: JSX.Element = undefined;
+    let blockExplorerElem: JSX.Element | undefined = undefined;
     if (this.props.hash !== undefined) {
       const blockExplorerLink =
         this.props.net === Net.Mainnet
@@ -39,7 +38,7 @@ export class PaymentStatus extends React.Component<IPaymentStatus, {}> {
       );
     }
 
-    statusElement = (
+    const statusElement: JSX.Element = (
       <div className={`alert ${alertClass}`} role="alert">
         <button
           className="close"

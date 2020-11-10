@@ -12,7 +12,7 @@ export default function Address(props: IAddress) {
   const [addressError, updateAddressError] = useState('');
   const [address, updateAddress] = useState('');
 
-  const checkAddress = (event) => {
+  const checkAddress = (event: React.ChangeEvent<HTMLInputElement>) => {
     // get form value
     const formValue = event.currentTarget.value;
     // update form field

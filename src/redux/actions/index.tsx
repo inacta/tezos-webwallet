@@ -1,4 +1,4 @@
-import { Net, WalletTypes } from '../../shared/TezosTypes';
+import { ITokenDetails, Net, WalletTypes } from '../../shared/TezosTypes';
 
 export function setNetwork(network: Net) {
   return {
@@ -40,7 +40,7 @@ export function setRPCProvider(network: Net, rpc: string) {
   };
 }
 
-export function addToken(network: Net, address: string, token) {
+export function addToken(network: Net, address: string, token: ITokenDetails) {
   return {
     type: 'ADD_TOKEN',
     network,

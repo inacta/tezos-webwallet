@@ -1,4 +1,4 @@
-import { Net, WalletTypes } from '../../shared/TezosTypes';
+import { ITokenDetails, Net } from '../../shared/TezosTypes';
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { CallArbitraryEndpointModal } from './CallArbitraryEndpointModal';
@@ -6,14 +6,15 @@ import Col from 'react-bootstrap/Col';
 import DeploySmartContractModal from './Deployment/DeploySmartContractModal/DeploySmartContractModal';
 import DeployTokenModal from './Deployment/DeployTokenModal/DeployTokenModal';
 import { EnumDictionary } from '../../shared/AbstractTypes';
+import { IAccountState } from '../../redux/reducers/accounts';
 import Row from 'react-bootstrap/Row';
 import { TezosToolkit } from '@taquito/taquito';
 
 interface IOtherActions {
   network: Net;
-  accounts: EnumDictionary<Net, { address: string; signer?: WalletTypes }>;
+  accounts: IAccountState;
   net2client: EnumDictionary<Net, TezosToolkit>;
-  addToken: (network: Net, address: string, token) => void;
+  addToken: (network: Net, address: string, token: ITokenDetails) => void;
 }
 
 export default function OtherActions(props: IOtherActions) {
@@ -21,7 +22,13 @@ export default function OtherActions(props: IOtherActions) {
   const [showSCModal, updateSCModal] = useState(false);
   const [showArbFunCallModal, updateArbFunCallModal] = useState(false);
 
-  return (
+  // For TypeScript to understand that a value has been veirfied to not be
+  // null, it must be declared as a constant, it doesn't work (in the current
+  // TypeScript version) if the check is made for a nested value.
+  const ownAddress = props.accounts[props.network].address;
+  return ownAddress === undefined ? (
+    <></>
+  ) : (
     <>
       <Row className="mt-5">
         <Col>
@@ -46,12 +53,12 @@ export default function OtherActions(props: IOtherActions) {
         </Col>
       </Row>
       <DeployTokenModal
+        ownAddress={ownAddress}
         network={props.network}
         net2client={props.net2client}
         showModal={showTModal}
         updateModal={updateTModal}
         addToken={props.addToken}
-        address={props.accounts[props.network].address}
       />
       <DeploySmartContractModal
         network={props.network}

@@ -24,15 +24,15 @@ interface IFA1_2Component {
 
 export default function FA1_2Component(props: IFA1_2Component) {
   const materialTableRef = React.createRef();
-  const [balance, updateBalance] = useState('');
+  const [tokenBalance, updateTokenBalance] = useState('');
   const [totalSupply, updateTotalSupply] = useState('');
   const [whitelistVersion, updateWhitelistVersion] = useState(WhitelistVersion.NO_WHITELIST);
   const [showTransferModal, updateTransferModal] = useState(false);
   const [showTandemModal, updateTandemModal] = useState(false);
   const [whitelistAdmin, updateWhitelistAdmin] = useState(false);
   const [NRWwhitelistAdmin, updateNRWWhitelistAdmin] = useState(false);
-  const [whitelisterList, updateWhitelisterList] = useState([]);
-  const [whitelistedList, updateWhitelistedList] = useState([]);
+  const [whitelisterList, updateWhitelisterList] = useState([] as string[]);
+  const [whitelistedList, updateWhitelistedList] = useState([] as string[]);
   const [disabled, updateDisabled] = useState(false);
   const [numRotations, rotate] = useState(0);
 
@@ -50,7 +50,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
     }
     if (props.address) {
       const ledgerEntry = await data.ledger.get(props.address);
-      updateBalance(ledgerEntry ? ledgerEntry.balance.toFixed() : '0');
+      updateTokenBalance(ledgerEntry ? ledgerEntry.balance.toFixed() : '0');
     }
   }, [props]);
 
@@ -74,7 +74,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
 
   // Only show tandem registration button if this token supports tandems (it is a KISS token)
   // *and* iff the secret key solution (Ledger, in-memory etc.) supports this functionality.
-  const tandemButton: JSX.Element =
+  const tandemButton: JSX.Element | undefined =
     props.token.isKiss && !isWallet() ? (
       <Button onClick={() => updateTandemModal(true)}>Register tandem</Button>
     ) : (
@@ -83,7 +83,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
 
   return (
     <div>
-      {balance !== '' ? (
+      {tokenBalance !== '' ? (
         <div>
           <Row>
             <Col>
@@ -91,7 +91,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
                 <div>
                   <h4>Balance</h4>
                   <h5>
-                    {balance} <b>{props.token.symbol}</b>
+                    {tokenBalance} <b>{props.token.symbol}</b>
                     <IconButton onClick={clickUpdateBalance} overlay="Reload balance" placement="right">
                       <AiOutlineReload
                         style={{ transform: `rotate(${numRotations * 360}deg)`, transition: 'all 0.75s ease-in-out' }}
@@ -109,14 +109,14 @@ export default function FA1_2Component(props: IFA1_2Component) {
                         show={showTransferModal}
                         hideModal={() => updateTransferModal(false)}
                         symbol={props.token.symbol}
-                        balance={balance}
-                        balanceCallback={getTokenInfo}
+                        tokenBalance={tokenBalance}
+                        tokenBalanceCallback={getTokenInfo}
                         contractAddress={props.contractAddress}
                       ></FA1_2TransferModal>
                       {tandemButton}
                       <KissModal
-                        balance={balance !== '' ? Number(balance) : 0}
-                        balanceCallback={getTokenInfo}
+                        balance={tokenBalance !== '' ? Number(tokenBalance) : 0}
+                        tokenBalanceCallback={getTokenInfo}
                         contractAddress={props.contractAddress}
                         hideModal={() => updateTandemModal(false)}
                         show={showTandemModal}
@@ -178,15 +178,15 @@ export default function FA1_2Component(props: IFA1_2Component) {
                               icon: () => <FaMinusCircle className={disabled ? 'text-muted' : 'text-primary'} />,
                               disabled: disabled,
                               tooltip: 'Remove from whitelist',
-                              onClick: async (event, rowData: { address: string }) => {
+                              onClick: async (event, rowData) => {
                                 updateDisabled(true);
                                 try {
                                   await modifyWhitelist(
                                     whitelistVersion,
                                     props.contractAddress,
-                                    rowData.address,
+                                    Array.isArray(rowData) ? rowData[0].address : rowData.address,
                                     false,
-                                    null,
+                                    undefined,
                                     getTokenInfo
                                   );
                                 } catch (e) {
@@ -223,7 +223,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
                                   props.contractAddress,
                                   newData.address,
                                   true,
-                                  null,
+                                  undefined,
                                   getTokenInfo
                                 );
                               } catch (e) {
@@ -266,15 +266,15 @@ export default function FA1_2Component(props: IFA1_2Component) {
                               icon: () => <FaMinusCircle className={disabled ? 'text-muted' : 'text-primary'} />,
                               disabled: disabled,
                               tooltip: 'Remove admin',
-                              onClick: async (event, rowData: { address: string }) => {
+                              onClick: async (event, rowData) => {
                                 updateDisabled(true);
                                 try {
                                   await modifyWhitelistAdmin(
                                     whitelistVersion,
                                     props.contractAddress,
-                                    rowData.address,
+                                    Array.isArray(rowData) ? rowData[0].address : rowData.address,
                                     false,
-                                    null,
+                                    undefined,
                                     getTokenInfo
                                   );
                                 } catch (e) {
@@ -311,7 +311,7 @@ export default function FA1_2Component(props: IFA1_2Component) {
                                   props.contractAddress,
                                   newData.address,
                                   true,
-                                  null,
+                                  undefined,
                                   getTokenInfo
                                 );
                               } catch (e) {

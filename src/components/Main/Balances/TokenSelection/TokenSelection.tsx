@@ -1,7 +1,7 @@
 import './TokenSelection.scss';
 import Badge from 'react-bootstrap/Badge';
-import { EnumDictionary } from '../../../../shared/AbstractTypes';
 import { FaMinusCircle } from 'react-icons/fa';
+import { ITokenState } from '../../../../redux/reducers/tokens';
 import IconButton from '../../../shared/IconButton/IconButton';
 import { Link } from 'react-router-dom';
 import { Net } from '../../../../shared/TezosTypes';
@@ -11,7 +11,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 
 interface ITokenSelection {
   network: Net;
-  tokens: EnumDictionary<Net, { symbol: string; address: string }[]>;
+  tokens: ITokenState;
   removeToken: (network: Net, address: string) => void;
 }
 
