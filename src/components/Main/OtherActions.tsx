@@ -22,8 +22,10 @@ export default function OtherActions(props: IOtherActions) {
   const [showSCModal, updateSCModal] = useState(false);
   const [showArbFunCallModal, updateArbFunCallModal] = useState(false);
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const ownAddress: string = props.accounts[props.network].address!;
+  // For TypeScript to understand that a value has been veirfied to not be
+  // null, it must be declared as a constant, it doesn't work (in the current
+  // TypeScript version) if the check is made for a nested value.
+  const ownAddress = props.accounts[props.network].address;
   return ownAddress === undefined ? (
     <></>
   ) : (

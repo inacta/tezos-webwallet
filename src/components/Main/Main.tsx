@@ -65,6 +65,10 @@ class Main extends Component<IMainProps, {}> {
   };
 
   public render() {
+    // We have to declare address for TypeScript to understand that we have
+    // made the appropriate null / undefined check. Cf.
+    // https://stackoverflow.com/questions/64755402/why-cant-typescript-see-that-a-nested-value-cannot-be-undefined
+    const ownAaddress = this.props.accounts[this.props.network]?.address;
     return (
       <div>
         {/* TITLE + TOGGLE */}
@@ -90,7 +94,7 @@ class Main extends Component<IMainProps, {}> {
             </div>
           </Col>
         </Row>
-        {this.props.accounts[this.props.network].address === undefined ? (
+        {ownAaddress === undefined ? (
           <WalletManagement
             changeAddress={this.props.changeAddress}
             addSigner={this.props.addSigner}
@@ -100,14 +104,9 @@ class Main extends Component<IMainProps, {}> {
           />
         ) : (
           <>
-            <AddressComponent
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              address={this.props.accounts[this.props.network].address!}
-              resetSigner={this.resetSigner}
-            />
+            <AddressComponent address={ownAaddress} resetSigner={this.resetSigner} />
             <Balances
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              address={this.props.accounts[this.props.network].address!}
+              address={ownAaddress}
               network={this.props.network}
               net2client={this.props.net2client}
               accounts={this.props.accounts}
