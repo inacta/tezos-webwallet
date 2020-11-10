@@ -129,6 +129,16 @@ export default function TransferModal(props: ITransferModal) {
     }
   };
 
+  let sufficientAmount = false;
+  try {
+    const amountNum = new BigNumber(amount);
+    const balanceNum = new BigNumber(props.balance);
+    const feeNum = new BigNumber(fee);
+    sufficientAmount = balanceNum.isGreaterThanOrEqualTo(amountNum.plus(feeNum));
+  } catch (error) {
+    console.log(error.message);
+  }
+
   const reset = () => {
     setValidated(false);
     updateLoading(false);
@@ -168,7 +178,7 @@ export default function TransferModal(props: ITransferModal) {
                   value={amount}
                   onChange={checkAmount}
                   required
-                  className={amountError !== '' ? 'is-invalid' : ''}
+                  className={amountError !== '' || !sufficientAmount ? 'is-invalid' : ''}
                 ></Form.Control>
                 <InputGroup.Append>
                   <InputGroup.Text>ꜩ</InputGroup.Text>
@@ -193,7 +203,7 @@ export default function TransferModal(props: ITransferModal) {
         {loading ? (
           <Loading />
         ) : (
-          <Button variant="primary" form="transfer-form" type="submit" disabled={calculatingFee}>
+          <Button variant="primary" form="transfer-form" type="submit" disabled={calculatingFee || !sufficientAmount}>
             Send
           </Button>
         )}
