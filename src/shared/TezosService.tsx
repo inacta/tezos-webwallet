@@ -506,13 +506,15 @@ export async function registerTandemClaim(
     helpers,
     activities,
     minutes,
-    helpees: [
-      {
-        address: signerAddress,
-        pk: signerPublicKey,
-        signature: signature.sig
-      }
-    ]
+    helpees: {
+      signed_helpee: [
+        {
+          address: signerAddress,
+          pk: signerPublicKey,
+          signature: signature.sig
+        }
+      ]
+    }
   };
   let tx: ContractMethod<ContractProvider>;
   try {
