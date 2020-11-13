@@ -76,7 +76,12 @@ export default function FA1_2Component(props: IFA1_2Component) {
   // *and* iff the secret key solution (Ledger, in-memory etc.) supports this functionality.
   const tandemButton: JSX.Element | undefined =
     props.token.isKiss && !isWallet() ? (
-      <Button onClick={() => updateTandemModal(true)}>Register tandem</Button>
+      <>
+        <br />
+        <Button onClick={() => updateTandemModal(true)}>Register tandem</Button>
+        <br />
+        <br />
+      </>
     ) : (
       undefined
     );
@@ -113,15 +118,6 @@ export default function FA1_2Component(props: IFA1_2Component) {
                         tokenBalanceCallback={getTokenInfo}
                         contractAddress={props.contractAddress}
                       ></FA1_2TransferModal>
-                      {tandemButton}
-                      <KissModal
-                        balance={tokenBalance !== '' ? Number(tokenBalance) : 0}
-                        tokenBalanceCallback={getTokenInfo}
-                        contractAddress={props.contractAddress}
-                        hideModal={() => updateTandemModal(false)}
-                        show={showTandemModal}
-                        symbol={props.token.symbol}
-                      ></KissModal>
                     </>
                   ) : (
                     <></>
@@ -148,6 +144,19 @@ export default function FA1_2Component(props: IFA1_2Component) {
           <Row>
             <Col>
               <h4>Details</h4>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              {tandemButton}
+              <KissModal
+                balance={tokenBalance !== '' ? Number(tokenBalance) : 0}
+                tokenBalanceCallback={getTokenInfo}
+                contractAddress={props.contractAddress}
+                hideModal={() => updateTandemModal(false)}
+                show={showTandemModal}
+                symbol={props.token.symbol}
+              ></KissModal>
             </Col>
           </Row>
           <Row>
