@@ -2,6 +2,7 @@ import { ContractAbstraction, ContractProvider, TransactionWalletOperation } fro
 import { IContractInformation, ITokenMetadata, OtherContractStandard, TokenStandard } from './TezosTypes';
 import { Prefix, ValidationResult, b58cencode, prefix, validateAddress } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
+import { IKissDetails } from './KissTypes';
 import { InMemorySigner } from '@taquito/signer';
 import { StringDictionary } from './AbstractTypes';
 import { TransactionOperation } from '@taquito/taquito/dist/types/operations/transaction-operation';
@@ -52,6 +53,19 @@ export function isContractAddress(address: string) {
 
   // A valid contract address starts with 'KT1'
   return address.substring(0, 3) === CONTRACT_ADDRESS_PREFIX && validateAddress(address) === ValidationResult.VALID;
+}
+
+// If contract is a KISS contract, extract the details of the KISS contract from its storage
+export async function getKissDetails(contract: ContractAbstraction<ContractProvider>): Promise<IKissDetails> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const storage: any = await contract.storage();
+  const admin: string = storage.admin;
+  const activityLogAddress = storage.external_contract_address;
+
+  return {
+    activityLogAddress,
+    admin
+  };
 }
 
 export function getContractInterface(

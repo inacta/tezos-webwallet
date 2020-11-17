@@ -8,6 +8,7 @@ import { AiOutlineReload } from 'react-icons/ai';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import FA1_2TransferModal from './FA1_2TransferModal/FA1_2TransferModal';
+import { IKissDetails } from '../../../shared/KissTypes';
 import IconButton from '../../shared/IconButton/IconButton';
 import { KissModal } from '../KissModal';
 import Loading from '../../shared/Loading/Loading';
@@ -18,7 +19,7 @@ import { addNotification } from '../../../shared/NotificationService';
 interface IFA1_2Component {
   address: string;
   contractAddress: string;
-  token: { isKiss: boolean; symbol: string; whitelistVersion?: WhitelistVersion };
+  token: { kissDetails?: IKissDetails; symbol: string; whitelistVersion?: WhitelistVersion };
   showTransfer: boolean;
 }
 
@@ -74,8 +75,8 @@ export default function FA1_2Component(props: IFA1_2Component) {
 
   // Only show tandem registration button if this token supports tandems (it is a KISS token)
   // *and* iff the secret key solution (Ledger, in-memory etc.) supports this functionality.
-  const tandemButton: JSX.Element | undefined =
-    props.token.isKiss && !isWallet() ? (
+  const tandemButtonUser: JSX.Element | undefined =
+    props.token.kissDetails && !isWallet() ? (
       <>
         <br />
         <Button onClick={() => updateTandemModal(true)}>Register tandem</Button>

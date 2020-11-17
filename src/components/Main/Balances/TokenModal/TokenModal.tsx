@@ -8,16 +8,17 @@ import {
 } from '../../../../shared/TezosTypes';
 import React, { useState } from 'react';
 import { getContract, getTokenData } from '../../../../shared/TezosService';
+import { getContractInterface, getKissDetails } from '../../../../shared/TezosUtil';
 import Accordion from 'react-bootstrap/Accordion';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
+import { IKissDetails } from '../../../../shared/KissTypes';
 import Loading from '../../../shared/Loading/Loading';
 import Modal from 'react-bootstrap/Modal';
 import { addNotification } from '../../../../shared/NotificationService';
 import { convertMap } from '../../../../shared/Util';
-import { getContractInterface } from '../../../../shared/TezosUtil';
 
 export interface TokenData {
   address: string;
@@ -43,7 +44,7 @@ export default function TokenModal(props: ITokenModalProps) {
   const emptyTokenData: TokenData = {
     address: '',
     token: {
-      isKiss: false,
+      kissDetails: undefined,
       name: '',
       symbol: '',
       type: TokenStandard.Unknown,
@@ -83,12 +84,17 @@ export default function TokenModal(props: ITokenModalProps) {
     }
 
     const isKiss: boolean = contractInterface[1].includes(OtherContractStandard.KISS);
+    let kissDetails: IKissDetails | undefined = undefined;
+    if (isKiss) {
+      kissDetails = await getKissDetails(contract);
+    }
+
     if (type === TokenStandard.FA2) {
       const fetchedTokenData = await getTokenData(contract, TokenStandard.FA2);
       updateTokenData({
         address: props.tokenModal.address,
         token: {
-          isKiss,
+          kissDetails,
           type: TokenStandard.FA2,
           name: fetchedTokenData.name,
           symbol: fetchedTokenData.symbol,
@@ -101,7 +107,7 @@ export default function TokenModal(props: ITokenModalProps) {
       updateTokenData({
         address: props.tokenModal.address,
         token: {
-          isKiss,
+          kissDetails,
           type: TokenStandard.FA1_2,
           name: '',
           symbol: '',
