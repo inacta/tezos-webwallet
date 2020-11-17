@@ -19,6 +19,7 @@ import { getTxHash, isContractAddress, isWallet } from './TezosUtil';
 import { packFourTupleAsLeftBalancedPairs, toHexString } from './TezosPack';
 import BigNumber from 'bignumber.js';
 import { ContractMethod } from '@taquito/taquito/dist/types/contract';
+import { IKissTandemAdminClaim } from './KissTypes';
 import { InMemorySigner } from '@taquito/signer';
 import { LedgerSigner } from '@taquito/ledger-signer';
 import { TezBridgeSigner } from '@taquito/tezbridge-signer';
@@ -456,7 +457,40 @@ export async function arbitraryFunctionCall(
   await handleTx(func, afterDeploymentCallback, afterConfirmationCallback);
 }
 
-export async function registerTandemClaim(
+export async function registerTandemAdminClaim(
+  adminClaims: IKissTandemAdminClaim[],
+  contractAddress: string,
+  afterDeploymentCallback?: Function,
+  afterConfirmationCallback?: Function
+) {
+  const state = store.getState();
+  const tezos: TezosToolkit = state.net2client[state.network];
+  const contract = await tezos.contract.at(contractAddress);
+  const adminTandemClaims = adminClaims.map(function(x) {
+    return {
+      helpers: x.helpers,
+      activities: x.activities,
+      minutes: x.minutes,
+      helpees: {
+        admin_helpee: x.helpees
+      }
+    };
+  });
+
+  let tx: ContractMethod<ContractProvider>;
+  try {
+    tx = await contract.methods.register_tandem_claims(adminTandemClaims);
+  } catch (error) {
+    console.log(error.message);
+  }
+
+  const func = () => tx.send();
+
+  // Publish transaction to blockchain
+  await handleTx(func, afterDeploymentCallback, afterConfirmationCallback);
+}
+
+export async function registerTandemUserClaim(
   contractAddress: string,
   helpers: string[],
   minutes: number,

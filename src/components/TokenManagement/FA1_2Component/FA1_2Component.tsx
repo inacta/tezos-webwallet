@@ -10,7 +10,8 @@ import Col from 'react-bootstrap/Col';
 import FA1_2TransferModal from './FA1_2TransferModal/FA1_2TransferModal';
 import { IKissDetails } from '../../../shared/KissTypes';
 import IconButton from '../../shared/IconButton/IconButton';
-import { KissModal } from '../KissModal';
+import { KissModalAdmin } from '../KissModalAdmin';
+import { KissModalUser } from '../KissModalUser';
 import Loading from '../../shared/Loading/Loading';
 import MaterialTable from 'material-table';
 import Row from 'react-bootstrap/Row';
@@ -29,7 +30,8 @@ export default function FA1_2Component(props: IFA1_2Component) {
   const [totalSupply, updateTotalSupply] = useState('');
   const [whitelistVersion, updateWhitelistVersion] = useState(WhitelistVersion.NO_WHITELIST);
   const [showTransferModal, updateTransferModal] = useState(false);
-  const [showTandemModal, updateTandemModal] = useState(false);
+  const [showTandemUserModal, updateTandemUserModal] = useState(false);
+  const [showTandemAdminModal, updateTandemAdminModal] = useState(false);
   const [whitelistAdmin, updateWhitelistAdmin] = useState(false);
   const [NRWwhitelistAdmin, updateNRWWhitelistAdmin] = useState(false);
   const [whitelisterList, updateWhitelisterList] = useState([] as string[]);
@@ -79,7 +81,21 @@ export default function FA1_2Component(props: IFA1_2Component) {
     props.token.kissDetails && !isWallet() ? (
       <>
         <br />
-        <Button onClick={() => updateTandemModal(true)}>Register tandem</Button>
+        <Button onClick={() => updateTandemUserModal(true)}>Register tandem</Button>
+        <br />
+        <br />
+      </>
+    ) : (
+      undefined
+    );
+
+  // Show the button to register tandems as an admin if user is administrator of KISS contract
+  // No signatures are needed for this function call into the smart contract, so it can be done
+  // with any secret key/wallet solution.
+  const tandemButtonAdmin: JSX.Element | undefined =
+    props.token.kissDetails && props.token.kissDetails.admin === props.address ? (
+      <>
+        <Button onClick={() => updateTandemAdminModal(true)}>Register tandem as admin</Button>
         <br />
         <br />
       </>
@@ -149,15 +165,25 @@ export default function FA1_2Component(props: IFA1_2Component) {
           </Row>
           <Row>
             <Col>
-              {tandemButton}
-              <KissModal
+              {tandemButtonUser}
+              {tandemButtonAdmin}
+              <KissModalUser
                 balance={tokenBalance !== '' ? Number(tokenBalance) : 0}
                 tokenBalanceCallback={getTokenInfo}
                 contractAddress={props.contractAddress}
-                hideModal={() => updateTandemModal(false)}
-                show={showTandemModal}
+                hideModal={() => updateTandemUserModal(false)}
+                show={showTandemUserModal}
                 symbol={props.token.symbol}
-              ></KissModal>
+              ></KissModalUser>
+
+              <KissModalAdmin
+                balance={tokenBalance !== '' ? Number(tokenBalance) : 0}
+                tokenBalanceCallback={getTokenInfo}
+                contractAddress={props.contractAddress}
+                hideModal={() => updateTandemAdminModal(false)}
+                show={showTandemAdminModal}
+                symbol={props.token.symbol}
+              ></KissModalAdmin>
             </Col>
           </Row>
           <Row>

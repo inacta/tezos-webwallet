@@ -7,7 +7,7 @@ import Modal from 'react-bootstrap/Modal';
 import React from 'react';
 import { addNotification } from '../../shared/NotificationService';
 import { checkAddress } from '../../shared/TezosUtil';
-import { registerTandemClaim } from '../../shared/TezosService';
+import { registerTandemUserClaim } from '../../shared/TezosService';
 
 // We simply just want to be able to call the endpoint
 // "register_tandem_claims". For this, we already have
@@ -15,7 +15,7 @@ import { registerTandemClaim } from '../../shared/TezosService';
 // just need to be able to create a tandem object and
 // send this to the relevant smart contract and show
 // some nice graphic about the handling of the transaction
-interface IKissModalProps {
+interface IKissModalUserProps {
   balance: number;
   tokenBalanceCallback: () => void;
   contractAddress: string;
@@ -24,7 +24,7 @@ interface IKissModalProps {
   symbol: string;
 }
 
-interface IKissModalState {
+interface IKissModalUserState {
   activities: number[];
   calculatingFee: boolean;
   fee: number; // tez to be paid in fees to publish this tx
@@ -33,8 +33,8 @@ interface IKissModalState {
   minutes: number;
 }
 
-export class KissModal extends React.Component<IKissModalProps, IKissModalState> {
-  private constructor(props: IKissModalProps) {
+export class KissModalUser extends React.Component<IKissModalUserProps, IKissModalUserState> {
+  private constructor(props: IKissModalUserProps) {
     super(props);
     this.state = {
       activities: [0],
@@ -47,7 +47,7 @@ export class KissModal extends React.Component<IKissModalProps, IKissModalState>
   }
 
   private async handleSubmitHelper() {
-    registerTandemClaim(
+    registerTandemUserClaim(
       this.props.contractAddress,
       this.state.helpers,
       this.state.minutes,
