@@ -8,8 +8,10 @@ import { AiOutlineReload } from 'react-icons/ai';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import FA1_2TransferModal from './FA1_2TransferModal/FA1_2TransferModal';
+import { IKissDetails } from '../../../shared/KissTypes';
 import IconButton from '../../shared/IconButton/IconButton';
-import { KissModal } from '../KissModal';
+import { KissModalAdmin } from '../KissModalAdmin';
+import { KissModalUser } from '../KissModalUser';
 import Loading from '../../shared/Loading/Loading';
 import MaterialTable from 'material-table';
 import Row from 'react-bootstrap/Row';
@@ -18,7 +20,7 @@ import { addNotification } from '../../../shared/NotificationService';
 interface IFA1_2Component {
   address: string;
   contractAddress: string;
-  token: { isKiss: boolean; symbol: string; whitelistVersion?: WhitelistVersion };
+  token: { kissDetails?: IKissDetails; symbol: string; whitelistVersion?: WhitelistVersion };
   showTransfer: boolean;
 }
 
@@ -28,7 +30,8 @@ export default function FA1_2Component(props: IFA1_2Component) {
   const [totalSupply, updateTotalSupply] = useState('');
   const [whitelistVersion, updateWhitelistVersion] = useState(WhitelistVersion.NO_WHITELIST);
   const [showTransferModal, updateTransferModal] = useState(false);
-  const [showTandemModal, updateTandemModal] = useState(false);
+  const [showTandemUserModal, updateTandemUserModal] = useState(false);
+  const [showTandemAdminModal, updateTandemAdminModal] = useState(false);
   const [whitelistAdmin, updateWhitelistAdmin] = useState(false);
   const [NRWwhitelistAdmin, updateNRWWhitelistAdmin] = useState(false);
   const [whitelisterList, updateWhitelisterList] = useState([] as string[]);
@@ -74,9 +77,28 @@ export default function FA1_2Component(props: IFA1_2Component) {
 
   // Only show tandem registration button if this token supports tandems (it is a KISS token)
   // *and* iff the secret key solution (Ledger, in-memory etc.) supports this functionality.
-  const tandemButton: JSX.Element | undefined =
-    props.token.isKiss && !isWallet() ? (
-      <Button onClick={() => updateTandemModal(true)}>Register tandem</Button>
+  const tandemButtonUser: JSX.Element | undefined =
+    props.token.kissDetails && !isWallet() ? (
+      <>
+        <br />
+        <Button onClick={() => updateTandemUserModal(true)}>Register tandem</Button>
+        <br />
+        <br />
+      </>
+    ) : (
+      undefined
+    );
+
+  // Show the button to register tandems as an admin if user is administrator of KISS contract
+  // No signatures are needed for this function call into the smart contract, so it can be done
+  // with any secret key/wallet solution.
+  const tandemButtonAdmin: JSX.Element | undefined =
+    props.token.kissDetails && props.token.kissDetails.admin === props.address ? (
+      <>
+        <Button onClick={() => updateTandemAdminModal(true)}>Register tandem as admin</Button>
+        <br />
+        <br />
+      </>
     ) : (
       undefined
     );
@@ -113,15 +135,6 @@ export default function FA1_2Component(props: IFA1_2Component) {
                         tokenBalanceCallback={getTokenInfo}
                         contractAddress={props.contractAddress}
                       ></FA1_2TransferModal>
-                      {tandemButton}
-                      <KissModal
-                        balance={tokenBalance !== '' ? Number(tokenBalance) : 0}
-                        tokenBalanceCallback={getTokenInfo}
-                        contractAddress={props.contractAddress}
-                        hideModal={() => updateTandemModal(false)}
-                        show={showTandemModal}
-                        symbol={props.token.symbol}
-                      ></KissModal>
                     </>
                   ) : (
                     <></>
@@ -148,6 +161,29 @@ export default function FA1_2Component(props: IFA1_2Component) {
           <Row>
             <Col>
               <h4>Details</h4>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              {tandemButtonUser}
+              {tandemButtonAdmin}
+              <KissModalUser
+                balance={tokenBalance !== '' ? Number(tokenBalance) : 0}
+                tokenBalanceCallback={getTokenInfo}
+                contractAddress={props.contractAddress}
+                hideModal={() => updateTandemUserModal(false)}
+                show={showTandemUserModal}
+                symbol={props.token.symbol}
+              ></KissModalUser>
+
+              <KissModalAdmin
+                balance={tokenBalance !== '' ? Number(tokenBalance) : 0}
+                tokenBalanceCallback={getTokenInfo}
+                contractAddress={props.contractAddress}
+                hideModal={() => updateTandemAdminModal(false)}
+                show={showTandemAdminModal}
+                symbol={props.token.symbol}
+              ></KissModalAdmin>
             </Col>
           </Row>
           <Row>

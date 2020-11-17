@@ -1,6 +1,7 @@
 import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
 import { BeaconWallet } from '@taquito/beacon-wallet';
 import BigNumber from 'bignumber.js';
+import { IKissDetails } from './KissTypes';
 import { InMemorySigner } from '@taquito/signer';
 import { LedgerSigner } from '@taquito/ledger-signer';
 import { StringDictionary } from './AbstractTypes';
@@ -24,7 +25,7 @@ export interface IPaymentStatus {
 }
 
 export interface ITokenDetails {
-  isKiss: boolean;
+  kissDetails?: IKissDetails; // undefined if this is not a KISS contract
   type: TokenStandard;
   name: string;
   symbol: string;
