@@ -177,10 +177,11 @@ export class KissModalAdmin extends React.Component<IKissModalAdminProps, IKissM
     return !isNaN(parseInt(activitiesValue));
   }
 
-  private validateMinutesInput(minuteValue: string): boolean {
+  private getNumberValue(minuteValue: string): number | undefined {
     const minute = minuteValue.replace(/\s/g, '');
+    const minuteNumber = parseInt(minute);
 
-    return !isNaN(parseInt(minute));
+    return isNaN(minuteNumber) ? undefined : minuteNumber;
   }
 
   public render() {
@@ -193,7 +194,15 @@ export class KissModalAdmin extends React.Component<IKissModalAdminProps, IKissM
     const validActivitiesInput: boolean[][] = this.state.claims.map((x) =>
       x.activities.map((y) => this.validActivitiesInput(y))
     );
-    const validMinutesInput: boolean[] = this.state.claims.map((x) => this.validateMinutesInput(x.minutes));
+    const minuteValueAsNumbers: (number | undefined)[] = this.state.claims.map((x) => this.getNumberValue(x.minutes));
+    const validMinutesInput: boolean[] = minuteValueAsNumbers.map((x) => x !== undefined && x > 0);
+    const participantsDivideMinutes: (boolean | undefined)[] = minuteValueAsNumbers.map((x, i) =>
+      x === undefined
+        ? undefined
+        : x % this.state.claims[i].helpees.length === 0 &&
+          x % this.state.claims[i].helpers.length === 0 &&
+          x % this.state.claims[i].activities.length === 0
+    );
 
     // Duplicates in the inputes are disallowed since sets are used in the smart contract and they
     // do not allow repeated values
@@ -207,7 +216,8 @@ export class KissModalAdmin extends React.Component<IKissModalAdminProps, IKissM
       validMinutesInput.every((x) => x) &&
       hasHelpeeDuplicates.every((x) => !x) &&
       hasHelperDuplicates.every((x) => !x) &&
-      hasActivityDuplicates.every((x) => !x);
+      hasActivityDuplicates.every((x) => !x) &&
+      participantsDivideMinutes.every((x) => x);
     const inputs: JSX.Element = (
       <>
         {this.state.claims.map((field, i) => (
@@ -317,13 +327,21 @@ export class KissModalAdmin extends React.Component<IKissModalAdminProps, IKissM
                 Minutes
                 <Form.Control
                   type="text"
-                  className={`font-weight-bold ${!validMinutesInput[i] && 'is-invalid'}`}
+                  className={`font-weight-bold ${(!validMinutesInput[i] || !participantsDivideMinutes[i]) &&
+                    'is-invalid'}`}
                   placeholder="Minutes"
                   value={field.minutes}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.updateMinutes(e, i)}
                   required
                 ></Form.Control>
               </Form.Group>
+              {/* participantsDivideMinutes can have type undefined which has a truthiness
+               of false, so we must compare with `false` */}
+              {participantsDivideMinutes[i] === false && (
+                <small className="text-danger">
+                  Minutes value must be divisible with number of helpers, helpees, and activities
+                </small>
+              )}
               <Col xs="1"></Col>
             </Form.Row>
             <hr />
