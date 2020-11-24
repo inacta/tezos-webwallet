@@ -34,7 +34,7 @@ export class App extends React.Component<{}, {}> {
           </Container>
           {/* Footer */}
           <Navbar bg="light" sticky="bottom" style={{ minHeight: '40px' }}>
-            &copy; {new Date().getFullYear()} Inacta AG; by Daniel Gretzke and Thorkil Værge
+            @@@_VERSION_@@@ powered by DSENT AG - an Inacta AG Company
           </Navbar>
         </BrowserRouter>
       </div>

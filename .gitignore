@@ -118,3 +118,5 @@ workingDir
 .yarn/install-state.gz
 .pnp.*
 walletFiles/
+
+.idea/
