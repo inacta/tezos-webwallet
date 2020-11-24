@@ -9,6 +9,7 @@ import React from 'react';
 import ReactNotification from 'react-notifications-component';
 import Settings from './components/Settings/Settings';
 import TokenManagement from './components/TokenManagement/TokenManagement';
+import { AiFillGithub } from 'react-icons/ai';
 
 export class App extends React.Component<{}, {}> {
   public render() {
@@ -33,8 +34,20 @@ export class App extends React.Component<{}, {}> {
             </Switch>
           </Container>
           {/* Footer */}
-          <Navbar bg="light" sticky="bottom" style={{ minHeight: '40px' }}>
-            @@@_VERSION_@@@ powered by DSENT AG - an Inacta AG Company
+          <Navbar
+            bg="light"
+            sticky="bottom"
+            className="d-flex justify-content-between align-items-center"
+            style={{ minHeight: '40px' }}
+          >
+            <div>
+              <span>@@@_VERSION_@@@ powered by DSENT AG - an Inacta AG Company</span>
+            </div>
+            <div>
+              <a href="https://github.com/inacta/tezos-webwallet">
+                <AiFillGithub className="text-dark"/>
+              </a>
+            </div>
           </Navbar>
         </BrowserRouter>
       </div>
