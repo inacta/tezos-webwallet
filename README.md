@@ -3,6 +3,8 @@
 
 A web wallet for users and developers on the Tezos blockchain
 
+This web wallet is hosted on https://myxtzwallet.tokengate.io/
+
 This web wallet supports secret key handling in various formats,
 and a wide range of functionality such as tez balance checking,
 token balance checking, token deployment, tez and token
