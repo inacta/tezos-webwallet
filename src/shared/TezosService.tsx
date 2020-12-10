@@ -356,7 +356,8 @@ export async function deployToken(
         addTokenReduxCallback(state.network, contract.address, {
           type: TokenStandard.FA1_2,
           name: tokenName,
-          symbol: tokenSymbol
+          symbol: tokenSymbol,
+          whitelistVersion: whitelist ? WhitelistVersion.V0 : undefined
         });
         addNotification('success', 'The token was added successfully');
       } else if (tokenStandard === TokenStandard.FA2) {
