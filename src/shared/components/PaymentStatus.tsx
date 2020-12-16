@@ -29,7 +29,7 @@ export class PaymentStatus extends React.Component<IPaymentStatus, {}> {
       const blockExplorerLink =
         this.props.net === Net.Mainnet
           ? `https://tzstats.com/${this.props.hash}`
-          : `https://carthage.tzkt.io/${this.props.hash}`;
+          : `https://delphinet.tzkt.io/${this.props.hash}`;
       blockExplorerElem = (
         <a href={blockExplorerLink} target="_blank" rel="noopener noreferrer">
           {' '}

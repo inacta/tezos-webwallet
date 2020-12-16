@@ -2106,10 +2106,10 @@
     "@babel/runtime" "^7.10.3"
     "@testing-library/dom" "^7.17.1"
 
-"@thanos-wallet/dapp@^0.6.0":
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/@thanos-wallet/dapp/-/dapp-0.6.0.tgz#88aafaccd788730420723fee9611078d0b592dbf"
-  integrity sha512-M9Y5lA+NH2UPbedddQZ4UOY5ltpm8oVjbO8fD09EDx/+csKtyNrWGeTJtlzOk8NHToA0htiTidI8KMzptcdvGg==
+"@thanos-wallet/dapp@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@thanos-wallet/dapp/-/dapp-1.1.2.tgz#ec6cedb3fe36d570648350af6855baa439547dcc"
+  integrity sha512-+ugxJZvV7ASdG1jy+7eHzHunG8p2ofHon/uMaKfC2QkPsIo/shrDVuA4nEeXRICiRCx+hjbJ7KzHiH0yqz3OJQ==
   dependencies:
     nanoid "^3.1.10"
 
@@ -11276,7 +11276,6 @@ react-scripts@^3.4.1:
     eslint-plugin-react-hooks "^1.6.1"
     file-loader "4.3.0"
     fs-extra "^8.1.0"
-    fsevents "2.1.2"
     html-webpack-plugin "4.0.0-beta.11"
     identity-obj-proxy "3.0.0"
     jest "24.9.0"

@@ -4,12 +4,12 @@ import { StringDictionary } from '../../shared/AbstractTypes';
 
 export interface ITokenState {
   [Net.Mainnet]: StringDictionary<ITokenDetails>;
-  [Net.Carthage]: StringDictionary<ITokenDetails>;
+  [Net.Testnet]: StringDictionary<ITokenDetails>;
 }
 
 const initialState: ITokenState = {
   [Net.Mainnet]: {},
-  [Net.Carthage]: {
+  [Net.Testnet]: {
     // KT1JE97wUP7pmWRy7vKYHbuVoMnF9tcX4cY7: {
     //   type: TokenStandard.FA2,
     //   name: 'CVL',
@@ -41,11 +41,11 @@ export default function(state = initialState, action: IAction): ITokenState {
   }
 
   /* FIX FOR CODE REFACTORING */
-  if (state[Net.Carthage] === undefined) {
+  if (state[Net.Testnet] === undefined) {
     // @ts-ignore
-    state[Net.Carthage] = state['Testnet'];
+    state[Net.Testnet] = state['Carthage'];
     // @ts-ignore
-    delete state['Testnet'];
+    delete state['Carthage'];
   }
 
   return state;

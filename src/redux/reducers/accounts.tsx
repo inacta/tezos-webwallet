@@ -14,7 +14,7 @@ const initalState: IAccountState = {
     address: undefined,
     wallet: undefined
   },
-  [Net.Carthage]: {
+  [Net.Testnet]: {
     signer: undefined,
     address: undefined,
     wallet: undefined
@@ -31,12 +31,12 @@ export default function(state = initalState, action: any) {
           address: undefined,
           wallet: undefined
         },
-        [Net.Carthage]: state[Net.Carthage]
+        [Net.Testnet]: state[Net.Testnet]
       };
     } else {
       state = {
         [Net.Mainnet]: state[Net.Mainnet],
-        [Net.Carthage]: {
+        [Net.Testnet]: {
           signer: undefined,
           address: undefined,
           wallet: undefined
@@ -61,12 +61,12 @@ export default function(state = initalState, action: any) {
           address: action.address,
           wallet: undefined
         },
-        [Net.Carthage]: state[Net.Carthage]
+        [Net.Testnet]: state[Net.Testnet]
       };
     } else {
       state = {
         [Net.Mainnet]: state[Net.Mainnet],
-        [Net.Carthage]: {
+        [Net.Testnet]: {
           signer: undefined,
           address: action.address,
           wallet: undefined
@@ -82,12 +82,12 @@ export default function(state = initalState, action: any) {
           address: action.address,
           wallet: action.wallet
         },
-        [Net.Carthage]: state[Net.Carthage]
+        [Net.Testnet]: state[Net.Testnet]
       };
     } else {
       state = {
         [Net.Mainnet]: state[Net.Mainnet],
-        [Net.Carthage]: {
+        [Net.Testnet]: {
           signer: action.signer,
           address: action.address,
           wallet: action.wallet

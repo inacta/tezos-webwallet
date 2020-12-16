@@ -45,7 +45,7 @@ interface IMainProps {
 class Main extends Component<IMainProps, {}> {
   private switchNetwork = () => {
     if (this.props.network === Net.Mainnet) {
-      this.props.setNetwork(Net.Carthage);
+      this.props.setNetwork(Net.Testnet);
     } else {
       this.props.setNetwork(Net.Mainnet);
     }
@@ -55,8 +55,8 @@ class Main extends Component<IMainProps, {}> {
     switch (network) {
       case Net.Mainnet:
         return 'Tezos Mainnet';
-      case Net.Carthage:
-        return 'Carthage Testnet';
+      case Net.Testnet:
+        return 'Testnet';
     }
   };
 
@@ -76,7 +76,7 @@ class Main extends Component<IMainProps, {}> {
           <Col className="mb-3">
             <div className="float-right">
               <div className="Main-buttongroup d-flex mt-3 justify-content-end align-items-center">
-                <span className="mr-1">{this.getNetworkName(Net.Carthage)}</span>
+                <span className="mr-1">{this.getNetworkName(Net.Testnet)}</span>
                 <Switch
                   className="mr-1"
                   onChange={this.switchNetwork}
