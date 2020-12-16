@@ -92,7 +92,7 @@ export function getContractInterface(
     tokenStandard = TokenStandard.FA2;
   } else if (
     // These function names are specified in FA1.2/TZIP-7
-    ['transfer', 'approve', 'get_allowance', 'get_balance', 'get_total_supply'].every((mn) => methodNames.includes(mn))
+    ['transfer', 'approve', 'getAllowance', 'getBalance', 'getTotalSupply'].every((mn) => methodNames.includes(mn))
   ) {
     tokenStandard = TokenStandard.FA1_2;
   } else {
