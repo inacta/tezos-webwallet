@@ -3,12 +3,12 @@ import { Net } from '../../shared/TezosTypes';
 
 export interface IPersistRPC {
   [Net.Mainnet]: string;
-  [Net.Carthage]: string;
+  [Net.Testnet]: string;
 }
 
 const initialState = {
-  [Net.Mainnet]: 'https://mainnet-tezos.giganode.io',
-  [Net.Carthage]: 'https://tezos-carthagenet.inacta.services/'
+  [Net.Mainnet]: 'https://mainnet-tezos.giganode.io/',
+  [Net.Testnet]: 'https://testnet-tezos.giganode.io/'
 };
 
 export default function(state = initialState, action: IAction) {
@@ -16,7 +16,7 @@ export default function(state = initialState, action: IAction) {
     if (action.network === Net.Mainnet) {
       state = {
         [Net.Mainnet]: action.rpc,
-        [Net.Carthage]: state[Net.Carthage]
+        [Net.Testnet]: state[Net.Testnet]
       };
       action.asyncDispatch({
         type: 'SET_RPC_PROVIDER',
@@ -26,26 +26,26 @@ export default function(state = initialState, action: IAction) {
     } else {
       state = {
         [Net.Mainnet]: state[Net.Mainnet],
-        [Net.Carthage]: action.rpc
+        [Net.Testnet]: action.rpc
       };
       action.asyncDispatch({
         type: 'SET_RPC_PROVIDER',
-        network: Net.Carthage,
-        rpc: state[Net.Carthage]
+        network: Net.Testnet,
+        rpc: state[Net.Testnet]
       });
     }
   }
 
   // /* FIX FOR CODE REFACTORING */
-  if (state[Net.Carthage] === undefined) {
+  if (state[Net.Testnet] === undefined) {
     state = {
       [Net.Mainnet]: state[Net.Mainnet],
-      [Net.Carthage]: 'https://tezos-carthagenet.inacta.services/'
+      [Net.Testnet]: 'https://testnet-tezos.giganode.io/'
     };
     action.asyncDispatch({
       type: 'SET_RPC_PROVIDER',
-      network: Net.Carthage,
-      rpc: action.payload === undefined ? state[Net.Carthage] : action.payload.persistRPC[Net.Carthage]
+      network: Net.Testnet,
+      rpc: action.payload === undefined ? state[Net.Testnet] : action.payload.persistRPC[Net.Testnet]
     });
     action.asyncDispatch({
       type: 'SET_RPC_PROVIDER',
@@ -58,8 +58,8 @@ export default function(state = initialState, action: IAction) {
   if (action.asyncDispatch !== undefined && action.type === 'persist/REHYDRATE') {
     action.asyncDispatch({
       type: 'SET_RPC_PROVIDER',
-      network: Net.Carthage,
-      rpc: action.payload === undefined ? state[Net.Carthage] : action.payload.persistRPC[Net.Carthage]
+      network: Net.Testnet,
+      rpc: action.payload === undefined ? state[Net.Testnet] : action.payload.persistRPC[Net.Testnet]
     });
     action.asyncDispatch({
       type: 'SET_RPC_PROVIDER',

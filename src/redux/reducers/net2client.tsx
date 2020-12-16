@@ -5,7 +5,7 @@ import { TezosToolkit } from '@taquito/taquito';
 
 const initialState: EnumDictionary<Net, TezosToolkit> = {
   [Net.Mainnet]: new TezosToolkit(),
-  [Net.Carthage]: new TezosToolkit()
+  [Net.Testnet]: new TezosToolkit()
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

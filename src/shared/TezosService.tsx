@@ -411,7 +411,7 @@ export async function handleContractDeployment(
       .then(() => {
         addNotification('success', 'Transaction completed successfully');
         const url =
-          'https://better-call.dev/' + (state.network === Net.Mainnet ? 'mainnet/' : 'carthagenet/') + contract.address;
+          'https://better-call.dev/' + (state.network === Net.Mainnet ? 'mainnet/' : 'delphinet/') + contract.address;
         window.open(url);
       })
       .catch((e: Error) => {

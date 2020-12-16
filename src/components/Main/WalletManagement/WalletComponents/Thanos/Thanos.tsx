@@ -33,8 +33,8 @@ export default function Thanos(props: IThanos) {
     try {
       if (props.network === Net.Mainnet) {
         await wallet.connect('mainnet');
-      } else if (props.network === Net.Carthage) {
-        await wallet.connect('carthagenet');
+      } else if (props.network === Net.Testnet) {
+        await wallet.connect('delphinet');
       } else {
         addNotification('danger', 'The network is currently not supported');
         return;

@@ -33,8 +33,8 @@ export default function AirGap(props: IAirGap) {
     let net = {};
     if (props.network === Net.Mainnet) {
       net = { network: { type: 'mainnet' } };
-    } else if (props.network === Net.Carthage) {
-      net = { network: { type: 'carthagenet' } };
+    } else if (props.network === Net.Testnet) {
+      net = { network: { type: 'delphinet' } };
     } else {
       addNotification('danger', 'The network is currently not supported');
       return;
