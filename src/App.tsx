@@ -1,5 +1,6 @@
 import './App.scss';
 import { Redirect, Route, Switch } from 'react-router-dom';
+import { AiFillGithub } from 'react-icons/ai';
 import { BrowserRouter } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Header from './components/Header/Header';
@@ -9,7 +10,6 @@ import React from 'react';
 import ReactNotification from 'react-notifications-component';
 import Settings from './components/Settings/Settings';
 import TokenManagement from './components/TokenManagement/TokenManagement';
-import { AiFillGithub } from 'react-icons/ai';
 
 export class App extends React.Component<{}, {}> {
   public render() {
@@ -45,7 +45,7 @@ export class App extends React.Component<{}, {}> {
             </div>
             <div>
               <a href="https://github.com/inacta/tezos-webwallet">
-                <AiFillGithub className="text-dark"/>
+                <AiFillGithub className="text-dark" />
               </a>
             </div>
           </Navbar>
