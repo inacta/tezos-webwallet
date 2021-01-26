@@ -58,7 +58,12 @@ class TokenManagement extends Component<ITokenManagementProps, {}> {
             showTransfer={this.props.accounts[this.props.network].signer !== undefined}
           />
         ) : (
-          <FA2Component />
+          <FA2Component
+            address={this.props.accounts[this.props.network].address ?? ''}
+            contractAddress={this.contractAddress}
+            token={this.token}
+            showTransfer={this.props.accounts[this.props.network].signer !== undefined}
+          />
         )}
       </div>
     );
