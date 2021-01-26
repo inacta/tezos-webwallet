@@ -41,7 +41,7 @@ export class App extends React.Component<{}, {}> {
             style={{ minHeight: '40px' }}
           >
             <div>
-              <span>@@@_VERSION_@@@ powered by DSENT AG - an Inacta AG Company</span>
+              <span>1.5.0 powered by DSENT AG - an Inacta AG Company</span>
             </div>
             <div>
               <a href="https://github.com/inacta/tezos-webwallet">
