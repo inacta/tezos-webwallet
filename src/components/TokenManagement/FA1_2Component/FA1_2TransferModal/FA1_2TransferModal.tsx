@@ -95,7 +95,7 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
       updateAmountError(_amountError);
       updateCF(true);
 
-      const gasFetchError = 'Failed to get gas estimat';
+      const gasFetchError = 'Failed to get gas estimate';
       try {
         const gasEstimations: Estimate | undefined = await estimateTokenTransferCosts(
           TokenStandard.FA1_2,
