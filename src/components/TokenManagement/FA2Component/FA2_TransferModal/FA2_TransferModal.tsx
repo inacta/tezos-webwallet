@@ -23,6 +23,7 @@ interface IFA2TransferModal {
   show: boolean;
   symbol: string;
   contractAddress: string;
+  tokenInfoCallback: () => void;
   hideModal: () => void;
 }
 
@@ -176,9 +177,7 @@ export default function FA2TransferModal(props: IFA2TransferModal) {
         addressInput.value,
         amount,
         props.hideModal,
-        // TODO: Add something here?? When an address overview has been added,
-        // a callback to update it should be added here.
-        undefined,
+        props.tokenInfoCallback,
         tokenDecimals,
         parsedTokenId
       ).catch((e) => {
