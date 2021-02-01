@@ -1,6 +1,13 @@
+import { IContractInformation, TokenStandard } from '../../../../shared/TezosTypes';
 import React, { useState } from 'react';
 import { checkAddress, isWallet } from '../../../../shared/TezosUtil';
-import { estimateTokenTransferCosts, transferToken } from '../../../../shared/TezosService';
+import {
+  estimateTokenTransferCosts,
+  getTokenBalance,
+  getTokenInformationFromAddress,
+  getTokenSymbol,
+  transferToken
+} from '../../../../shared/TezosService';
 import BigNumber from 'bignumber.js';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
@@ -9,85 +16,50 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Loading from '../../../shared/Loading/Loading';
 import Modal from 'react-bootstrap/Modal';
-import { TokenStandard } from '../../../../shared/TezosTypes';
 import { addNotification } from '../../../../shared/NotificationService';
 
-interface IFA1_2TransferModal {
+interface IFA2TransferModal {
+  ownAddress: string;
   show: boolean;
-  tokenBalance: string;
   symbol: string;
   contractAddress: string;
+  tokenInfoCallback: () => void;
   hideModal: () => void;
-  tokenBalanceCallback: () => void;
 }
 
 let nonce = 0;
 
-export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
+export default function FA2TransferModal(props: IFA2TransferModal) {
   const [validated, setValidated] = useState(false);
   const [address, updateAddress] = useState('');
+  const [tokenId, updateTokenId] = useState('');
   const [amount, updateAmount] = useState('');
   const [addressError, updateAddressError] = useState('');
   const [amountError, updateAmountError] = useState('');
+  const [tokenIdError, updatetokenIdError] = useState('');
   const [fee, updateFee] = useState('');
   const [calculatingFee, updateCF] = useState(false);
   const [loading, updateLoading] = useState(false);
-
-  // nonce for fee estimation
-  const handleSubmit = async (event: React.FormEvent) => {
-    // get form from event
-    const form = event.target as HTMLFormElement;
-    // get the input for the tezos address
-    const addressInput = form.elements.namedItem('recipient') as HTMLInputElement;
-    // set form validation according to result. Empty string means it passed validation
-    addressInput.setCustomValidity(addressError);
-
-    // check if balance is sufficient to transfer
-    const amountInput = form.elements.namedItem('amount') as HTMLInputElement;
-    amountInput.setCustomValidity(amountError);
-
-    // prevent the default behaviour of the form
-    event.preventDefault();
-    // check if the rest of the form is valid
-    if (form.checkValidity() === false) {
-      event.stopPropagation();
-    } else {
-      updateLoading(true);
-      transferToken(
-        TokenStandard.FA1_2,
-        props.contractAddress,
-        addressInput.value,
-        amount,
-        props.hideModal,
-        props.tokenBalanceCallback
-      ).catch((e) => {
-        updateLoading(false);
-        if (e.message === 'rejected') {
-          addNotification('danger', 'The user rejected the transaction');
-        } else if (e.message === 'RECEIVER_NOT_WHITELISTED') {
-          addNotification('danger', 'The recipient is not whitelisted');
-        } else {
-          console.error(JSON.stringify(e));
-          addNotification('danger', 'An error occurred');
-        }
-      });
-
-      updateLoading(true);
-    }
-
-    setValidated(true);
-  };
+  const [tokenBalance, updateTokenBalance] = useState(new BigNumber(0));
+  const [tokenSymbol, updateTokenSymbol] = useState<string | undefined>(undefined);
+  const [tokenDecimals, updateTokenDecimals] = useState<number | undefined>(undefined);
 
   const estimateFee = async (recipient: string, amount: string) => {
     if (isWallet()) {
       return;
     }
-    if (checkAddress(recipient) === '' && amount !== '') {
+    if (
+      checkAddress(recipient) === '' &&
+      amount !== '' &&
+      tokenId !== '' &&
+      tokenDecimals !== undefined &&
+      !!tokenSymbol
+    ) {
       // keep track of fee estimation requests
       nonce += 1;
       const nonceTmp = nonce;
       let _amountError = '';
-      if (new BigNumber(amount).gt(new BigNumber(props.tokenBalance))) {
+      if (new BigNumber(amount).gt(new BigNumber(tokenBalance))) {
         updateAmountError('Insufficient token balance');
         updateCF(false);
         return;
@@ -98,10 +70,12 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
       const gasFetchError = 'Failed to get gas estimate';
       try {
         const gasEstimations: Estimate | undefined = await estimateTokenTransferCosts(
-          TokenStandard.FA1_2,
+          TokenStandard.FA2,
           props.contractAddress,
           recipient,
-          amount
+          amount,
+          tokenDecimals,
+          parseInt(tokenId)
         );
         if (!gasEstimations) {
           throw new Error(gasFetchError);
@@ -136,6 +110,92 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
         }
       }
     }
+  };
+
+  const setTokenBalance = async (tokenId: string): Promise<void> => {
+    if (!tokenId) {
+      return;
+    }
+    getTokenSymbol(TokenStandard.FA2, props.contractAddress, tokenId).then((symbol) => {
+      updateTokenSymbol(symbol);
+      if (!symbol) {
+        updateTokenBalance(new BigNumber(0));
+        updateTokenSymbol(undefined);
+        return;
+      }
+      getTokenBalance(TokenStandard.FA2, props.contractAddress, props.ownAddress, tokenId)
+        .then((balance) => updateTokenBalance(balance))
+        .then(() => getTokenInformationFromAddress(props.contractAddress))
+        .then((info: IContractInformation | undefined) => {
+          if (info === undefined) {
+            return;
+          }
+          updateTokenDecimals(info.decimals);
+        });
+    });
+  };
+
+  const _updateTokenId = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let formValue = event.currentTarget.value;
+
+    const regexString = `^(0|[1-9][0-9]*)?$`;
+    const decimalRegex = new RegExp(regexString);
+    const matchedFloat = formValue.match(decimalRegex);
+    if (matchedFloat !== null) {
+      updateTokenId(matchedFloat[0]);
+      estimateFee(address, matchedFloat[0]);
+      setTokenBalance(matchedFloat[0]);
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    const form = event.target as HTMLFormElement;
+    const addressInput = form.elements.namedItem('recipient') as HTMLInputElement;
+
+    // set form validation according to result. Empty string means it passed validation
+    addressInput.setCustomValidity(addressError);
+
+    // check if balance is sufficient to transfer
+    const amountInput = form.elements.namedItem('amount') as HTMLInputElement;
+    amountInput.setCustomValidity(amountError);
+    let parsedTokenId: number;
+    try {
+      parsedTokenId = parseInt(tokenId);
+    } catch (error) {
+      updatetokenIdError('Invalid tokenID');
+      return;
+    }
+
+    event.preventDefault();
+    if (!form.checkValidity()) {
+      event.stopPropagation();
+    } else {
+      updateLoading(true);
+      transferToken(
+        TokenStandard.FA2,
+        props.contractAddress,
+        addressInput.value,
+        amount,
+        props.hideModal,
+        props.tokenInfoCallback,
+        tokenDecimals,
+        parsedTokenId
+      ).catch((e) => {
+        updateLoading(false);
+        if (e.message === 'rejected') {
+          addNotification('danger', 'The user rejected the transaction');
+        } else if (e.message === 'RECEIVER_NOT_WHITELISTED') {
+          addNotification('danger', 'The recipient is not whitelisted');
+        } else {
+          console.error(JSON.stringify(e));
+          addNotification('danger', 'An error occurred');
+        }
+      });
+
+      updateLoading(true);
+    }
+
+    setValidated(true);
   };
 
   const checkAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,7 +252,7 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
       <Modal.Body>
         <Form noValidate validated={validated} id="transfer-form">
           <Form.Row>
-            <Form.Group as={Col} md="8" controlId="recipient">
+            <Form.Group as={Col} md="12" controlId="recipient">
               <Form.Label>Recipient</Form.Label>
               <Form.Control
                 type="text"
@@ -204,6 +264,8 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
               ></Form.Control>
               <Form.Control.Feedback type="invalid">{addressError}</Form.Control.Feedback>
             </Form.Group>
+          </Form.Row>
+          <Form.Row>
             <Form.Group as={Col} md="4" controlId="amount">
               <Form.Label>Amount</Form.Label>
               <InputGroup>
@@ -216,7 +278,7 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
                   className={amountError !== '' ? 'is-invalid' : ''}
                 ></Form.Control>
                 <InputGroup.Append>
-                  <InputGroup.Text>{props.symbol}</InputGroup.Text>
+                  <InputGroup.Text>{tokenSymbol}</InputGroup.Text>
                 </InputGroup.Append>
                 <Form.Control.Feedback type="invalid">{amountError}</Form.Control.Feedback>
               </InputGroup>
@@ -228,6 +290,36 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
                   : ''}
               </Form.Text>
             </Form.Group>
+            <Form.Group as={Col} md="4" controlId="token-id">
+              <Form.Label>Token ID</Form.Label>
+              <InputGroup>
+                <Form.Control
+                  type="text"
+                  placeholder="TokenID"
+                  value={tokenId}
+                  onChange={_updateTokenId}
+                  required
+                  className={tokenIdError !== '' || tokenSymbol === undefined ? 'is-invalid' : ''}
+                ></Form.Control>
+                <Form.Control.Feedback type="invalid">{tokenIdError}</Form.Control.Feedback>
+              </InputGroup>
+            </Form.Group>
+            <Form.Group as={Col} md="4" controlId="balance-value">
+              <Form.Label>Balance</Form.Label>
+              <InputGroup>
+                <Form.Control
+                  type="text"
+                  placeholder="TokenID"
+                  value={tokenBalance?.toString()}
+                  readOnly={true}
+                  required
+                ></Form.Control>
+                <InputGroup.Append>
+                  <InputGroup.Text>{tokenSymbol}</InputGroup.Text>
+                </InputGroup.Append>
+                <Form.Control.Feedback type="invalid">{amountError}</Form.Control.Feedback>
+              </InputGroup>
+            </Form.Group>
           </Form.Row>
         </Form>
       </Modal.Body>
@@ -238,7 +330,12 @@ export default function FA1_2TransferModal(props: IFA1_2TransferModal) {
         {loading ? (
           <Loading />
         ) : (
-          <Button variant="primary" form="transfer-form" type="submit" disabled={calculatingFee}>
+          <Button
+            variant="primary"
+            form="transfer-form"
+            type="submit"
+            disabled={calculatingFee || !!checkAddress(address) || tokenSymbol === undefined || !!amountError}
+          >
             Send
           </Button>
         )}

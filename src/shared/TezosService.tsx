@@ -13,9 +13,9 @@ import {
   FA2_BASIC,
   FA2_BASIC_STORAGE
 } from './ContractAssembly';
-import { IExtraData, Net, TokenStandard, WalletTypes, WhitelistVersion } from './TezosTypes';
+import { IContractInformation, IExtraData, Net, TokenStandard, WalletTypes, WhitelistVersion } from './TezosTypes';
 import { addNotification, addPermanentNotification, removeNotification } from './NotificationService';
-import { getTxHash, isContractAddress, isWallet } from './TezosUtil';
+import { getContractInformation, getTxHash, isContractAddress, isWallet } from './TezosUtil';
 import { packFourTupleAsLeftBalancedPairs, toHexString } from './TezosPack';
 import BigNumber from 'bignumber.js';
 import { ContractMethod } from '@taquito/taquito/dist/types/contract';
@@ -131,6 +131,65 @@ export async function getContract(contractAddress: string) {
   }
 
   return await client.at(contractAddress);
+}
+
+export async function getTokenInformationFromAddress(
+  contractAddress: string
+): Promise<IContractInformation | undefined> {
+  const contract = (await getContract(contractAddress)) as ContractAbstraction<ContractProvider>;
+  if (contract === undefined) {
+    return Promise.resolve(undefined);
+  }
+
+  return getContractInformation(contract);
+}
+
+// Only works for FA2 for now since a standard for the symbol field does not seem to
+// be established for FA1.2 (TZIP-7).
+export async function getTokenSymbol(
+  tokenType: TokenStandard,
+  contractAddress: string,
+  tokenId?: string
+): Promise<string | undefined> {
+  const contract = (await getContract(contractAddress)) as ContractAbstraction<ContractProvider>;
+  if (contract === undefined) {
+    return Promise.resolve('');
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const storage: any = await contract.storage();
+  switch (tokenType) {
+    case TokenStandard.FA1_2:
+      return (await storage.token_metadata?.symbol) ?? '';
+    case TokenStandard.FA2:
+      return (await storage.token_metadata.get(tokenId))?.symbol;
+    case TokenStandard.Unknown:
+      throw new Error('Unknown token standard. Got: ' + tokenType.toString());
+  }
+}
+
+// Return token balance.
+export async function getTokenBalance(
+  tokenType: TokenStandard,
+  contractAddress: string,
+  userAddress: string,
+  tokenId?: string
+): Promise<BigNumber> {
+  const contract = (await getContract(contractAddress)) as ContractAbstraction<ContractProvider>;
+  if (contract === undefined) {
+    return Promise.resolve(new BigNumber(0));
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const storage: any = await contract.storage();
+  switch (tokenType) {
+    case TokenStandard.FA1_2:
+      return (await storage.ledger.get(userAddress)).balance;
+    case TokenStandard.FA2:
+      return (await storage.ledger.get(userAddress))?.balances?.get(tokenId) ?? new BigNumber(0);
+    case TokenStandard.Unknown:
+      throw new Error('Unknown token standard. Got: ' + tokenType.toString());
+  }
 }
 
 export async function transferTezos(
