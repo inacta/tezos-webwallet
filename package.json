@@ -4,7 +4,7 @@
   "description": "Repo for smart contracts and smart contract interaction on the Tezos blockchain",
   "main": "src/public/index.html",
   "scripts": {
-    "build": "yarn run clean && yarn eslint src/**/*.{ts,tsx} && react-scripts build",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192'; yarn run clean && yarn eslint src/**/*.{ts,tsx} && react-scripts build",
     "build:bamboo": "GENERATE_SOURCEMAP=false NODE_OPTIONS='--max-old-space-size=8192' react-scripts build",
     "clean": "rm -rf dist",
     "eject": "react-scripts eject",
@@ -53,6 +53,7 @@
     "prettier": "^1.16.4",
     "progress-bar-webpack-plugin": "^2.1.0",
     "react-scripts": "^3.4.1",
+    "tezos-pack": "0.1.6",
     "typescript": "^3.9.5",
     "webpack-bundle-analyzer": "^3.9.0"
   },
@@ -65,7 +66,7 @@
     "@taquito/tezbridge-signer": "^6.3.5-beta.0",
     "@taquito/tezbridge-wallet": "^6.3.5-beta.0",
     "@thanos-wallet/dapp": "^1.1.2",
-    "bignumber.js": "9.0.0",
+    "bignumber.js": "^9.0.1",
     "bootstrap": "^4.5.1",
     "crypto-hash": "^1.2.2",
     "lodash.clonedeep": "^4.5.0",
