@@ -16,7 +16,7 @@ import {
 import { IContractInformation, IExtraData, Net, TokenStandard, WalletTypes, WhitelistVersion } from './TezosTypes';
 import { addNotification, addPermanentNotification, removeNotification } from './NotificationService';
 import { getContractInformation, getTxHash, isContractAddress, isWallet } from './TezosUtil';
-import { packFourTupleAsLeftBalancedPairs, toHexString } from './TezosPack';
+import { packFourTupleAsLeftBalancedPairs, toHexString } from 'tezos-pack';
 import BigNumber from 'bignumber.js';
 import { ContractMethod } from '@taquito/taquito/dist/types/contract';
 import { IKissTandemAdminClaim } from './KissTypes';
@@ -592,7 +592,14 @@ export async function registerTandemUserClaim(
   }
 
   const activitiesBN: BigNumber[] = activities.map((x) => new BigNumber(x));
-  const msgBytes = packFourTupleAsLeftBalancedPairs(ownNonce, new BigNumber(minutes), activitiesBN, helpers);
+  let msgBytes;
+  try {
+    msgBytes = packFourTupleAsLeftBalancedPairs(ownNonce, new BigNumber(minutes), activitiesBN, helpers);
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+
   const signature = await signatureGenerator.sign(toHexString(msgBytes));
 
   // Create the tandem object that the smart contract takes as argument
